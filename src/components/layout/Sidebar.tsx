@@ -15,6 +15,7 @@ import { cn } from "@/lib/utils";
 
 const navItems = [
   { href: "/home", label: "Home", icon: Home },
+  { href: "/assistant", label: "AI Assistant", icon: Sparkles },
   { href: "/roadmaps", label: "Roadmaps", icon: Map },
   { href: "/documents", label: "Documents", icon: FileText },
   { href: "/offices", label: "Offices", icon: Building2 },

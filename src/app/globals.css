@@ -55,6 +55,14 @@ body {
   --primary: #064E3B;
 }
 
+.openai-chatkit,
+.govflow-chatkit {
+  display: block;
+  width: 100%;
+  min-height: 420px;
+  height: 100%;
+}
+
 .reduce-motion * {
   animation: none !important;
   transition: none !important;

@@ -6,7 +6,6 @@ import { AppShell } from "@/components/layout/AppShell";
 import { RiskAlertCard } from "@/components/RiskAlertCard";
 import { Card, CardContent } from "@/components/ui/card";
 import { ActionButton } from "@/components/ActionButton";
-import { Button } from "@/components/ui/button";
 import { riskFactors, riskFixes } from "@/data/roadmap";
 
 export default function RiskPage() {
@@ -73,10 +72,10 @@ export default function RiskPage() {
 
         <div className="flex flex-wrap gap-3">
           <ActionButton href="/checklist">Fix these issues</ActionButton>
-          <Button variant="outline" disabled title="Demo mode">
+          <ActionButton href="/assistant" variant="outline">
             <MessageCircle className="h-4 w-4" />
             Explain in simple English
-          </Button>
+          </ActionButton>
           <ActionButton href="/checklist" variant="ghost">
             <ListPlus className="h-4 w-4" />
             Add to checklist

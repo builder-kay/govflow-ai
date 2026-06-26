@@ -4,6 +4,39 @@
 
 Built for the CITSA × Cursor × Npontu Technologies hackathon.
 
+## OpenAI Agent Builder Integration
+
+GovFlow AI uses **OpenAI Agent Builder** via **ChatKit** for the live AI assistant.
+
+### Setup
+
+1. Build and publish your agent workflow in [OpenAI Agent Builder](https://platform.openai.com/agent-builder)
+2. Copy your **workflow ID** (starts with `wf_`)
+3. Create `.env.local` from `.env.example`:
+
+```bash
+cp .env.example .env.local
+```
+
+4. Add your credentials:
+
+```env
+OPENAI_API_KEY=sk-your-key
+NEXT_PUBLIC_CHATKIT_AGENT_ID=wf_your_workflow_id
+```
+
+5. Restart the dev server
+
+### Where the agent appears
+
+- **Floating chat button** — compact Agent Builder chat on every page
+- **`/assistant`** — full-screen chat with file upload for document explanation
+- **Home** — "Ask AI Assistant" sends your query to the agent
+
+The session API at `/api/chatkit/session` securely exchanges your workflow ID for a short-lived client secret. User context (location, active service, language) is passed as workflow state variables.
+
+Without env vars configured, the app falls back to mock responses for demo mode.
+
 ## Quick Start
 
 ```bash

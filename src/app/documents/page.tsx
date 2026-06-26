@@ -41,6 +41,17 @@ export default function DocumentsPage() {
 
         <DocumentUploadCard onUpload={handleUpload} />
 
+        <div className="mt-6 rounded-xl border border-primary/20 bg-soft-blue/30 p-4">
+          <p className="font-semibold text-primary-dark">Use the AI agent for live document help</p>
+          <p className="mt-1 text-sm text-muted">
+            Upload PDFs or images directly in the AI Assistant — powered by your OpenAI Agent
+            Builder workflow.
+          </p>
+          <ActionButton href="/assistant" className="mt-3" size="sm">
+            Open AI Assistant
+          </ActionButton>
+        </div>
+
         <AnimatePresence>
           {analysis && (
             <motion.div

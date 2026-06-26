@@ -13,6 +13,7 @@ import {
   UtensilsCrossed,
   Building2,
   ArrowRight,
+  Sparkles,
 } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
 import { Card, CardContent } from "@/components/ui/card";
@@ -70,10 +71,24 @@ export default function HomePage() {
                 rows={3}
                 className="mb-4 w-full resize-none rounded-xl border border-gray-200 bg-white px-4 py-3 text-base focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
               />
-              <Button size="lg" onClick={handleBuildRoadmap} className="w-full sm:w-auto">
-                Build My Roadmap
-                <ArrowRight className="h-5 w-5" />
-              </Button>
+              <div className="flex flex-col gap-3 sm:flex-row">
+                <Button size="lg" onClick={handleBuildRoadmap} className="w-full sm:w-auto">
+                  Build My Roadmap
+                  <ArrowRight className="h-5 w-5" />
+                </Button>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="w-full sm:w-auto"
+                  onClick={() => {
+                    setUserQuery(query);
+                    router.push("/assistant");
+                  }}
+                >
+                  <Sparkles className="h-5 w-5" />
+                  Ask AI Assistant
+                </Button>
+              </div>
             </CardContent>
           </Card>
         </motion.div>
