@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ChatKit, useChatKit } from "@openai/chatkit-react";
+import { getChatKitTheme } from "@/lib/chatkit-theme";
 import { getWorkflowId, GOVFLOW_AGENT_DISCLAIMER } from "@/lib/openai-config";
 import { cn } from "@/lib/utils";
 
@@ -100,16 +101,7 @@ export function ChatKitWidget({
           return getClientSecret(existing);
         },
       },
-      theme: {
-        colorScheme: "light" as const,
-        color: {
-          accent: { primary: "#0F6B4F", level: 2 as const },
-          surface: { background: "#F8FAF9", foreground: "#1F2937" },
-        },
-        radius: "round" as const,
-        density: compact ? ("compact" as const) : ("normal" as const),
-        typography: { fontFamily: "Inter, system-ui, sans-serif" },
-      },
+      theme: getChatKitTheme(compact),
       header: {
         enabled: !compact,
         title: { enabled: true, text: "GovFlow AI" },
