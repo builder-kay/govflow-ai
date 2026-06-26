@@ -1,65 +1,128 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import Link from "next/link";
+import { motion } from "framer-motion";
+import {
+  Sparkles,
+  Smartphone,
+  CheckSquare,
+  Building2,
+  MessageCircle,
+  ArrowRight,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+
+export default function WelcomePage() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+    <div className="min-h-screen bg-background">
+      <div className="mx-auto flex min-h-screen max-w-6xl flex-col px-4 py-8 md:px-8 md:py-12">
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-12 flex items-center gap-3"
+        >
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary text-white">
+            <Sparkles className="h-6 w-6" />
+          </div>
+          <div>
+            <p className="text-xl font-bold text-foreground">GovFlow AI</p>
+            <p className="text-sm text-muted">Government Copilot for Ghana</p>
+          </div>
+        </motion.div>
+
+        <div className="grid flex-1 items-center gap-12 lg:grid-cols-2">
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.1 }}
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+            <h1 className="mb-6 text-4xl font-bold leading-tight text-foreground md:text-5xl">
+              Government services made simple.
+            </h1>
+            <p className="mb-8 text-lg leading-relaxed text-muted md:text-xl">
+              Tell GovFlow what you want to do. We turn it into a clear step-by-step plan with
+              documents, timelines, risk checks, and next actions.
+            </p>
+
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <Button asChild size="lg">
+                <Link href="/home">
+                  Get Started
+                  <ArrowRight className="h-5 w-5" />
+                </Link>
+              </Button>
+              <Button asChild variant="outline" size="lg">
+                <Link href="/services">Explore Services</Link>
+              </Button>
+            </div>
+
+            <p className="mt-8 text-sm leading-relaxed text-muted">
+              GovFlow helps you prepare and understand government processes. Official applications
+              are still completed through the relevant government portals and offices.
+            </p>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.2 }}
           >
-            Documentation
-          </a>
+            <Card className="overflow-hidden border-primary/10 shadow-lg">
+              <CardContent className="p-8">
+                <div className="relative mx-auto max-w-sm">
+                  <div className="mb-6 flex justify-center">
+                    <div className="relative">
+                      <div className="flex h-24 w-24 items-center justify-center rounded-3xl bg-soft-blue">
+                        <Smartphone className="h-12 w-12 text-primary" />
+                      </div>
+                      <div className="absolute -right-4 -top-2 flex h-10 w-10 items-center justify-center rounded-full bg-gold shadow-md">
+                        <MessageCircle className="h-5 w-5 text-primary-dark" />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="rounded-2xl bg-emerald-50 p-4 text-center">
+                      <CheckSquare className="mx-auto mb-2 h-8 w-8 text-success" />
+                      <p className="text-sm font-semibold">Checklist</p>
+                    </div>
+                    <div className="rounded-2xl bg-soft-blue p-4 text-center">
+                      <Building2 className="mx-auto mb-2 h-8 w-8 text-primary" />
+                      <p className="text-sm font-semibold">Offices</p>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 rounded-2xl bg-primary/5 p-4">
+                    <p className="text-sm font-medium text-primary-dark">
+                      &ldquo;Start a food delivery business in Cape Coast&rdquo;
+                    </p>
+                    <p className="mt-2 text-xs text-muted">
+                      → 6-step roadmap with documents & risk checks
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
         </div>
-      </main>
+
+        <div className="mt-12 grid grid-cols-2 gap-4 md:grid-cols-4">
+          {[
+            "AI Roadmaps",
+            "Smart Checklists",
+            "Document Explainer",
+            "Risk Checker",
+          ].map((feature) => (
+            <div
+              key={feature}
+              className="rounded-xl bg-white p-4 text-center text-sm font-semibold text-primary-dark shadow-sm"
+            >
+              {feature}
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }

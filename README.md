@@ -1,36 +1,62 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# GovFlow AI
 
-## Getting Started
+**Government services made simple.** An AI Government Copilot for Ghana that turns confusing government procedures into clear step-by-step workflows.
 
-First, run the development server:
+Built for the CITSA × Cursor × Npontu Technologies hackathon.
+
+## Quick Start
 
 ```bash
+cd govflow-ai
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Demo Flow
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. **Welcome** → Click "Get Started"
+2. **Home** → Enter: *I want to start a small food delivery business in Cape Coast*
+3. Click **Build My Roadmap**
+4. Answer **5 smart questions**
+5. View **Generated Roadmap** (6 steps)
+6. Open **Checklist** → check off tasks
+7. Run **Rejection Risk Checker**
+8. **Upload** a mock FDA form → see document explanation
+9. Open **Office Locator**
+10. View saved progress in **My Roadmaps**
 
-## Learn More
+## Tech Stack
 
-To learn more about Next.js, take a look at the following resources:
+- Next.js (App Router) + TypeScript
+- Tailwind CSS + shadcn-style UI components
+- Framer Motion (light animations)
+- Zustand (state + localStorage persistence)
+- Mock data — no API keys required
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Project Structure
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```
+src/
+├── app/           # Pages (welcome, home, roadmap, checklist, etc.)
+├── components/    # Reusable UI and feature components
+├── data/          # Mock services, roadmap, offices, questions
+├── lib/           # Utils + mock AI responses
+├── store/         # Zustand app state
+└── types/         # TypeScript interfaces
+```
 
-## Deploy on Vercel
+## Features
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- AI-generated government roadmaps
+- Smart checklists with "Why this matters"
+- Document explainer (mock upload + analysis)
+- Rejection-risk checker
+- Office locator (Cape Coast)
+- Progress tracker & saved roadmaps
+- Accessibility settings (language, text size, contrast)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Disclaimer
+
+GovFlow AI helps users understand and prepare for government services. It does not replace official government agencies, legal advice, or official application portals.

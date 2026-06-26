@@ -1,0 +1,70 @@
+"use client";
+
+import {
+  Briefcase,
+  BookOpen,
+  CreditCard,
+  Heart,
+  Car,
+  Receipt,
+  UtensilsCrossed,
+  Building2,
+} from "lucide-react";
+import { AppShell } from "@/components/layout/AppShell";
+import { ServiceCard } from "@/components/ServiceCard";
+import { services } from "@/data/services";
+import { useAppStore } from "@/store/useAppStore";
+
+const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
+  Briefcase,
+  BookOpen,
+  CreditCard,
+  Heart,
+  Car,
+  Receipt,
+  UtensilsCrossed,
+  Building2,
+};
+
+export default function ServicesPage() {
+  const { setCurrentServiceId } = useAppStore();
+
+  return (
+    <AppShell title="Services">
+      <div className="mx-auto max-w-5xl">
+        <div className="mb-8">
+          <h1 className="mb-2 text-3xl font-bold text-foreground">Browse Services</h1>
+          <p className="text-muted">
+            Choose a government service to get a personalized roadmap, checklist, and guidance.
+          </p>
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {services.map((service) => {
+            const Icon = iconMap[service.icon] || Briefcase;
+            return (
+              <div
+                key={service.id}
+                onClick={() => setCurrentServiceId(service.id)}
+                onKeyDown={(e) => e.key === "Enter" && setCurrentServiceId(service.id)}
+                role="presentation"
+              >
+                <ServiceCard
+                  icon={Icon}
+                  title={service.title}
+                  description={service.description}
+                  href={service.id === "start-business" ? "/questions" : "/roadmap"}
+                />
+              </div>
+            );
+          })}
+        </div>
+
+        <p className="mt-8 text-sm text-muted italic">
+          Fees may vary by service type, location, category, or agency updates. GovFlow shows
+          guidance and reminders, not final official charges.
+        </p>
+      </div>
+    </AppShell>
+  );
+}
