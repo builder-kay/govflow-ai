@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import {
@@ -23,6 +23,23 @@ import { getSupabaseBrowserClient, hasSupabaseConfig } from "@/lib/supabase-clie
 type Mode = "login" | "signup" | "reset";
 
 export default function AuthPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center bg-background px-4">
+          <div className="flex items-center gap-2 text-muted">
+            <Loader2 className="h-5 w-5 animate-spin" />
+            Loading sign in...
+          </div>
+        </div>
+      }
+    >
+      <AuthPageContent />
+    </Suspense>
+  );
+}
+
+function AuthPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectTo = useMemo(() => searchParams.get("next") || "/home", [searchParams]);
