@@ -1,0 +1,10 @@
+<svg width="640" height="180" viewBox="0 0 640 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect x="8" y="8" width="164" height="164" rx="36" fill="#0F6B4F"/>
+  <path d="M44 112C58 95 77 80 100 72C119 66 138 66 152 69" stroke="#DFF3F5" stroke-width="10" stroke-linecap="round"/>
+  <circle cx="44" cy="112" r="10" fill="#F4C542"/>
+  <circle cx="100" cy="72" r="8" fill="#DFF3F5"/>
+  <circle cx="152" cy="69" r="8" fill="#DFF3F5"/>
+  <path d="M88 110L102 124L132 96" stroke="white" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="196" y="92" fill="#0F6B4F" font-family="Inter, Arial, sans-serif" font-size="62" font-weight="700">GovFlow AI</text>
+  <text x="198" y="126" fill="#6B7280" font-family="Inter, Arial, sans-serif" font-size="20" font-weight="500">Government Copilot</text>
+</svg>

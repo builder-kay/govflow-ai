@@ -6,9 +6,21 @@ import { AppShell } from "@/components/layout/AppShell";
 import { RiskAlertCard } from "@/components/RiskAlertCard";
 import { Card, CardContent } from "@/components/ui/card";
 import { ActionButton } from "@/components/ActionButton";
-import { riskFactors, riskFixes } from "@/data/roadmap";
+import { NoticeCard } from "@/components/NoticeCard";
+import { useAppStore } from "@/store/useAppStore";
+import { getServiceFlow } from "@/lib/service-registry";
+import type { RiskLevel } from "@/types";
+
+const riskDescriptions: Record<RiskLevel, string> = {
+  low: "Low Risk — you're in good shape, with only minor items to confirm.",
+  medium: "Medium Risk — a few items need attention before you apply.",
+  high: "High Risk — several issues may delay or block your application.",
+};
 
 export default function RiskPage() {
+  const { roadmap, currentServiceId } = useAppStore();
+  const flow = getServiceFlow(currentServiceId);
+
   return (
     <AppShell title="Rejection Risk Checker">
       <div className="mx-auto max-w-3xl">
@@ -21,11 +33,20 @@ export default function RiskPage() {
         </div>
 
         <RiskAlertCard
-          level="medium"
+          level={roadmap.riskLevel}
           title="Current Risk Level"
-          description="Medium Risk — a few items need attention before you apply."
+          description={riskDescriptions[roadmap.riskLevel]}
           className="mb-8"
         />
+
+        {roadmap.riskLevel === "high" ? (
+          <NoticeCard
+            variant="danger"
+            title="High-risk warning"
+            description="Do not submit yet. Resolve the listed blockers first to avoid delays, extra cost, or rejection."
+            className="mb-8"
+          />
+        ) : null}
 
         <section className="mb-8">
           <h2 className="mb-4 flex items-center gap-2 text-xl font-bold">
@@ -33,7 +54,7 @@ export default function RiskPage() {
             Risk factors
           </h2>
           <div className="space-y-3">
-            {riskFactors.map((factor, index) => (
+            {flow.riskFactors.map((factor, index) => (
               <motion.div
                 key={factor.id}
                 initial={{ opacity: 0, y: 10 }}
@@ -56,7 +77,7 @@ export default function RiskPage() {
         <section className="mb-8">
           <h2 className="mb-4 text-xl font-bold">Recommended fixes</h2>
           <div className="grid gap-3 sm:grid-cols-2">
-            {riskFixes.map((fix) => (
+            {flow.riskFixes.map((fix) => (
               <ActionButton
                 key={fix.id}
                 href={fix.href}

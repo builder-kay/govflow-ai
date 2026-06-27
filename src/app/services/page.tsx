@@ -3,6 +3,7 @@
 import {
   Briefcase,
   BookOpen,
+  GraduationCap,
   CreditCard,
   Heart,
   Car,
@@ -18,6 +19,7 @@ import { useAppStore } from "@/store/useAppStore";
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   Briefcase,
   BookOpen,
+  GraduationCap,
   CreditCard,
   Heart,
   Car,
@@ -25,6 +27,13 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   UtensilsCrossed,
   Building2,
 };
+const COMING_SOON_SERVICE_IDS = new Set([
+  "nhis",
+  "drivers-licence",
+  "gra-tin",
+  "fda-permit",
+  "building-permit",
+]);
 
 export default function ServicesPage() {
   const { setCurrentServiceId } = useAppStore();
@@ -42,18 +51,20 @@ export default function ServicesPage() {
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {services.map((service) => {
             const Icon = iconMap[service.icon] || Briefcase;
+            const isComingSoon = COMING_SOON_SERVICE_IDS.has(service.id);
             return (
               <div
                 key={service.id}
-                onClick={() => setCurrentServiceId(service.id)}
-                onKeyDown={(e) => e.key === "Enter" && setCurrentServiceId(service.id)}
+                onClick={() => !isComingSoon && setCurrentServiceId(service.id)}
+                onKeyDown={(e) => e.key === "Enter" && !isComingSoon && setCurrentServiceId(service.id)}
                 role="presentation"
               >
                 <ServiceCard
                   icon={Icon}
                   title={service.title}
                   description={service.description}
-                  href={service.id === "start-business" ? "/questions" : "/roadmap"}
+                  href={isComingSoon ? undefined : `/services/${service.id}`}
+                  comingSoon={isComingSoon}
                 />
               </div>
             );

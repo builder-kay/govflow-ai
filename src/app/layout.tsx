@@ -12,6 +12,11 @@ export const metadata: Metadata = {
   title: "GovFlow AI — Government Services Made Simple",
   description:
     "AI Government Copilot for Ghana. Turn confusing government procedures into clear step-by-step workflows.",
+  icons: {
+    icon: "/govflow-mark.png",
+    shortcut: "/govflow-mark.png",
+    apple: "/govflow-mark.png",
+  },
 };
 
 export default function RootLayout({

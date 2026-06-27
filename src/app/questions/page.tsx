@@ -4,45 +4,150 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { AppShell } from "@/components/layout/AppShell";
+import { BusinessTypeExplainer } from "@/components/BusinessTypeExplainer";
 import { Button } from "@/components/ui/button";
 import { ProgressBar } from "@/components/ui/progress";
-import { foodBusinessQuestions } from "@/data/questions";
+import { getServiceFlow } from "@/lib/service-registry";
 import { useAppStore } from "@/store/useAppStore";
 import { cn } from "@/lib/utils";
 import { ChevronLeft, ChevronRight, HelpCircle } from "lucide-react";
 import type { UserAnswers } from "@/types";
 
-const answerKeys: (keyof UserAnswers)[] = [
-  "businessType",
-  "foodPreparation",
-  "location",
-  "businessName",
-  "hiring",
-];
+const PASSPORT_LOCATION_LABELS: Record<string, string> = {
+  accra: "Accra",
+  "cape-coast": "Cape Coast",
+  kumasi: "Kumasi",
+  other: "Ghana",
+};
+
+const GHANA_CARD_LOCATION_LABELS: Record<string, string> = {
+  accra: "Accra",
+  "cape-coast": "Cape Coast",
+  kumasi: "Kumasi",
+  other: "Ghana",
+};
+
+const GRA_LOCATION_LABELS: Record<string, string> = {
+  accra: "Accra",
+  "cape-coast": "Cape Coast",
+  kumasi: "Kumasi",
+  other: "Ghana",
+};
+
+const GRA_TAXPAYER_LABELS: Record<string, string> = {
+  individual: "Individual taxpayer",
+  "self-employed": "Self-employed taxpayer",
+  company: "Business/company taxpayer",
+  unsure: "General taxpayer support",
+};
+
+const NATIONAL_SERVICE_STAGE_LABELS: Record<string, string> = {
+  "final-year-completing": "Final year student",
+  "completed-awaiting-list": "Graduate awaiting school submission",
+  "completed-cleared": "Graduate cleared for posting",
+  resit: "Student with pending resit",
+};
+
+const NATIONAL_SERVICE_REGION_LABELS: Record<string, string> = {
+  "same-region": "Preferred same region",
+  "any-region": "Any region",
+  "specific-region": "Specific target region",
+  unsure: "Ghana",
+};
 
 export default function QuestionsPage() {
   const router = useRouter();
-  const { answers, setAnswer, setHasCompletedQuestions } = useAppStore();
+  const { answers, setAnswer, setHasCompletedQuestions, currentServiceId } = useAppStore();
+  const flow = getServiceFlow(currentServiceId);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const answerKey = flow.questionKeyMap[flow.questions[currentIndex]?.id] as keyof UserAnswers;
   const [selected, setSelected] = useState<string>(
-    answers[answerKeys[currentIndex]] || ""
+    (answerKey ? answers[answerKey] : "") || ""
   );
   const [generating, setGenerating] = useState(false);
 
-  const question = foodBusinessQuestions[currentIndex];
-  const progress = ((currentIndex + 1) / foodBusinessQuestions.length) * 100;
+  const question = flow.questions[currentIndex];
+  const progress = ((currentIndex + 1) / flow.questions.length) * 100;
 
   const handleNext = () => {
-    if (!selected) return;
-    setAnswer(answerKeys[currentIndex], selected);
+    if (!selected || !answerKey) return;
+    setAnswer(answerKey, selected);
+    const nextAnswers = { ...answers, [answerKey]: selected };
 
-    if (currentIndex < foodBusinessQuestions.length - 1) {
+    if (currentIndex < flow.questions.length - 1) {
       const nextIndex = currentIndex + 1;
       setCurrentIndex(nextIndex);
-      setSelected(answers[answerKeys[nextIndex]] || "");
+      const nextKey = flow.questionKeyMap[flow.questions[nextIndex].id] as keyof UserAnswers;
+      setSelected((nextKey ? answers[nextKey] : "") || "");
     } else {
       setGenerating(true);
       setHasCompletedQuestions(true);
+
+      if (currentServiceId === "passport") {
+        const passportType = nextAnswers.passportType;
+        useAppStore.setState((state) => ({
+          roadmap: {
+            ...state.roadmap,
+            location: nextAnswers.passportLocation
+              ? PASSPORT_LOCATION_LABELS[nextAnswers.passportLocation] ?? "Ghana"
+              : state.roadmap.location,
+            businessType:
+              passportType === "renewal"
+                ? "Passport renewal"
+                : passportType === "replacement"
+                  ? "Passport replacement"
+                  : "New passport application",
+          },
+        }));
+      }
+
+      if (currentServiceId === "ghana-card") {
+        const ghanaCardType = nextAnswers.ghanaCardType;
+        useAppStore.setState((state) => ({
+          roadmap: {
+            ...state.roadmap,
+            location: nextAnswers.ghanaCardLocation
+              ? GHANA_CARD_LOCATION_LABELS[nextAnswers.ghanaCardLocation] ?? "Ghana"
+              : state.roadmap.location,
+            businessType:
+              ghanaCardType === "replacement"
+                ? "Ghana Card replacement"
+                : ghanaCardType === "update"
+                  ? "Ghana Card detail update"
+                  : "Ghana Card registration",
+          },
+        }));
+      }
+
+      if (currentServiceId === "gra-tin") {
+        useAppStore.setState((state) => ({
+          roadmap: {
+            ...state.roadmap,
+            location: nextAnswers.graTaxLocation
+              ? GRA_LOCATION_LABELS[nextAnswers.graTaxLocation] ?? "Ghana"
+              : state.roadmap.location,
+            businessType: nextAnswers.graTaxpayerType
+              ? GRA_TAXPAYER_LABELS[nextAnswers.graTaxpayerType] ?? "Taxpayer setup"
+              : state.roadmap.businessType,
+          },
+        }));
+      }
+
+      if (currentServiceId === "national-service") {
+        useAppStore.setState((state) => ({
+          roadmap: {
+            ...state.roadmap,
+            location: nextAnswers.nationalServiceRegionPreference
+              ? NATIONAL_SERVICE_REGION_LABELS[nextAnswers.nationalServiceRegionPreference] ?? "Ghana"
+              : state.roadmap.location,
+            businessType: nextAnswers.nationalServiceCompletionStatus
+              ? NATIONAL_SERVICE_STAGE_LABELS[nextAnswers.nationalServiceCompletionStatus] ??
+                "National service candidate"
+              : state.roadmap.businessType,
+          },
+        }));
+      }
+
       setTimeout(() => router.push("/roadmap"), 1500);
     }
   };
@@ -51,9 +156,21 @@ export default function QuestionsPage() {
     if (currentIndex > 0) {
       const prevIndex = currentIndex - 1;
       setCurrentIndex(prevIndex);
-      setSelected(answers[answerKeys[prevIndex]] || "");
+      const prevKey = flow.questionKeyMap[flow.questions[prevIndex].id] as keyof UserAnswers;
+      setSelected((prevKey ? answers[prevKey] : "") || "");
     }
   };
+
+  if (!question) {
+    return (
+      <AppShell title="Service unavailable">
+        <div className="mx-auto max-w-md py-20 text-center">
+          <p className="mb-4 text-muted">This service does not have a question flow yet.</p>
+          <Button onClick={() => router.push("/services")}>Browse services</Button>
+        </div>
+      </AppShell>
+    );
+  }
 
   if (generating) {
     return (
@@ -65,9 +182,7 @@ export default function QuestionsPage() {
             className="mb-6 h-16 w-16 rounded-full border-4 border-primary border-t-transparent"
           />
           <h2 className="mb-2 text-2xl font-bold">Generating your roadmap...</h2>
-          <p className="text-muted">
-            Building steps for business registration, tax, FDA, and local permits in Cape Coast.
-          </p>
+          <p className="text-muted">{flow.generatingMessage}</p>
         </div>
       </AppShell>
     );
@@ -78,7 +193,7 @@ export default function QuestionsPage() {
       <div className="mx-auto max-w-2xl">
         <div className="mb-6">
           <p className="mb-2 text-sm font-medium text-primary">
-            Question {currentIndex + 1} of {foodBusinessQuestions.length}
+            Question {currentIndex + 1} of {flow.questions.length}
           </p>
           <ProgressBar value={progress} size="sm" />
         </div>
@@ -95,22 +210,32 @@ export default function QuestionsPage() {
               {question.question}
             </h1>
 
-            <div className="mb-6 space-y-3">
-              {question.options.map((option) => (
-                <button
-                  key={option.id}
-                  type="button"
-                  onClick={() => setSelected(option.id)}
-                  className={cn(
-                    "w-full rounded-2xl border-2 p-5 text-left text-base font-medium transition-all",
-                    selected === option.id
-                      ? "border-primary bg-soft-blue text-primary-dark"
-                      : "border-gray-100 bg-white hover:border-primary/30"
-                  )}
-                >
-                  {option.label}
-                </button>
-              ))}
+            <div className="mb-6">
+              {question.showBusinessTypeHelp ? (
+                <BusinessTypeExplainer
+                  selectable
+                  selectedId={selected}
+                  onSelect={setSelected}
+                />
+              ) : (
+                <div className="space-y-3">
+                  {question.options.map((option) => (
+                    <button
+                      key={option.id}
+                      type="button"
+                      onClick={() => setSelected(option.id)}
+                      className={cn(
+                        "w-full rounded-2xl border-2 p-5 text-left text-base font-medium transition-all",
+                        selected === option.id
+                          ? "border-primary bg-soft-blue text-primary-dark"
+                          : "border-gray-100 bg-white hover:border-primary/30"
+                      )}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
             <div className="mb-8 flex items-start gap-3 rounded-xl bg-soft-blue/50 p-4">
@@ -134,7 +259,7 @@ export default function QuestionsPage() {
             Back
           </Button>
           <Button onClick={handleNext} disabled={!selected} className="flex-1 sm:flex-none">
-            {currentIndex === foodBusinessQuestions.length - 1 ? "Build Roadmap" : "Next"}
+            {currentIndex === flow.questions.length - 1 ? "Build Roadmap" : "Next"}
             <ChevronRight className="h-4 w-4" />
           </Button>
         </div>

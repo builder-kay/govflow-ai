@@ -5,6 +5,7 @@ export const foodBusinessQuestions: SmartQuestion[] = [
     id: "business-type",
     question: "What type of business do you want to register?",
     whyWeAsk: "Different business types have different registration forms, fees, and requirements.",
+    showBusinessTypeHelp: true,
     options: [
       { id: "sole", label: "Sole proprietorship" },
       { id: "partnership", label: "Partnership" },

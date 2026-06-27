@@ -47,6 +47,32 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000)
 
+## Phase 2: Python Translation Service
+
+GovFlow can use a separate Python microservice for translation/recognition experiments.
+
+1. Start the translation service:
+
+```bash
+cd services/translation-service
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+set GHANA_NLP_API_KEY=your_real_key_here
+python main.py
+```
+
+2. In app `.env`, set:
+
+```env
+GHANA_NLP_SERVICE_URL=http://127.0.0.1:8001
+```
+
+3. Restart Next.js.
+
+When `GHANA_NLP_SERVICE_URL` is set, `/api/translation/*` calls the microservice first.
+If it is empty, GovFlow uses direct Khaya API mode.
+
 ## Demo Flow
 
 1. **Welcome** → Click "Get Started"

@@ -6,15 +6,29 @@ import type { Office } from "@/types";
 
 interface OfficeCardProps {
   office: Office;
+  distanceKm?: number | null;
+  coordinates?: { lat: number; lon: number } | null;
 }
 
-export function OfficeCard({ office }: OfficeCardProps) {
+export function OfficeCard({ office, distanceKm, coordinates }: OfficeCardProps) {
+  const phoneHref = `tel:${office.phone.replace(/[^\d+]/g, "")}`;
+  const directionsHref = coordinates
+    ? `https://www.openstreetmap.org/?mlat=${coordinates.lat}&mlon=${coordinates.lon}#map=18/${coordinates.lat}/${coordinates.lon}`
+    : `https://www.openstreetmap.org/search?query=${encodeURIComponent(office.osmQuery || office.address)}`;
+
   return (
     <Card className="transition-all hover:shadow-md">
       <CardContent className="p-6">
         <div className="mb-3 flex flex-wrap items-start justify-between gap-2">
           <h3 className="text-lg font-bold text-foreground">{office.name}</h3>
-          <OfficialSourceBadge />
+          <div className="flex items-center gap-2">
+            {typeof distanceKm === "number" ? (
+              <span className="rounded-full bg-soft-blue px-2 py-1 text-xs font-semibold text-primary-dark">
+                {distanceKm.toFixed(1)} km away
+              </span>
+            ) : null}
+            <OfficialSourceBadge />
+          </div>
         </div>
 
         <p className="mb-1 text-sm font-semibold text-primary">{office.service}</p>
@@ -38,19 +52,23 @@ export function OfficeCard({ office }: OfficeCardProps) {
         </div>
 
         <div className="flex flex-wrap gap-2">
-          <Button size="sm" variant="outline" disabled title="Demo mode">
-            <Phone className="h-4 w-4" />
-            Call
+          <Button size="sm" variant="outline" asChild>
+            <a href={phoneHref}>
+              <Phone className="h-4 w-4" />
+              Call
+            </a>
           </Button>
-          <Button size="sm" variant="outline" disabled title="Demo mode">
-            <MapPin className="h-4 w-4" />
-            Directions
+          <Button size="sm" variant="outline" asChild>
+            <a href={directionsHref} target="_blank" rel="noopener noreferrer">
+              <MapPin className="h-4 w-4" />
+              Open in OSM
+            </a>
           </Button>
-          {office.id === "orc" ? (
+          {office.portalUrl ? (
             <Button size="sm" variant="default" asChild>
-              <a href="https://rgd.gov.gh" target="_blank" rel="noopener noreferrer">
+              <a href={office.portalUrl} target="_blank" rel="noopener noreferrer">
                 <ExternalLink className="h-4 w-4" />
-                Open official portal
+                {office.portalLabel ?? "Open official portal"}
               </a>
             </Button>
           ) : (

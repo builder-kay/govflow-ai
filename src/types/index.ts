@@ -39,6 +39,18 @@ export interface ChecklistItem {
   explanation: string;
   whyItMatters: string;
   completed: boolean;
+  resourceLink?: {
+    url: string;
+    label: string;
+  };
+  helpActions?: ChecklistHelpAction[];
+  showBusinessTypeHelp?: boolean;
+}
+
+export interface ChecklistHelpAction {
+  label: string;
+  href: string;
+  external?: boolean;
 }
 
 export interface Office {
@@ -47,9 +59,12 @@ export interface Office {
   service: string;
   useCase: string;
   address: string;
+  osmQuery?: string;
   phone: string;
   hours?: string;
   confirmNote: string;
+  portalUrl?: string;
+  portalLabel?: string;
 }
 
 export interface RiskFactor {
@@ -85,6 +100,7 @@ export interface SmartQuestion {
   question: string;
   whyWeAsk: string;
   options: { id: string; label: string }[];
+  showBusinessTypeHelp?: boolean;
 }
 
 export interface SavedRoadmapSummary {
@@ -104,6 +120,15 @@ export interface DocumentAnalysis {
   nextAction: string;
 }
 
+export interface SavedDocument {
+  id: string;
+  name: string;
+  type: string;
+  size: number;
+  uploadedAt: string;
+  summary?: string;
+}
+
 export interface AccessibilitySettings {
   language: string;
   explanationStyle: "simple" | "normal" | "detailed";
@@ -120,4 +145,22 @@ export interface UserAnswers {
   location?: string;
   businessName?: string;
   hiring?: string;
+  passportType?: string;
+  passportLocation?: string;
+  passportGhanaCard?: string;
+  passportBirthCert?: string;
+  passportTravel?: string;
+  ghanaCardType?: string;
+  ghanaCardBirthCert?: string;
+  ghanaCardContact?: string;
+  ghanaCardLocation?: string;
+  graTaxpayerType?: string;
+  graTaxLocation?: string;
+  graTaxNeedTin?: string;
+  graTaxIncomeRange?: string;
+  graTaxRecordKeeping?: string;
+  nationalServiceCompletionStatus?: string;
+  nationalServicePortalStatus?: string;
+  nationalServiceRegionPreference?: string;
+  nationalServicePostingStatus?: string;
 }

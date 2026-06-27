@@ -3,10 +3,13 @@
 import { Globe } from "lucide-react";
 import { useAppStore } from "@/store/useAppStore";
 
-const languages = ["English", "Twi", "Fante", "Ga", "Ewe"];
+const languages = ["English"];
 
 export function LanguageSelector() {
   const { accessibility, setAccessibility } = useAppStore();
+  const selectedLanguage = languages.includes(accessibility.language)
+    ? accessibility.language
+    : "English";
 
   return (
     <div className="relative">
@@ -17,7 +20,7 @@ export function LanguageSelector() {
         <Globe className="h-4 w-4 text-primary" />
         <select
           id="language-select"
-          value={accessibility.language}
+          value={selectedLanguage}
           onChange={(e) => setAccessibility({ language: e.target.value })}
           className="bg-transparent text-sm font-medium text-foreground focus:outline-none"
         >

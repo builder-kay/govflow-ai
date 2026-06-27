@@ -16,11 +16,15 @@ import { ProgressBar } from "@/components/ui/progress";
 import { RoadmapTimeline } from "@/components/RoadmapTimeline";
 import { RiskBadge } from "@/components/StatusBadge";
 import { ActionButton } from "@/components/ActionButton";
+import { NoticeCard } from "@/components/NoticeCard";
 import { useAppStore } from "@/store/useAppStore";
+import { getServiceFlow } from "@/lib/service-registry";
 
 export default function RoadmapPage() {
-  const { roadmap, hasCompletedQuestions } = useAppStore();
+  const { roadmap, hasCompletedQuestions, currentServiceId } = useAppStore();
+  const flow = getServiceFlow(currentServiceId);
   const displayProgress = hasCompletedQuestions ? Math.max(roadmap.progress, 20) : roadmap.progress;
+  const typeLabel = currentServiceId === "passport" ? "Application type" : "Business type";
 
   return (
     <AppShell title="Your Roadmap">
@@ -30,13 +34,8 @@ export default function RoadmapPage() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-6"
         >
-          <h1 className="mb-2 text-3xl font-bold text-foreground">
-            Your Food Business Roadmap
-          </h1>
-          <p className="text-muted">
-            Based on your answers, here is a step-by-step plan for starting a small food delivery
-            business in Cape Coast.
-          </p>
+          <h1 className="mb-2 text-3xl font-bold text-foreground">{flow.roadmapTitle}</h1>
+          <p className="text-muted">{flow.roadmapDescription}</p>
         </motion.div>
 
         <div className="mb-6 flex flex-wrap gap-2">
@@ -62,11 +61,18 @@ export default function RoadmapPage() {
           </ActionButton>
         </div>
 
+        <NoticeCard
+          variant="warning"
+          title="Roadmap guidance only"
+          description="Timelines and fees are estimates. Confirm the latest official requirements before payment or submission."
+          className="mb-6"
+        />
+
         <Card className="mb-8 border-primary/10">
           <CardContent className="p-6">
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
-                <p className="text-sm text-muted">Business type</p>
+                <p className="text-sm text-muted">{typeLabel}</p>
                 <p className="font-semibold">{roadmap.businessType}</p>
               </div>
               <div>

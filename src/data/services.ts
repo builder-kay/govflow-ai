@@ -4,7 +4,7 @@ export const services: Service[] = [
   {
     id: "start-business",
     title: "Start a Business",
-    description: "Business registration, tax setup, permits, and inspection readiness.",
+    description: "Simple step-by-step help for business registration, tax setup, permits, and compliance.",
     agency: "Office of the Registrar of Companies",
     icon: "Briefcase",
     requiredDocuments: ["Ghana Card", "Business name options", "Owner details", "Business address"],
@@ -26,7 +26,7 @@ export const services: Service[] = [
   {
     id: "passport",
     title: "Passport",
-    description: "New application, renewal, appointment, and document preparation.",
+    description: "Easy guidance for new passport applications, renewals, appointments, and collection.",
     agency: "Ghana Immigration Service",
     icon: "BookOpen",
     requiredDocuments: ["Ghana Card", "Birth certificate", "Previous passport (renewal)", "Passport photos"],
@@ -36,9 +36,38 @@ export const services: Service[] = [
     steps: ["Check requirements", "Book appointment", "Prepare documents", "Attend biometrics", "Collect passport"],
   },
   {
+    id: "national-service",
+    title: "National Service",
+    description:
+      "Step-by-step support for final year students to complete NSS registration and secure posting.",
+    agency: "National Service Authority",
+    icon: "GraduationCap",
+    requiredDocuments: [
+      "Student ID and index number",
+      "School completion/clearance confirmation",
+      "Ghana Card details",
+      "Affidavit and/or Gazette publication for name/date mismatch cases",
+      "Active phone number and email",
+    ],
+    estimatedTimeline: "2-8 weeks depending on release and validation windows",
+    feeNote: "Portal charges and timelines may change based on official NSS updates.",
+    commonDelayReasons: [
+      "Name or date of birth mismatch between school and NSS records",
+      "Delayed clearance list from institution",
+      "Posting check done late or missed validation window",
+    ],
+    steps: [
+      "Confirm your institution has submitted your details to NSS",
+      "Register/activate your NSS portal profile",
+      "Verify personal details and region preferences",
+      "Check posting and complete acceptance",
+      "Report to agency and complete validation",
+    ],
+  },
+  {
     id: "ghana-card",
     title: "Ghana Card",
-    description: "Registration, replacement, update, and collection guidance.",
+    description: "Practical support for Ghana Card registration, replacement, updates, and collection.",
     agency: "National Identification Authority",
     icon: "CreditCard",
     requiredDocuments: ["Birth certificate", "Proof of address", "Previous ID (replacement)"],

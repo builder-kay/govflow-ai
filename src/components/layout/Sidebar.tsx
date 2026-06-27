@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
   Home,
@@ -8,8 +9,8 @@ import {
   FileText,
   Building2,
   LayoutGrid,
-  User,
   Sparkles,
+  User,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -29,9 +30,7 @@ export function Sidebar() {
   return (
     <aside className="hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0 md:left-0 md:border-r md:border-gray-100 md:bg-white">
       <div className="flex h-16 items-center gap-2 border-b border-gray-100 px-6">
-        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-white">
-          <Sparkles className="h-5 w-5" />
-        </div>
+        <Image src="/govflow-mark.png" alt="GovFlow AI" width={36} height={36} className="h-9 w-9" />
         <div>
           <p className="font-bold text-foreground">GovFlow AI</p>
           <p className="text-xs text-muted">Government Copilot</p>

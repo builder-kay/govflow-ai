@@ -1,0 +1,173 @@
+import type { RiskFactor, RiskFix, Roadmap } from "@/types";
+
+export const nationalServiceRoadmap: Roadmap = {
+  id: "national-service-roadmap",
+  title: "National Service Posting",
+  location: "Ghana",
+  businessType: "Final year graduate posting support",
+  progress: 0,
+  riskLevel: "medium",
+  estimatedTime: "2-8 weeks based on school submissions and posting windows",
+  mainNextStep: "Confirm your school clearance and activate your NSS portal account",
+  agencies: ["National Service Authority (NSA)", "Your university examinations/registrar office"],
+  documents: [
+    "Student ID and index number",
+    "School completion/clearance confirmation",
+    "Ghana Card details",
+    "Affidavit and/or Gazette publication (if name or date of birth correction is needed)",
+    "Active phone number and email",
+  ],
+  warnings: [
+    "Record mismatch (name/date of birth) can block posting validation",
+    "If identity details are inconsistent, resolve via Gazette, Ghana Card correction, or Affidavit before final validation",
+    "Late posting checks can cause missed acceptance windows",
+    "Ignoring reporting instructions may delay allowance processing",
+  ],
+  steps: [
+    {
+      id: "ns-step-1",
+      title: "Confirm institution clearance status",
+      agency: "University / College + National Service Authority",
+      status: "not_started",
+      requiredAction: "Verify your school has submitted your name and details for national service.",
+      risk: "If your name is not on the institutional list, posting may not appear on time.",
+      buttonLabel: "Open checklist",
+      buttonHref: "/checklist",
+    },
+    {
+      id: "ns-step-2",
+      title: "Resolve name/date mismatch early (if any)",
+      agency: "University / NIA / High Court-notary process + National Service Authority",
+      status: "not_started",
+      requiredAction:
+        "Use Gazette publication, Ghana Card detail update, or Affidavit support to align records before posting.",
+      note: "Choose the path that matches your case: Gazette for publication-backed name correction, Ghana Card update for ID correction, Affidavit for sworn declaration support.",
+      buttonLabel: "Mismatch resolution guide",
+      buttonHref: "/assistant?topic=national-service-mismatch",
+    },
+    {
+      id: "ns-step-3",
+      title: "Set up or recover NSS portal access",
+      agency: "National Service Authority",
+      status: "not_started",
+      requiredAction: "Create your portal account or recover credentials before posting release.",
+      buttonLabel: "Get portal help",
+      buttonHref: "/assistant?topic=national-service",
+    },
+    {
+      id: "ns-step-4",
+      title: "Check posting and accept placement",
+      agency: "National Service Authority",
+      status: "not_started",
+      requiredAction: "Confirm your posting details, then accept and download posting documents.",
+      buttonLabel: "Posting guidance",
+      buttonHref: "/assistant?topic=national-service-posting",
+    },
+    {
+      id: "ns-step-5",
+      title: "Report to assigned organization and validate",
+      agency: "Assigned organization + National Service Authority",
+      status: "locked",
+      requiredAction: "Report within the approved timeline and complete all validation steps.",
+      buttonLabel: "Reporting support",
+      buttonHref: "/assistant?topic=national-service-validation",
+    },
+  ],
+  checklist: [
+    {
+      id: "ns-1",
+      section: "Readiness",
+      label: "Confirm your school has submitted your name for NSS",
+      priority: "required",
+      explanation: "Contact your faculty/registrar if your name is missing from submitted lists.",
+      whyItMatters: "Posting cannot proceed if institutional submission is incomplete.",
+      completed: false,
+    },
+    {
+      id: "ns-2",
+      section: "Readiness",
+      label: "Ensure your name and date of birth match official records",
+      priority: "required",
+      explanation: "Cross-check school records and Ghana Card details before portal updates.",
+      whyItMatters: "Mismatched identity details are a frequent source of posting delays.",
+      completed: false,
+    },
+    {
+      id: "ns-3",
+      section: "Readiness",
+      label: "If mismatched, resolve with Gazette, Ghana Card update, or Affidavit",
+      priority: "depends",
+      explanation:
+        "Use Gazette where publication-backed correction is needed, update Ghana Card details for ID corrections, or prepare an Affidavit for sworn correction support.",
+      whyItMatters: "NSS validation is faster when your identity details match across all records.",
+      completed: false,
+    },
+    {
+      id: "ns-4",
+      section: "Portal setup",
+      label: "Create or recover NSS portal login",
+      priority: "required",
+      explanation: "Use active phone/email so you can receive notifications and complete steps quickly.",
+      whyItMatters: "Without portal access, you may miss posting and acceptance windows.",
+      completed: false,
+    },
+    {
+      id: "ns-5",
+      section: "Posting",
+      label: "Check posting release and accept placement promptly",
+      priority: "required",
+      explanation: "Review assigned region/organization and confirm acceptance before deadlines.",
+      whyItMatters: "Delayed acceptance can lead to reposting stress or missed opportunities.",
+      completed: false,
+    },
+    {
+      id: "ns-6",
+      section: "Reporting",
+      label: "Report to assigned organization with required documents",
+      priority: "required",
+      explanation: "Bring posting documents, valid ID, and any requested institutional letters.",
+      whyItMatters: "Failure to report correctly can delay validation and allowance setup.",
+      completed: false,
+    },
+    {
+      id: "ns-7",
+      section: "Validation",
+      label: "Complete service validation and keep records",
+      priority: "required",
+      explanation: "Finish all portal or officer validation steps and save proof of completion.",
+      whyItMatters: "Validation protects your service record and prevents payment issues.",
+      completed: false,
+    },
+  ],
+};
+
+export const nationalServiceRiskFactors: RiskFactor[] = [
+  {
+    id: "ns-risk-1",
+    title: "Institution data may not be submitted yet",
+    description: "Some final year students wait for posting because school list submission is delayed.",
+  },
+  {
+    id: "ns-risk-2",
+    title: "Identity mismatch may block posting and validation",
+    description:
+      "If your name/date of birth differs across school, NSS, or Ghana Card records, fix it early with Gazette, Ghana Card correction, or Affidavit support.",
+  },
+  {
+    id: "ns-risk-3",
+    title: "Posting acceptance/reporting timeline may be missed",
+    description: "Late action after posting release can create reposting and validation complications.",
+  },
+];
+
+export const nationalServiceRiskFixes: RiskFix[] = [
+  { id: "ns-fix-1", label: "Review national service checklist", href: "/checklist" },
+  {
+    id: "ns-fix-2",
+    label: "Resolve name/date mismatch (Gazette, Ghana Card, Affidavit)",
+    href: "/assistant?topic=national-service-mismatch",
+  },
+  { id: "ns-fix-3", label: "Get NSS portal support", href: "/assistant?topic=national-service" },
+  { id: "ns-fix-4", label: "Posting and acceptance guidance", href: "/assistant?topic=national-service-posting" },
+  { id: "ns-fix-5", label: "Find nearest office support", href: "/offices" },
+];

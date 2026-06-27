@@ -16,12 +16,26 @@ export interface ChatKitWidgetProps {
   compact?: boolean;
   enableFileUpload?: boolean;
   initialPrompt?: string;
+  draftText?: string;
   stateVariables?: Record<string, string | boolean | number>;
   greeting?: string;
+  showStartScreen?: boolean;
   showSetupError?: boolean;
 }
 
 const DEFAULT_PROMPTS = [
+  {
+    label: "Apply for passport",
+    prompt: "I need to apply for a Ghana passport. What documents and steps do I need?",
+  },
+  {
+    label: "Register Ghana Card",
+    prompt: "I need a Ghana Card. What documents do I need and where do I start?",
+  },
+  {
+    label: "Check business name",
+    prompt: "How do I check if my business name is available in Ghana?",
+  },
   {
     label: "Start food business",
     prompt: "I want to start a small food delivery business in Cape Coast. What do I need?",
@@ -45,8 +59,10 @@ export function ChatKitWidget({
   compact = false,
   enableFileUpload = false,
   initialPrompt,
+  draftText,
   stateVariables,
   greeting = "Hi! I'm GovFlow AI. Tell me what government process you need help with.",
+  showStartScreen = true,
   showSetupError = true,
 }: ChatKitWidgetProps) {
   const [error, setError] = useState<string | null>(null);
@@ -106,10 +122,15 @@ export function ChatKitWidget({
         enabled: !compact,
         title: { enabled: true, text: "GovFlow AI" },
       },
-      startScreen: {
-        greeting,
-        prompts: DEFAULT_PROMPTS,
-      },
+      startScreen: showStartScreen
+        ? {
+            greeting,
+            prompts: DEFAULT_PROMPTS,
+          }
+        : {
+            greeting: "",
+            prompts: [],
+          },
       composer: {
         placeholder: "Ask about passports, business registration, permits...",
         ...(enableFileUpload
@@ -126,7 +147,7 @@ export function ChatKitWidget({
       },
       history: { enabled: !compact },
     }),
-    [compact, enableFileUpload, getClientSecret, greeting]
+    [compact, enableFileUpload, getClientSecret, greeting, showStartScreen]
   );
 
   const { control, setComposerValue } = useChatKit(options);
@@ -136,6 +157,12 @@ export function ChatKitWidget({
       setComposerValue({ text: initialPrompt });
     }
   }, [initialPrompt, setComposerValue]);
+
+  useEffect(() => {
+    if (draftText !== undefined) {
+      setComposerValue({ text: draftText });
+    }
+  }, [draftText, setComposerValue]);
 
   if (!workflowId && showSetupError) {
     return (

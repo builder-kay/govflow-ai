@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import {
   Briefcase,
   BookOpen,
+  GraduationCap,
   CreditCard,
   Heart,
   Car,
@@ -18,38 +19,73 @@ import {
 import { AppShell } from "@/components/layout/AppShell";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ServiceCard } from "@/components/ServiceCard";
 import { RoadmapCard } from "@/components/RoadmapCard";
 import { useAppStore } from "@/store/useAppStore";
-import { matchesFoodBusinessQuery } from "@/lib/ai-mock";
-import Link from "next/link";
+import { detectServiceFromQuery } from "@/lib/ai-mock";
+import { cn } from "@/lib/utils";
+import { NoticeCard } from "@/components/NoticeCard";
 
 const quickServices = [
   { id: "start-business", icon: Briefcase, title: "Start a Business", href: "/questions" },
-  { id: "passport", icon: BookOpen, title: "Passport", href: "/services" },
-  { id: "ghana-card", icon: CreditCard, title: "Ghana Card", href: "/services" },
-  { id: "nhis", icon: Heart, title: "NHIS", href: "/services" },
-  { id: "drivers-licence", icon: Car, title: "Driver's Licence", href: "/services" },
-  { id: "gra-tin", icon: Receipt, title: "GRA / Tax", href: "/services" },
-  { id: "fda-permit", icon: UtensilsCrossed, title: "FDA Permit", href: "/services" },
-  { id: "building-permit", icon: Building2, title: "Building Permit", href: "/services" },
+  { id: "passport", icon: BookOpen, title: "Passport", href: "/services/passport" },
+  {
+    id: "national-service",
+    icon: GraduationCap,
+    title: "National Service",
+    href: "/services/national-service",
+  },
+  { id: "ghana-card", icon: CreditCard, title: "Ghana Card", href: "/services/ghana-card" },
+  { id: "nhis", icon: Heart, title: "NHIS", href: "/services/nhis", comingSoon: true },
+  {
+    id: "drivers-licence",
+    icon: Car,
+    title: "Driver's Licence",
+    href: "/services/drivers-licence",
+    comingSoon: true,
+  },
+  { id: "gra-tin", icon: Receipt, title: "GRA / Tax", href: "/services/gra-tin", comingSoon: true },
+  { id: "fda-permit", icon: UtensilsCrossed, title: "FDA Permit", href: "/services/fda-permit", comingSoon: true },
+  {
+    id: "building-permit",
+    icon: Building2,
+    title: "Building Permit",
+    href: "/services/building-permit",
+    comingSoon: true,
+  },
 ];
 
 export default function HomePage() {
   const router = useRouter();
-  const { userQuery, setUserQuery, setCurrentServiceId, roadmap } = useAppStore();
-  const [query, setQuery] = useState(
-    userQuery || "I want to start a small food delivery business in Cape Coast"
-  );
+  const { userQuery, setUserQuery, activateService, roadmap, currentServiceId } = useAppStore();
+  const [query, setQuery] = useState(userQuery || "");
 
   const handleBuildRoadmap = () => {
-    setUserQuery(query);
-    if (matchesFoodBusinessQuery(query)) {
-      setCurrentServiceId("start-business");
+    const trimmed = query.trim();
+    if (!trimmed) return;
+
+    setUserQuery(trimmed);
+    const serviceId = detectServiceFromQuery(trimmed);
+    if (serviceId) {
+      activateService(serviceId);
       router.push("/questions");
-    } else {
-      router.push("/services");
+      return;
     }
+    router.push("/services");
+  };
+
+  const handleQuickService = (serviceId: string, href: string, comingSoon?: boolean) => {
+    if (comingSoon) return;
+    if (
+      serviceId === "start-business" ||
+      serviceId === "passport" ||
+      serviceId === "national-service" ||
+      serviceId === "ghana-card"
+    ) {
+      activateService(serviceId);
+    } else {
+      useAppStore.getState().setCurrentServiceId(serviceId);
+    }
+    router.push(href);
   };
 
   return (
@@ -62,17 +98,21 @@ export default function HomePage() {
           <Card className="border-primary/10 bg-gradient-to-br from-white to-soft-blue/30">
             <CardContent className="p-6 md:p-8">
               <h2 className="mb-4 text-2xl font-bold text-foreground md:text-3xl">
-                Hi, what government process do you need help with?
+                What are we processing today with GovFlow?
               </h2>
               <textarea
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Example: I want to start a small food delivery business in Cape Coast"
+                placeholder="Tell GovFlow what you need help with today."
                 rows={3}
                 className="mb-4 w-full resize-none rounded-xl border border-gray-200 bg-white px-4 py-3 text-base focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
               />
               <div className="flex flex-col gap-3 sm:flex-row">
-                <Button size="lg" onClick={handleBuildRoadmap} className="w-full sm:w-auto">
+                <Button
+                  size="lg"
+                  onClick={handleBuildRoadmap}
+                  className="w-full sm:w-auto"
+                >
                   Build My Roadmap
                   <ArrowRight className="h-5 w-5" />
                 </Button>
@@ -93,12 +133,29 @@ export default function HomePage() {
           </Card>
         </motion.div>
 
+        <NoticeCard
+          variant="warning"
+          title="Before you submit any application"
+          description="Always verify final fees, appointment slots, and document requirements from official government portals."
+        />
+
         <section>
           <h3 className="mb-4 text-lg font-bold text-foreground">Quick services</h3>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            {quickServices.map(({ id, icon, title, href }) => (
-              <Link key={id} href={href} onClick={() => setCurrentServiceId(id)}>
-                <Card className="h-full transition-all hover:shadow-md hover:border-primary/20">
+            {quickServices.map(({ id, icon, title, href, comingSoon }) => (
+              <button
+                key={id}
+                type="button"
+                onClick={() => handleQuickService(id, href, comingSoon)}
+                className="text-left"
+                disabled={comingSoon}
+              >
+                <Card
+                  className={cn(
+                    "h-full transition-all hover:border-primary/20 hover:shadow-md",
+                    comingSoon && "opacity-70"
+                  )}
+                >
                   <CardContent className="flex flex-col items-center p-4 text-center">
                     <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-xl bg-soft-blue text-primary">
                       {(() => {
@@ -107,9 +164,14 @@ export default function HomePage() {
                       })()}
                     </div>
                     <p className="text-sm font-semibold">{title}</p>
+                    {comingSoon ? (
+                      <span className="mt-1 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-900">
+                        Coming soon
+                      </span>
+                    ) : null}
                   </CardContent>
                 </Card>
-              </Link>
+              </button>
             ))}
           </div>
         </section>
@@ -117,11 +179,18 @@ export default function HomePage() {
         <section>
           <h3 className="mb-4 text-lg font-bold text-foreground">Continue</h3>
           <RoadmapCard
-            title="Food Delivery Business"
-            location="Cape Coast"
-            progress={roadmap.progress || 25}
-            riskLevel="medium"
-            nextStep="Complete business registration checklist"
+            title={roadmap.title}
+            location={roadmap.location}
+            progress={
+              roadmap.progress ||
+              (currentServiceId === "passport"
+                ? 15
+                : currentServiceId === "ghana-card"
+                  ? 10
+                  : 25)
+            }
+            riskLevel={roadmap.riskLevel}
+            nextStep={roadmap.mainNextStep}
             continueHref="/roadmap"
             checklistHref="/checklist"
             riskHref="/risk"

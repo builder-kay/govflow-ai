@@ -1,17 +1,20 @@
 "use client";
 
 import { useMemo } from "react";
-import { ShieldAlert, Download, Save, Plus } from "lucide-react";
+import { ShieldAlert } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
 import { ChecklistItem } from "@/components/ChecklistItem";
 import { ProgressBar } from "@/components/ui/progress";
 import { ActionButton } from "@/components/ActionButton";
-import { Button } from "@/components/ui/button";
+import { NoticeCard } from "@/components/NoticeCard";
 import { useAppStore, getChecklistProgress } from "@/store/useAppStore";
+import { getServiceFlow } from "@/lib/service-registry";
 
 export default function ChecklistPage() {
-  const { checklist, toggleChecklistItem } = useAppStore();
+  const { checklist, toggleChecklistItem, currentServiceId } = useAppStore();
+  const flow = getServiceFlow(currentServiceId);
   const progress = getChecklistProgress(checklist);
+  const remainingItems = checklist.filter((item) => !item.completed).length;
 
   const sections = useMemo(() => {
     const grouped: Record<string, typeof checklist> = {};
@@ -26,35 +29,35 @@ export default function ChecklistPage() {
     <AppShell title="Checklist">
       <div className="mx-auto max-w-3xl">
         <div className="mb-6">
-          <h1 className="mb-2 text-3xl font-bold text-foreground">
-            Food Business Startup Checklist
-          </h1>
-          <p className="text-muted">
-            Track every task you need to complete for your food delivery business in Cape Coast.
-          </p>
+          <h1 className="mb-2 text-3xl font-bold text-foreground">{flow.checklistTitle}</h1>
+          <p className="text-muted">{flow.checklistDescription}</p>
         </div>
 
         <div className="mb-6">
           <ProgressBar value={progress} showLabel size="lg" />
         </div>
 
+        {remainingItems > 0 ? (
+          <NoticeCard
+            variant={remainingItems >= 3 ? "warning" : "info"}
+            title={`${remainingItems} checklist item${remainingItems === 1 ? "" : "s"} remaining`}
+            description="Complete required items first to reduce delays and rejection risk."
+            className="mb-6"
+          />
+        ) : (
+          <NoticeCard
+            variant="success"
+            title="Checklist completed"
+            description="Great progress. Do one final review before submitting."
+            className="mb-6"
+          />
+        )}
+
         <div className="mb-6 flex flex-wrap gap-2">
           <ActionButton href="/risk" size="sm">
             <ShieldAlert className="h-4 w-4" />
             Check rejection risk
           </ActionButton>
-          <Button size="sm" variant="outline" disabled title="Demo mode">
-            <Download className="h-4 w-4" />
-            Download checklist
-          </Button>
-          <Button size="sm" variant="outline" disabled title="Auto-saved in demo">
-            <Save className="h-4 w-4" />
-            Save progress
-          </Button>
-          <Button size="sm" variant="ghost" disabled title="Demo mode">
-            <Plus className="h-4 w-4" />
-            Add custom task
-          </Button>
         </div>
 
         <div className="space-y-8">

@@ -8,8 +8,15 @@ import { Card } from "@/components/ui/card";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAppStore } from "@/store/useAppStore";
-import { getFoodBusinessResponse } from "@/lib/ai-mock";
+import {
+  getFoodBusinessResponse,
+  getGraTaxResponse,
+  getGhanaCardResponse,
+  getNationalServiceResponse,
+  getPassportResponse,
+} from "@/lib/ai-mock";
 import { getWorkflowId } from "@/lib/openai-config";
+import { buildSavedDocumentsContext } from "@/lib/saved-documents";
 
 const ChatKitWidget = dynamic(
   () => import("@/components/chat/ChatKitWidget").then((m) => m.ChatKitWidget),
@@ -25,16 +32,33 @@ const ChatKitWidget = dynamic(
 
 export function ChatPanel() {
   const [open, setOpen] = useState(false);
-  const { userQuery, roadmap, accessibility } = useAppStore();
+  const { userQuery, roadmap, accessibility, currentServiceId, username, savedDocuments } =
+    useAppStore();
   const agentConfigured = Boolean(getWorkflowId());
-  const fallback = getFoodBusinessResponse();
+  const documentsContext = buildSavedDocumentsContext(savedDocuments);
+  const fallback =
+    currentServiceId === "passport"
+      ? getPassportResponse()
+      : currentServiceId === "national-service"
+        ? getNationalServiceResponse()
+      : currentServiceId === "ghana-card"
+        ? getGhanaCardResponse()
+        : currentServiceId === "gra-tin"
+          ? getGraTaxResponse()
+        : getFoodBusinessResponse();
 
   const stateVariables = {
     user_location: roadmap.location,
     active_service: roadmap.title,
     language: accessibility.language,
     explanation_style: accessibility.explanationStyle,
+    user_name: username || "citizen",
+    saved_documents_count: savedDocuments.length,
+    saved_documents: documentsContext,
   };
+  const greeting = username.trim()
+    ? `Hi ${username.trim()}! I'm GovFlow AI. What government process should we work on today?`
+    : "Hi! I'm GovFlow AI. What government process should we work on today?";
 
   return (
     <>
@@ -64,7 +88,7 @@ export function ChatPanel() {
                   <div>
                     <p className="font-bold text-foreground">GovFlow AI</p>
                     <p className="text-xs text-muted">
-                      {agentConfigured ? "Powered by OpenAI Agent Builder" : "Demo mode"}
+                      {agentConfigured ? "Powered by OpenAI Agent Builder" : "Setup required"}
                     </p>
                   </div>
                 </div>
@@ -91,6 +115,7 @@ export function ChatPanel() {
                   className="bg-white"
                   initialPrompt={userQuery || undefined}
                   stateVariables={stateVariables}
+                  greeting={greeting}
                 />
               ) : (
                 <div className="space-y-4 p-4">
