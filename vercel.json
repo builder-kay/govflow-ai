@@ -1,7 +1,12 @@
 {
-  "$schema": "https://openapi.vercel.sh/vercel.json",
-  "framework": "nextjs",
-  "installCommand": "npm ci",
-  "buildCommand": "npm run build",
-  "devCommand": "npm run dev"
+  "experimentalServices": {
+    "frontend": {
+      "routePrefix": "/",
+      "framework": "nextjs"
+    },
+    "translation-service": {
+      "root": "services/translation-service",
+      "routePrefix": "/_/translation-service"
+    }
+  }
 }
