@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -13,9 +14,7 @@ interface SignOutButtonProps {
   size?: "default" | "sm" | "lg" | "icon";
   label?: string;
   showIcon?: boolean;
-  /** Compact circular icon for mobile header */
   iconOnly?: boolean;
-  /** When true, centers icon + label for full-width profile layouts */
   fullWidth?: boolean;
 }
 
@@ -31,6 +30,18 @@ export function SignOutButton({
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => setMounted(true), []);
+
+  useEffect(() => {
+    if (!open) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [open]);
 
   const handleSignOut = async () => {
     if (!hasSupabaseConfig) return;
@@ -53,34 +64,8 @@ export function SignOutButton({
 
   if (!hasSupabaseConfig) return null;
 
-  return (
-    <>
-      {iconOnly ? (
-        <motion.button
-          type="button"
-          aria-label="Sign out"
-          whileTap={{ scale: 0.94 }}
-          onClick={openDialog}
-          className={cn(
-            "flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-red-200/80 bg-gradient-to-br from-red-50 to-white text-red-700 shadow-sm transition-colors hover:border-red-300 hover:bg-red-100 sm:h-10 sm:w-10",
-            className
-          )}
-        >
-          <LogOut className="h-4 w-4" />
-        </motion.button>
-      ) : (
-        <Button
-          variant={variant}
-          size={size}
-          className={cn(fullWidth && "w-full justify-center gap-2", className)}
-          aria-label={label || "Sign out"}
-          onClick={openDialog}
-        >
-          {showIcon ? <LogOut className="h-4 w-4 shrink-0" /> : null}
-          {label ? <span>{label}</span> : null}
-        </Button>
-      )}
-
+  const dialog = mounted ? (
+    createPortal(
       <AnimatePresence>
         {open ? (
           <>
@@ -90,18 +75,21 @@ export function SignOutButton({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 z-[90] bg-black/40 backdrop-blur-[2px]"
+              className="fixed inset-0 z-[200] bg-black/45 backdrop-blur-[2px]"
               onClick={() => !loading && setOpen(false)}
             />
             <motion.div
               role="alertdialog"
               aria-modal="true"
               aria-labelledby="sign-out-title"
-              initial={{ opacity: 0, y: 40 }}
+              initial={{ opacity: 0, y: "100%" }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 24 }}
-              transition={{ type: "spring", stiffness: 380, damping: 32 }}
-              className="fixed inset-x-0 bottom-0 z-[91] w-full rounded-t-3xl border border-gray-100 bg-white p-5 pb-8 shadow-xl sm:inset-x-auto sm:bottom-auto sm:left-1/2 sm:top-1/2 sm:max-w-md sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-2xl sm:p-6"
+              exit={{ opacity: 0, y: "100%" }}
+              transition={{ type: "spring", stiffness: 420, damping: 34 }}
+              className="fixed inset-x-0 bottom-[4.5rem] z-[201] mx-auto w-full max-w-lg rounded-t-3xl border border-gray-100 bg-white p-5 shadow-2xl max-md:max-h-[min(70dvh,520px)] max-md:overflow-y-auto sm:bottom-auto sm:left-1/2 sm:top-1/2 sm:max-h-none sm:max-w-md sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-2xl sm:p-6 md:bottom-auto"
+              style={{
+                paddingBottom: "max(1.25rem, env(safe-area-inset-bottom, 0px))",
+              }}
             >
               <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-gray-200 sm:hidden" />
               <div className="mb-4 inline-flex rounded-2xl bg-red-100 p-3 text-red-700">
@@ -136,7 +124,40 @@ export function SignOutButton({
             </motion.div>
           </>
         ) : null}
-      </AnimatePresence>
+      </AnimatePresence>,
+      document.body
+    )
+  ) : null;
+
+  return (
+    <>
+      {iconOnly ? (
+        <motion.button
+          type="button"
+          aria-label="Sign out"
+          whileTap={{ scale: 0.94 }}
+          onClick={openDialog}
+          className={cn(
+            "flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-red-200/80 bg-gradient-to-br from-red-50 to-white text-red-700 shadow-sm transition-colors hover:border-red-300 hover:bg-red-100 sm:h-10 sm:w-10",
+            className
+          )}
+        >
+          <LogOut className="h-4 w-4" />
+        </motion.button>
+      ) : (
+        <Button
+          variant={variant}
+          size={size}
+          className={cn(fullWidth && "w-full justify-center gap-2", className)}
+          aria-label={label || "Sign out"}
+          onClick={openDialog}
+        >
+          {showIcon ? <LogOut className="h-4 w-4 shrink-0" /> : null}
+          {label ? <span>{label}</span> : null}
+        </Button>
+      )}
+
+      {dialog}
     </>
   );
 }

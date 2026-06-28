@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { parseIdentifier, phoneToEmailAlias } from "@/lib/auth-identifiers";
 import { getSupabaseBrowserClient, hasSupabaseConfig } from "@/lib/supabase-client";
+import { cn } from "@/lib/utils";
 
 type Mode = "login" | "signup" | "reset";
 
@@ -309,86 +310,59 @@ function AuthPageContent() {
           Back
         </Button>
       </div>
-      <div className="relative mx-auto grid max-w-6xl gap-5 lg:grid-cols-[0.95fr_1fr] lg:items-center">
+      <div className="relative mx-auto grid max-w-6xl gap-5 lg:grid-cols-[0.95fr_1fr] lg:items-start">
         <motion.section
-          initial={{ opacity: 0, x: -16 }}
-          animate={{ opacity: 1, x: 0 }}
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.22 }}
-          className="rounded-3xl border border-primary/10 bg-white/95 p-5 shadow-sm backdrop-blur md:p-7"
-        >
-          <p className="inline-flex items-center gap-2 rounded-full bg-soft-blue px-3 py-1 text-xs font-semibold text-primary-dark shadow-sm">
-            <ShieldCheck className="h-3.5 w-3.5" />
-            Secure citizen access
-          </p>
-          <h1 className="mt-3 text-2xl font-bold leading-tight text-foreground md:text-3xl">
-            Modern access to GovFlow AI
-          </h1>
-          <p className="mt-2 text-sm text-muted">
-            Sign in with your Ghana mobile number to save progress and continue services across
-            sessions.
-          </p>
-          <div className="mt-4 grid gap-3 sm:grid-cols-2">
-            <div className="rounded-xl border border-gray-100 bg-background/70 p-3">
-              <p className="text-xs font-semibold text-primary-dark">Unified account</p>
-              <p className="mt-1 text-sm text-muted">Business, Passport, and Ghana Card in one profile.</p>
-            </div>
-            <div className="rounded-xl border border-gray-100 bg-background/70 p-3">
-              <p className="text-xs font-semibold text-primary-dark">Fast recovery</p>
-              <p className="mt-1 text-sm text-muted">OTP-based reset if you forget your password.</p>
-            </div>
-            <div className="rounded-xl border border-gray-100 bg-background/70 p-3">
-              <p className="text-xs font-semibold text-primary-dark">Session continuity</p>
-              <p className="mt-1 text-sm text-muted">Continue exactly from where you left off.</p>
-            </div>
-            <div className="rounded-xl border border-gray-100 bg-background/70 p-3">
-              <p className="text-xs font-semibold text-primary-dark">Secure by default</p>
-              <p className="mt-1 text-sm text-muted">Phone identity + OTP verification workflow.</p>
-            </div>
-          </div>
-        </motion.section>
-
-        <motion.section
-          initial={{ opacity: 0, x: 16 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.22 }}
+          className="order-1 lg:order-2"
         >
           <Card className="rounded-3xl border-primary/20 bg-white/95 shadow-xl backdrop-blur">
-            <CardHeader className="space-y-2 pb-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle className="text-xl">{modeTitle}</CardTitle>
-                  <CardDescription>{modeDescription}</CardDescription>
+            <CardHeader className="space-y-3 pb-4">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                <div className="min-w-0 flex-1">
+                  <CardTitle className="text-lg leading-snug sm:text-xl">{modeTitle}</CardTitle>
+                  <CardDescription className="mt-1 text-sm">{modeDescription}</CardDescription>
                 </div>
-                <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary-dark">
+                <span className="inline-flex w-fit shrink-0 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary-dark">
                   {mode === "login" ? "Sign in" : mode === "signup" ? "Sign up" : "Recovery"}
                 </span>
               </div>
-              <div className="relative mt-1 grid grid-cols-2 rounded-xl bg-soft-blue/40 p-1">
-                <motion.span
-                  className="absolute bottom-1 top-1 w-[calc(50%-0.25rem)] rounded-lg bg-white shadow-sm"
-                  animate={{ x: mode === "login" ? "0%" : "100%" }}
-                  transition={{ type: "spring", stiffness: 500, damping: 34, mass: 0.45 }}
-                />
-                <button
-                  type="button"
-                  onClick={() => switchMode("login")}
-                  className="relative z-10 rounded-lg px-3 py-2 text-sm font-semibold text-primary-dark"
-                >
-                  Log in
-                </button>
-                <button
-                  type="button"
-                  onClick={() => switchMode("signup")}
-                  className="relative z-10 rounded-lg px-3 py-2 text-sm font-semibold text-primary-dark"
-                >
-                  Sign up
-                </button>
-              </div>
-              {mode === "reset" ? (
-                <div className="rounded-lg border border-primary/20 bg-soft-blue/20 px-3 py-2 text-xs text-primary-dark">
-                  Password reset mode - verify OTP and set a new password.
+
+              {mode !== "reset" ? (
+                <div className="relative flex rounded-xl bg-soft-blue/40 p-1">
+                  <motion.span
+                    className="absolute bottom-1 top-1 w-[calc(50%-0.25rem)] rounded-lg bg-white shadow-sm"
+                    initial={false}
+                    animate={{ left: mode === "login" ? "0.25rem" : "calc(50% + 0.125rem)" }}
+                    transition={{ type: "spring", stiffness: 480, damping: 32 }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => switchMode("login")}
+                    className={cn(
+                      "relative z-10 flex-1 whitespace-nowrap rounded-lg px-2 py-2.5 text-center text-sm font-semibold transition-colors sm:px-3",
+                      mode === "login" ? "text-primary-dark" : "text-muted"
+                    )}
+                  >
+                    Log in
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => switchMode("signup")}
+                    className={cn(
+                      "relative z-10 flex-1 whitespace-nowrap rounded-lg px-2 py-2.5 text-center text-sm font-semibold transition-colors sm:px-3",
+                      mode === "signup" ? "text-primary-dark" : "text-muted"
+                    )}
+                  >
+                    Sign up
+                  </button>
                 </div>
-              ) : null}
+              ) : (
+                <div className="rounded-lg border border-primary/20 bg-soft-blue/20 px-3 py-2 text-xs text-primary-dark">
+                  Password reset mode — verify OTP and set a new password.
+                </div>
+              )}
             </CardHeader>
             <CardContent>
               {!hasSupabaseConfig ? (
@@ -604,6 +578,49 @@ function AuthPageContent() {
               )}
             </CardContent>
           </Card>
+        </motion.section>
+
+        <motion.section
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.22, delay: 0.05 }}
+          className="order-2 lg:order-1"
+        >
+          <div className="rounded-3xl border border-primary/10 bg-white/95 p-5 shadow-sm backdrop-blur md:p-7">
+            <p className="inline-flex items-center gap-2 rounded-full bg-soft-blue px-3 py-1 text-xs font-semibold text-primary-dark shadow-sm">
+              <ShieldCheck className="h-3.5 w-3.5" />
+              Secure citizen access
+            </p>
+            <h2 className="mt-3 text-xl font-bold leading-tight text-foreground sm:text-2xl md:text-3xl">
+              Modern access to GovFlow AI
+            </h2>
+            <p className="mt-2 text-sm leading-relaxed text-muted">
+              Sign in with your Ghana mobile number to save progress and continue services across
+              sessions.
+            </p>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              <div className="rounded-xl border border-gray-100 bg-background/70 p-3">
+                <p className="text-xs font-semibold text-primary-dark">Unified account</p>
+                <p className="mt-1 text-sm text-muted">
+                  Business, Passport, and Ghana Card in one profile.
+                </p>
+              </div>
+              <div className="rounded-xl border border-gray-100 bg-background/70 p-3">
+                <p className="text-xs font-semibold text-primary-dark">Fast recovery</p>
+                <p className="mt-1 text-sm text-muted">
+                  OTP-based reset if you forget your password.
+                </p>
+              </div>
+              <div className="rounded-xl border border-gray-100 bg-background/70 p-3 sm:col-span-2 lg:col-span-1">
+                <p className="text-xs font-semibold text-primary-dark">Session continuity</p>
+                <p className="mt-1 text-sm text-muted">Continue exactly from where you left off.</p>
+              </div>
+              <div className="rounded-xl border border-gray-100 bg-background/70 p-3 sm:col-span-2 lg:col-span-1">
+                <p className="text-xs font-semibold text-primary-dark">Secure by default</p>
+                <p className="mt-1 text-sm text-muted">Phone identity + OTP verification workflow.</p>
+              </div>
+            </div>
+          </div>
         </motion.section>
       </div>
     </div>
