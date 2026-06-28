@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -15,6 +16,7 @@ import {
   Copy,
   Check,
   Navigation,
+  ListChecks,
 } from "lucide-react";
 import type { Office } from "@/types";
 import { cn } from "@/lib/utils";
@@ -191,9 +193,24 @@ export function OfficeCard({
                 transition={{ duration: 0.25 }}
                 className="overflow-hidden"
               >
-                <p className="mt-4 rounded-xl border border-amber-200/80 bg-amber-50/80 p-4 text-sm text-amber-950">
-                  {office.confirmNote}
-                </p>
+                <div className="mt-4 space-y-3">
+                  <p className="rounded-xl border border-primary/15 bg-soft-blue/50 p-4 text-sm leading-relaxed text-primary-dark">
+                    <span className="font-semibold">Before you go:</span> Cross out all requirements
+                    on your GovFlow checklist so you arrive with everything ready — it makes for a
+                    much smoother visit at the office.
+                    <Link
+                      href="/checklist"
+                      onClick={(e) => e.stopPropagation()}
+                      className="mt-2 flex items-center gap-1.5 text-sm font-semibold text-primary hover:underline"
+                    >
+                      <ListChecks className="h-4 w-4" />
+                      Open your checklist
+                    </Link>
+                  </p>
+                  <p className="rounded-xl border border-amber-200/80 bg-amber-50/80 p-4 text-sm text-amber-950">
+                    {office.confirmNote}
+                  </p>
+                </div>
               </motion.div>
             ) : null}
           </AnimatePresence>

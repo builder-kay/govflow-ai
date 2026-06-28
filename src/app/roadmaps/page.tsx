@@ -1,132 +1,163 @@
 "use client";
 
+import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
 import { AppShell } from "@/components/layout/AppShell";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { RoadmapsHero } from "@/components/roadmaps/RoadmapsHero";
+import { RoadmapInstanceCard } from "@/components/roadmaps/RoadmapInstanceCard";
 import { ActionButton } from "@/components/ActionButton";
-import { ProgressBar } from "@/components/ui/progress";
-import { RiskBadge } from "@/components/StatusBadge";
-import { savedRoadmaps } from "@/data/roadmap";
 import { useAppStore } from "@/store/useAppStore";
-import { BarChart3, Clock3, Map, ShieldAlert, Sparkles } from "lucide-react";
+import {
+  getRoadmapStats,
+  SERVICE_DISPLAY_NAMES,
+  sortRoadmapInstances,
+} from "@/lib/roadmap-instances";
+import { Plus, Sparkles } from "lucide-react";
+
+type PendingAction =
+  | { type: "pause"; serviceId: string; title: string }
+  | { type: "delete"; serviceId: string; title: string }
+  | null;
 
 export default function RoadmapsPage() {
-  const { roadmap, currentServiceId } = useAppStore();
+  const router = useRouter();
+  const {
+    accessibility,
+    currentServiceId,
+    roadmapInstances,
+    loadRoadmapInstance,
+    pauseRoadmap,
+    deleteRoadmap,
+  } = useAppStore();
 
-  const allRoadmaps = savedRoadmaps.map((r) =>
-    r.id === "start-business"
-      ? { ...r, progress: roadmap.progress || r.progress, title: roadmap.title || r.title }
-      : r
+  const reduceMotion = accessibility.reduceAnimations;
+  const [pendingAction, setPendingAction] = useState<PendingAction>(null);
+
+  const items = useMemo(
+    () => sortRoadmapInstances(roadmapInstances, currentServiceId),
+    [roadmapInstances, currentServiceId]
   );
-  const totalRoadmaps = allRoadmaps.length;
-  const averageProgress = Math.round(
-    allRoadmaps.reduce((sum, current) => sum + current.progress, 0) / Math.max(totalRoadmaps, 1)
-  );
-  const atRiskCount = allRoadmaps.filter((item) => item.riskLevel !== "low").length;
-  const activeRoadmapTitle =
-    currentServiceId === "passport"
-      ? "Passport"
-      : currentServiceId === "ghana-card"
-        ? "Ghana Card"
-        : currentServiceId === "start-business"
-          ? roadmap.title || "Business Startup"
-          : "Business Startup";
+
+  const stats = useMemo(() => getRoadmapStats(items), [items]);
+  const activeServiceLabel =
+    (currentServiceId && SERVICE_DISPLAY_NAMES[currentServiceId]) || "None selected";
+
+  const handleContinue = (serviceId: string) => {
+    loadRoadmapInstance(serviceId);
+    router.push("/roadmap");
+  };
+
+  const handleOpenWithService = (serviceId: string, href: string) => {
+    loadRoadmapInstance(serviceId);
+    router.push(href);
+  };
+
+  const handleConfirm = () => {
+    if (!pendingAction) return;
+
+    if (pendingAction.type === "pause") {
+      pauseRoadmap(pendingAction.serviceId);
+    } else {
+      deleteRoadmap(pendingAction.serviceId);
+    }
+
+    setPendingAction(null);
+  };
 
   return (
     <AppShell title="My Roadmaps">
       <div className="mx-auto max-w-5xl space-y-6">
-        <div className="overflow-hidden rounded-3xl border border-primary/10 bg-gradient-to-br from-white via-white to-soft-blue/40">
-          <div className="p-6 md:p-8">
-            <div className="flex flex-wrap items-center justify-between gap-4">
-              <div>
-                <p className="mb-2 inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary-dark">
-                  <Sparkles className="h-3.5 w-3.5" />
-                  Smart progress dashboard
-                </p>
-                <h1 className="mb-2 flex items-center gap-2 text-3xl font-bold text-foreground">
-                  <Map className="h-8 w-8 text-primary" />
-                  My Roadmaps
-                </h1>
-                <p className="text-muted">
-                  Clean overview of your workflows, risk status, and next actions.
-                </p>
-              </div>
-              <div className="rounded-2xl border border-primary/10 bg-white px-4 py-3 shadow-sm">
-                <p className="text-xs text-muted">Currently active</p>
-                <p className="font-semibold text-foreground">{activeRoadmapTitle}</p>
-              </div>
-            </div>
+        <RoadmapsHero
+          total={stats.total}
+          averageProgress={stats.averageProgress}
+          atRiskCount={stats.atRiskCount}
+          pausedCount={stats.pausedCount}
+          activeServiceLabel={activeServiceLabel}
+          reduceMotion={reduceMotion}
+        />
 
-            <div className="mt-6 grid gap-3 sm:grid-cols-3">
-              <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
-                <p className="text-xs text-muted">Total roadmaps</p>
-                <p className="mt-1 flex items-center gap-2 text-2xl font-bold text-foreground">
-                  <BarChart3 className="h-5 w-5 text-primary" />
-                  {totalRoadmaps}
-                </p>
-              </div>
-              <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
-                <p className="text-xs text-muted">Average completion</p>
-                <p className="mt-1 text-2xl font-bold text-foreground">{averageProgress}%</p>
-              </div>
-              <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
-                <p className="text-xs text-muted">Need attention</p>
-                <p className="mt-1 flex items-center gap-2 text-2xl font-bold text-foreground">
-                  <ShieldAlert className="h-5 w-5 text-warning" />
-                  {atRiskCount}
-                </p>
-              </div>
-            </div>
+        {items.length ? (
+          <div className="grid gap-4 md:grid-cols-2">
+            {items.map((item, index) => (
+              <RoadmapInstanceCard
+                key={item.serviceId}
+                item={item}
+                index={index}
+                reduceMotion={reduceMotion}
+                onContinue={handleContinue}
+                onPause={(serviceId) =>
+                  setPendingAction({
+                    type: "pause",
+                    serviceId,
+                    title: item.title,
+                  })
+                }
+                onResume={handleContinue}
+                onDelete={(serviceId) =>
+                  setPendingAction({
+                    type: "delete",
+                    serviceId,
+                    title: item.title,
+                  })
+                }
+                onNavigate={(serviceId, href) => handleOpenWithService(serviceId, href)}
+              />
+            ))}
           </div>
-        </div>
+        ) : (
+          <motion.div
+            initial={reduceMotion ? false : { opacity: 0, y: 12 }}
+            animate={reduceMotion ? undefined : { opacity: 1, y: 0 }}
+            className="rounded-3xl border border-dashed border-gray-200 bg-white p-10 text-center"
+          >
+            <Sparkles className="mx-auto mb-3 h-8 w-8 text-primary" />
+            <p className="text-lg font-semibold text-foreground">No roadmaps yet</p>
+            <p className="mt-2 text-sm text-muted">
+              Start a service to create your first synced roadmap.
+            </p>
+            <ActionButton href="/services" className="mt-4">
+              <Plus className="h-4 w-4" />
+              Browse services
+            </ActionButton>
+          </motion.div>
+        )}
 
-        <div className="grid gap-4 md:grid-cols-2">
-          {allRoadmaps.map((saved) => (
-            <div
-              key={saved.id}
-              className="rounded-3xl border border-gray-100 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
-            >
-              <div className="mb-4 flex items-start justify-between gap-3">
-                <div>
-                  <h2 className="text-xl font-bold text-foreground">{saved.title}</h2>
-                  <p className="mt-1 text-sm text-muted">{saved.location}</p>
-                </div>
-                <RiskBadge level={saved.riskLevel} />
-              </div>
-
-              <div className="mb-4 rounded-2xl border border-gray-100 bg-background/70 p-3">
-                <p className="mb-2 text-xs font-medium text-muted">Completion</p>
-                <ProgressBar value={saved.progress} showLabel />
-              </div>
-
-              <div className="mb-5 rounded-2xl bg-soft-blue/40 p-4">
-                <p className="mb-1 flex items-center gap-2 text-xs font-medium text-muted">
-                  <Clock3 className="h-3.5 w-3.5 text-primary" />
-                  Next step
-                </p>
-                <p className="font-semibold text-foreground">{saved.nextStep}</p>
-              </div>
-
-              <div className="flex flex-wrap gap-2">
-                <ActionButton
-                  href={saved.id === "start-business" ? "/roadmap" : "/services"}
-                  size="sm"
-                >
-                  Continue
-                </ActionButton>
-                <ActionButton
-                  href={saved.id === "start-business" ? "/checklist" : "/documents"}
-                  size="sm"
-                  variant="outline"
-                >
-                  {saved.id === "start-business" ? "Checklist" : "Documents"}
-                </ActionButton>
-                <ActionButton href="/risk" size="sm" variant="ghost">
-                  Risk check
-                </ActionButton>
-              </div>
-            </div>
-          ))}
-        </div>
+        <motion.div
+          initial={reduceMotion ? false : { opacity: 0, y: 10 }}
+          animate={reduceMotion ? undefined : { opacity: 1, y: 0 }}
+          className="rounded-2xl border border-primary/15 bg-soft-blue/30 p-5"
+        >
+          <p className="font-semibold text-primary-dark">Start another roadmap</p>
+          <p className="mt-1 text-sm text-muted">
+            Each service keeps its own checklist progress. Switch between roadmaps anytime without
+            losing your place.
+          </p>
+          <ActionButton href="/services" className="mt-3" size="sm" variant="outline">
+            Browse all services
+          </ActionButton>
+        </motion.div>
       </div>
+
+      <ConfirmDialog
+        open={Boolean(pendingAction)}
+        title={
+          pendingAction?.type === "delete"
+            ? `Delete "${pendingAction.title}"?`
+            : `Pause "${pendingAction?.title}"?`
+        }
+        description={
+          pendingAction?.type === "delete"
+            ? "This removes the saved roadmap and all checklist progress for this service on this device. This cannot be undone."
+            : "Your progress stays saved, but this roadmap will be marked paused until you resume it."
+        }
+        confirmLabel={pendingAction?.type === "delete" ? "Delete roadmap" : "Pause roadmap"}
+        cancelLabel="Keep roadmap"
+        variant={pendingAction?.type === "delete" ? "danger" : "warning"}
+        onConfirm={handleConfirm}
+        onCancel={() => setPendingAction(null)}
+      />
     </AppShell>
   );
 }

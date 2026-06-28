@@ -8,9 +8,14 @@ import type {
   UserAnswers,
   ChecklistItem,
   SavedDocument,
+  SavedRoadmapInstance,
 } from "@/types";
 import { getServiceFlow } from "@/lib/service-registry";
 import { syncRoadmapFromChecklist } from "@/lib/checklist-sync";
+import {
+  buildRoadmapInstance,
+  createInitialRoadmapInstance,
+} from "@/lib/roadmap-instances";
 
 interface AppState {
   userQuery: string;
@@ -19,6 +24,7 @@ interface AppState {
   answers: UserAnswers;
   roadmap: Roadmap;
   checklist: ChecklistItem[];
+  roadmapInstances: Record<string, SavedRoadmapInstance>;
   documentUploaded: boolean;
   savedDocuments: SavedDocument[];
   hasCompletedQuestions: boolean;
@@ -29,12 +35,18 @@ interface AppState {
   setCurrentServiceId: (id: string | null) => void;
   activateService: (serviceId: string) => void;
   ensureServiceChecklist: (serviceId: string) => void;
+  loadRoadmapInstance: (serviceId: string) => void;
+  persistCurrentRoadmap: () => void;
+  pauseRoadmap: (serviceId: string) => void;
+  resumeRoadmap: (serviceId: string) => void;
+  deleteRoadmap: (serviceId: string) => void;
   setAnswer: (key: keyof UserAnswers, value: string) => void;
   resetAnswers: () => void;
   setHasCompletedQuestions: (value: boolean) => void;
   toggleChecklistItem: (id: string) => void;
   setDocumentUploaded: (value: boolean) => void;
   addSavedDocument: (document: SavedDocument) => void;
+  updateSavedDocument: (documentId: string, patch: Partial<SavedDocument>) => void;
   removeSavedDocument: (documentId: string) => void;
   updateRoadmapProgress: (progress: number) => void;
   setAccessibility: (settings: Partial<AccessibilitySettings>) => void;
@@ -51,6 +63,34 @@ const defaultAccessibility: AccessibilitySettings = {
 };
 
 const initialFlow = getServiceFlow("start-business");
+const initialRoadmapInstance = createInitialRoadmapInstance("start-business");
+
+function persistInstanceForService(
+  instances: Record<string, SavedRoadmapInstance>,
+  serviceId: string,
+  state: Pick<AppState, "checklist" | "roadmap" | "answers" | "hasCompletedQuestions">
+): Record<string, SavedRoadmapInstance> {
+  return {
+    ...instances,
+    [serviceId]: buildRoadmapInstance(serviceId, state, instances[serviceId]),
+  };
+}
+
+function applyInstanceToState(instance: SavedRoadmapInstance) {
+  const roadmap = syncRoadmapFromChecklist(
+    instance.checklist,
+    instance.roadmap,
+    instance.serviceId
+  );
+
+  return {
+    currentServiceId: instance.serviceId,
+    checklist: instance.checklist,
+    roadmap,
+    answers: instance.answers,
+    hasCompletedQuestions: instance.hasCompletedQuestions,
+  };
+}
 
 export const useAppStore = create<AppState>()(
   persist(
@@ -61,6 +101,7 @@ export const useAppStore = create<AppState>()(
       answers: {},
       roadmap: initialFlow.roadmap,
       checklist: initialFlow.roadmap.checklist,
+      roadmapInstances: { "start-business": initialRoadmapInstance },
       documentUploaded: false,
       savedDocuments: [],
       hasCompletedQuestions: false,
@@ -69,60 +110,176 @@ export const useAppStore = create<AppState>()(
       setUserQuery: (query) => set({ userQuery: query }),
       setUsername: (username) => set({ username: username.trim() }),
       setCurrentServiceId: (id) => set({ currentServiceId: id }),
+
+      persistCurrentRoadmap: () =>
+        set((state) => {
+          const serviceId = state.currentServiceId;
+          if (!serviceId) return state;
+          return {
+            roadmapInstances: persistInstanceForService(state.roadmapInstances, serviceId, state),
+          };
+        }),
+
+      loadRoadmapInstance: (serviceId) =>
+        set((state) => {
+          let instances = { ...state.roadmapInstances };
+
+          if (state.currentServiceId && state.currentServiceId !== serviceId) {
+            instances = persistInstanceForService(instances, state.currentServiceId, state);
+          }
+
+          const existing = instances[serviceId];
+          if (!existing) {
+            const created = createInitialRoadmapInstance(serviceId);
+            instances = { ...instances, [serviceId]: created };
+            return {
+              ...applyInstanceToState(created),
+              roadmapInstances: instances,
+            };
+          }
+
+          const resumed = {
+            ...existing,
+            status: "active" as const,
+            updatedAt: new Date().toISOString(),
+          };
+          instances = { ...instances, [serviceId]: resumed };
+
+          return {
+            ...applyInstanceToState(resumed),
+            roadmapInstances: instances,
+          };
+        }),
+
+      pauseRoadmap: (serviceId) =>
+        set((state) => {
+          let instances = { ...state.roadmapInstances };
+
+          if (state.currentServiceId === serviceId) {
+            instances = persistInstanceForService(instances, serviceId, state);
+          }
+
+          const existing = instances[serviceId];
+          if (!existing) return state;
+
+          instances[serviceId] = {
+            ...existing,
+            status: "paused",
+            updatedAt: new Date().toISOString(),
+          };
+
+          return { roadmapInstances: instances };
+        }),
+
+      resumeRoadmap: (serviceId) => {
+        get().loadRoadmapInstance(serviceId);
+      },
+
+      deleteRoadmap: (serviceId) =>
+        set((state) => {
+          const instances = { ...state.roadmapInstances };
+          delete instances[serviceId];
+
+          if (state.currentServiceId !== serviceId) {
+            return { roadmapInstances: instances };
+          }
+
+          const remainingIds = Object.keys(instances);
+          if (remainingIds.length === 0) {
+            const fresh = createInitialRoadmapInstance("start-business");
+            return {
+              ...applyInstanceToState(fresh),
+              roadmapInstances: { "start-business": fresh },
+            };
+          }
+
+          const nextId = remainingIds[0];
+          const nextInstance = instances[nextId];
+          return {
+            ...applyInstanceToState(nextInstance),
+            roadmapInstances: instances,
+          };
+        }),
+
       activateService: (serviceId) => {
         const flow = getServiceFlow(serviceId);
         const checklist = flow.roadmap.checklist.map((item) => ({ ...item, completed: false }));
-        const roadmap = syncRoadmapFromChecklist(checklist, { ...flow.roadmap, progress: 0 }, serviceId);
-        set({
+        const roadmap = syncRoadmapFromChecklist(
+          checklist,
+          { ...flow.roadmap, progress: 0 },
+          serviceId
+        );
+        const instance = buildRoadmapInstance(serviceId, {
+          checklist,
+          roadmap,
+          answers: {},
+          hasCompletedQuestions: false,
+        });
+
+        set((state) => ({
           currentServiceId: serviceId,
           roadmap,
           checklist,
           answers: {},
           hasCompletedQuestions: false,
           userQuery: "",
-        });
+          roadmapInstances: {
+            ...state.roadmapInstances,
+            [serviceId]: instance,
+          },
+        }));
       },
+
       ensureServiceChecklist: (serviceId) =>
         set((state) => {
-          const flow = getServiceFlow(serviceId);
+          let instances = { ...state.roadmapInstances };
 
-          if (state.hasCompletedQuestions && state.currentServiceId === serviceId) {
-            const roadmap = syncRoadmapFromChecklist(state.checklist, state.roadmap, serviceId);
-            return { currentServiceId: serviceId, roadmap };
+          if (state.currentServiceId && state.currentServiceId !== serviceId) {
+            instances = persistInstanceForService(instances, state.currentServiceId, state);
           }
 
-          const expectedIds = new Set(flow.roadmap.checklist.map((item) => item.id));
-          const sameService = state.currentServiceId === serviceId;
-          const checklistMatches =
-            state.checklist.length > 0 &&
-            state.checklist.every((item) => expectedIds.has(item.id));
-
-          if (sameService && checklistMatches) {
+          if (state.currentServiceId === serviceId) {
             const roadmap = syncRoadmapFromChecklist(state.checklist, state.roadmap, serviceId);
-            return { currentServiceId: serviceId, roadmap };
+            instances = persistInstanceForService(instances, serviceId, { ...state, roadmap });
+            return { roadmap, roadmapInstances: instances };
           }
 
-          const completedMap = new Map(state.checklist.map((item) => [item.id, item.completed]));
-          const checklist = flow.roadmap.checklist.map((item) => ({
-            ...item,
-            completed: completedMap.get(item.id) ?? false,
-          }));
-          const roadmap = syncRoadmapFromChecklist(
-            checklist,
-            { ...flow.roadmap, ...state.roadmap, steps: flow.roadmap.steps },
-            serviceId
-          );
+          const existing = instances[serviceId];
+          if (existing) {
+            const roadmap = syncRoadmapFromChecklist(
+              existing.checklist,
+              existing.roadmap,
+              serviceId
+            );
+            return {
+              ...applyInstanceToState({ ...existing, roadmap }),
+              roadmapInstances: {
+                ...instances,
+                [serviceId]: { ...existing, roadmap, updatedAt: new Date().toISOString() },
+              },
+            };
+          }
 
+          const created = createInitialRoadmapInstance(serviceId);
           return {
-            currentServiceId: serviceId,
-            checklist,
-            roadmap,
+            ...applyInstanceToState(created),
+            roadmapInstances: { ...instances, [serviceId]: created },
           };
         }),
+
       setAnswer: (key, value) =>
         set((state) => ({ answers: { ...state.answers, [key]: value } })),
       resetAnswers: () => set({ answers: {}, hasCompletedQuestions: false }),
-      setHasCompletedQuestions: (value) => set({ hasCompletedQuestions: value }),
+      setHasCompletedQuestions: (value) =>
+        set((state) => {
+          const next = { hasCompletedQuestions: value };
+          if (!state.currentServiceId) return next;
+          const instances = persistInstanceForService(state.roadmapInstances, state.currentServiceId, {
+            ...state,
+            hasCompletedQuestions: value,
+          });
+          return { ...next, roadmapInstances: instances };
+        }),
       toggleChecklistItem: (id) =>
         set((state) => {
           const checklist = state.checklist.map((item) =>
@@ -133,13 +290,29 @@ export const useAppStore = create<AppState>()(
             state.roadmap,
             state.currentServiceId
           );
-          return { checklist, roadmap };
+          const nextState = { checklist, roadmap };
+          if (!state.currentServiceId) return nextState;
+
+          return {
+            ...nextState,
+            roadmapInstances: persistInstanceForService(state.roadmapInstances, state.currentServiceId, {
+              ...state,
+              checklist,
+              roadmap,
+            }),
+          };
         }),
       setDocumentUploaded: (value) => set({ documentUploaded: value }),
       addSavedDocument: (document) =>
         set((state) => ({
           savedDocuments: [document, ...state.savedDocuments.filter((d) => d.id !== document.id)],
           documentUploaded: true,
+        })),
+      updateSavedDocument: (documentId, patch) =>
+        set((state) => ({
+          savedDocuments: state.savedDocuments.map((document) =>
+            document.id === documentId ? { ...document, ...patch } : document
+          ),
         })),
       removeSavedDocument: (documentId) =>
         set((state) => {
@@ -150,9 +323,18 @@ export const useAppStore = create<AppState>()(
           };
         }),
       updateRoadmapProgress: (progress) =>
-        set((state) => ({
-          roadmap: { ...state.roadmap, progress },
-        })),
+        set((state) => {
+          const roadmap = { ...state.roadmap, progress };
+          if (!state.currentServiceId) return { roadmap };
+
+          return {
+            roadmap,
+            roadmapInstances: persistInstanceForService(state.roadmapInstances, state.currentServiceId, {
+              ...state,
+              roadmap,
+            }),
+          };
+        }),
       setAccessibility: (settings) =>
         set((state) => ({
           accessibility: { ...state.accessibility, ...settings },
@@ -166,6 +348,7 @@ export const useAppStore = create<AppState>()(
         answers: state.answers,
         checklist: state.checklist,
         roadmap: state.roadmap,
+        roadmapInstances: state.roadmapInstances,
         documentUploaded: state.documentUploaded,
         savedDocuments: state.savedDocuments,
         hasCompletedQuestions: state.hasCompletedQuestions,
@@ -174,11 +357,28 @@ export const useAppStore = create<AppState>()(
       }),
       onRehydrateStorage: () => (state) => {
         if (!state) return;
+
         state.roadmap = syncRoadmapFromChecklist(
           state.checklist,
           state.roadmap,
           state.currentServiceId
         );
+
+        if (!state.roadmapInstances || Object.keys(state.roadmapInstances).length === 0) {
+          const serviceId = state.currentServiceId || "start-business";
+          state.roadmapInstances = {
+            [serviceId]: buildRoadmapInstance(serviceId, state),
+          };
+        } else {
+          const serviceId = state.currentServiceId;
+          if (serviceId && state.roadmapInstances[serviceId]) {
+            state.roadmapInstances[serviceId] = buildRoadmapInstance(
+              serviceId,
+              state,
+              state.roadmapInstances[serviceId]
+            );
+          }
+        }
       },
     }
   )

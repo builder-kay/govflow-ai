@@ -12,6 +12,8 @@ interface SignOutButtonProps {
   size?: "default" | "sm" | "lg" | "icon";
   label?: string;
   showIcon?: boolean;
+  /** When true, centers icon + label for full-width profile layouts */
+  fullWidth?: boolean;
 }
 
 export function SignOutButton({
@@ -20,6 +22,7 @@ export function SignOutButton({
   size = "default",
   label = "Sign out",
   showIcon = true,
+  fullWidth = false,
 }: SignOutButtonProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -46,33 +49,34 @@ export function SignOutButton({
       <Button
         variant={variant}
         size={size}
-        className={className}
+        className={cn(fullWidth && "w-full justify-center gap-2", className)}
+        aria-label={label || "Sign out"}
         onClick={() => {
           setError("");
           setOpen(true);
         }}
       >
-        {showIcon ? <LogOut className="h-4 w-4" /> : null}
-        {label}
+        {showIcon ? <LogOut className="h-4 w-4 shrink-0" /> : null}
+        {label ? <span>{label}</span> : null}
       </Button>
 
       {open ? (
-        <div className="fixed inset-0 z-[90] grid place-items-center bg-black/40 p-4">
-          <div className="w-full max-w-md rounded-2xl border border-gray-100 bg-white p-5 shadow-xl">
+        <div className="fixed inset-0 z-[90] grid place-items-end bg-black/40 p-0 sm:place-items-center sm:p-4">
+          <div className="w-full max-w-md rounded-t-3xl border border-gray-100 bg-white p-5 shadow-xl sm:rounded-2xl">
             <p className="mb-1 flex items-center gap-2 text-lg font-bold text-foreground">
-              <TriangleAlert className="h-5 w-5 text-warning" />
+              <TriangleAlert className="h-5 w-5 shrink-0 text-warning" />
               Confirm sign out
             </p>
-            <p className="text-sm text-muted">
+            <p className="text-sm leading-relaxed text-muted">
               You will be signed out of this device. You can sign back in anytime.
             </p>
             {error ? <p className="mt-3 text-sm text-red-600">{error}</p> : null}
-            <div className="mt-5 flex justify-end gap-2">
+            <div className="mt-5 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
               <Button
                 variant="outline"
                 onClick={() => setOpen(false)}
                 disabled={loading}
-                className={cn("min-w-[90px]")}
+                className="h-11 w-full sm:min-w-[90px] sm:w-auto"
               >
                 Cancel
               </Button>
@@ -80,7 +84,7 @@ export function SignOutButton({
                 variant="danger"
                 onClick={handleSignOut}
                 disabled={loading}
-                className={cn("min-w-[90px]")}
+                className="h-11 w-full sm:min-w-[90px] sm:w-auto"
               >
                 {loading ? "Signing out..." : "Sign out"}
               </Button>

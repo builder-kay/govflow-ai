@@ -238,6 +238,9 @@ export default function ServiceGuidePage({
                     <li key={document.id} className="rounded-lg border border-gray-100 bg-background/70 px-3 py-2">
                       <span className="font-medium text-foreground">{document.name}</span>{" "}
                       ({formatFileSize(document.size)})
+                      {document.summary ? (
+                        <p className="mt-1 text-xs text-muted">{document.summary}</p>
+                      ) : null}
                     </li>
                   ))}
                 </ul>

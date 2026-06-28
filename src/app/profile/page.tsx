@@ -413,7 +413,12 @@ export default function ProfilePage() {
                 Signing out clears your active session on this device. You can sign back in anytime.
               </p>
               {hasSupabaseConfig ? (
-                <SignOutButton className="mt-4 h-11 w-full rounded-2xl" variant="outline" />
+                <SignOutButton
+                  fullWidth
+                  variant="outline"
+                  label="Sign out of this device"
+                  className="mt-4 h-12 rounded-2xl border-red-200/90 bg-white font-semibold text-red-700 shadow-sm hover:border-red-300 hover:bg-red-50"
+                />
               ) : (
                 <p className="mt-3 text-sm text-muted">Auth is not configured in this environment.</p>
               )}

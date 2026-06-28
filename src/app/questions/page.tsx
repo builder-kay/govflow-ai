@@ -163,6 +163,8 @@ export default function QuestionsPage() {
         roadmap: syncRoadmapFromChecklist(state.checklist, state.roadmap, currentServiceId),
       }));
 
+      useAppStore.getState().persistCurrentRoadmap();
+
       setTimeout(() => router.push("/roadmap"), 1500);
     }
   };

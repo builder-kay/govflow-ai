@@ -41,7 +41,7 @@ export default function RoadmapPage() {
         <div className="mb-6 flex flex-wrap gap-2">
           <ActionButton href="/roadmaps" size="sm" variant="outline">
             <Save className="h-4 w-4" />
-            Save roadmap
+            All roadmaps
           </ActionButton>
           <ActionButton href="/checklist" size="sm" variant="outline">
             <ListChecks className="h-4 w-4" />

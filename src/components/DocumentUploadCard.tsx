@@ -8,9 +8,11 @@ import { cn } from "@/lib/utils";
 
 interface DocumentUploadCardProps {
   onUpload: (file: File) => void;
+  disabled?: boolean;
+  processing?: boolean;
 }
 
-export function DocumentUploadCard({ onUpload }: DocumentUploadCardProps) {
+export function DocumentUploadCard({ onUpload, disabled = false, processing = false }: DocumentUploadCardProps) {
   const [dragOver, setDragOver] = useState(false);
   const [selectedFileName, setSelectedFileName] = useState("");
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -18,7 +20,7 @@ export function DocumentUploadCard({ onUpload }: DocumentUploadCardProps) {
   const cameraInputRef = useRef<HTMLInputElement | null>(null);
 
   const handleUpload = (file: File | undefined) => {
-    if (!file) return;
+    if (!file || disabled || processing) return;
     setSelectedFileName(file.name);
     onUpload(file);
   };
@@ -52,7 +54,8 @@ export function DocumentUploadCard({ onUpload }: DocumentUploadCardProps) {
         <div
           className={cn(
             "flex flex-col items-center justify-center rounded-2xl border-2 border-dashed p-10 text-center transition-colors",
-            dragOver ? "border-primary bg-soft-blue/50" : "border-gray-200 bg-gray-50/50"
+            dragOver ? "border-primary bg-soft-blue/50" : "border-gray-200 bg-gray-50/50",
+            (disabled || processing) && "pointer-events-none opacity-60"
           )}
           onDragOver={(e) => {
             e.preventDefault();

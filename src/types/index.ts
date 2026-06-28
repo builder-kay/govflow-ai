@@ -134,6 +134,19 @@ export interface SavedRoadmapSummary {
   nextStep: string;
 }
 
+export type RoadmapInstanceStatus = "active" | "paused";
+
+export interface SavedRoadmapInstance {
+  serviceId: string;
+  checklist: ChecklistItem[];
+  roadmap: Roadmap;
+  answers: UserAnswers;
+  hasCompletedQuestions: boolean;
+  status: RoadmapInstanceStatus;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface DocumentAnalysis {
   documentType: string;
   purpose: string;
@@ -142,6 +155,8 @@ export interface DocumentAnalysis {
   nextAction: string;
 }
 
+export type SavedDocumentStatus = "processing" | "ready" | "error";
+
 export interface SavedDocument {
   id: string;
   name: string;
@@ -149,6 +164,11 @@ export interface SavedDocument {
   size: number;
   uploadedAt: string;
   summary?: string;
+  /** Extracted text stored for AI chat memory (truncated for localStorage) */
+  extractedText?: string;
+  /** Structured analysis shown on the documents page */
+  analysis?: DocumentAnalysis;
+  status?: SavedDocumentStatus;
 }
 
 export interface AccessibilitySettings {
