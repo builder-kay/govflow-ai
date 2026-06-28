@@ -1,9 +1,13 @@
 "use client";
 
+import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowDown, ListOrdered } from "lucide-react";
+import { ArrowDown, ChevronRight, ListOrdered } from "lucide-react";
+import { getServiceStepGuide, getServiceStepGuideHref } from "@/data/service-step-guides";
+import { cn } from "@/lib/utils";
 
 interface ServiceStepsPreviewProps {
+  serviceId: string;
   steps: string[];
 }
 
@@ -25,7 +29,7 @@ const stepVariants = {
   },
 };
 
-export function ServiceStepsPreview({ steps }: ServiceStepsPreviewProps) {
+export function ServiceStepsPreview({ serviceId, steps }: ServiceStepsPreviewProps) {
   return (
     <section className="mb-10">
       <motion.div
@@ -39,7 +43,7 @@ export function ServiceStepsPreview({ steps }: ServiceStepsPreviewProps) {
           Steps to complete
         </h2>
         <p className="mt-1 text-sm text-muted">
-          GovFlow will personalise these based on your answers — here is the typical path.
+          Tap any step to open guided tasks — GovFlow will walk you through completing it.
         </p>
       </motion.div>
 
@@ -51,6 +55,34 @@ export function ServiceStepsPreview({ steps }: ServiceStepsPreviewProps) {
       >
         {steps.map((step, index) => {
           const isLast = index === steps.length - 1;
+          const hasGuide = Boolean(getServiceStepGuide(serviceId, index));
+          const href = getServiceStepGuideHref(serviceId, index);
+
+          const card = (
+            <motion.div
+              whileHover={hasGuide ? { x: 4 } : undefined}
+              transition={{ type: "spring", stiffness: 400, damping: 25 }}
+              className={cn(
+                "rounded-2xl border border-gray-100 bg-white p-4 shadow-sm transition-shadow md:p-5",
+                hasGuide && "hover:border-primary/30 hover:shadow-md"
+              )}
+            >
+              <div className="flex items-start justify-between gap-3">
+                <p className="font-medium text-foreground md:text-base">{step}</p>
+                {hasGuide ? (
+                  <ChevronRight className="h-5 w-5 shrink-0 text-primary" aria-hidden />
+                ) : null}
+              </div>
+              {hasGuide ? (
+                <p className="mt-2 text-xs font-medium text-primary">Tap to complete this step</p>
+              ) : !isLast ? (
+                <p className="mt-2 flex items-center gap-1 text-xs text-muted">
+                  <ArrowDown className="h-3 w-3" />
+                  Then
+                </p>
+              ) : null}
+            </motion.div>
+          );
 
           return (
             <motion.li key={step} variants={stepVariants} className="relative flex gap-4">
@@ -80,19 +112,13 @@ export function ServiceStepsPreview({ steps }: ServiceStepsPreviewProps) {
               </div>
 
               <div className={`flex-1 ${isLast ? "pb-0" : "pb-5"}`}>
-                <motion.div
-                  whileHover={{ x: 4 }}
-                  transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                  className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm transition-shadow hover:shadow-md md:p-5"
-                >
-                  <p className="font-medium text-foreground md:text-base">{step}</p>
-                  {!isLast ? (
-                    <p className="mt-2 flex items-center gap-1 text-xs text-muted">
-                      <ArrowDown className="h-3 w-3" />
-                      Then
-                    </p>
-                  ) : null}
-                </motion.div>
+                {hasGuide ? (
+                  <Link href={href} className="block rounded-2xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary">
+                    {card}
+                  </Link>
+                ) : (
+                  card
+                )}
               </div>
             </motion.li>
           );

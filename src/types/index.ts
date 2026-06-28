@@ -17,6 +17,26 @@ export interface Service {
   steps: string[];
 }
 
+export interface ServiceStepTask {
+  id: string;
+  label: string;
+  description: string;
+  whyItMatters?: string;
+  checklistItemId?: string;
+}
+
+export interface ServiceStepGuide {
+  id: string;
+  serviceId: string;
+  index: number;
+  title: string;
+  summary: string;
+  agency: string;
+  assistantTopic?: string;
+  checklistItemIds: string[];
+  tasks: ServiceStepTask[];
+}
+
 export interface RoadmapStep {
   id: string;
   title: string;

@@ -147,7 +147,7 @@ export default function ServiceGuidePage({
 
         <ServiceOverview overview={service.overview} involves={service.involves} />
 
-        <ServiceStepsPreview steps={service.steps} />
+        <ServiceStepsPreview serviceId={service.id} steps={service.steps} />
 
         <ServiceMissingDocsCta
           startHref={startHref}

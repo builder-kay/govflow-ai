@@ -111,7 +111,7 @@ export default function RoadmapPage() {
             <Building2 className="h-5 w-5 text-primary" />
             Your roadmap steps
           </h2>
-          <RoadmapTimeline steps={roadmap.steps} />
+          <RoadmapTimeline steps={roadmap.steps} serviceId={currentServiceId} />
         </section>
 
         <p className="mt-8 text-sm text-muted italic">
