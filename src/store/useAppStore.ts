@@ -10,9 +10,7 @@ import type {
   SavedDocument,
 } from "@/types";
 import { getServiceFlow } from "@/lib/service-registry";
-import { syncRoadmapFromChecklist, getChecklistProgress } from "@/lib/checklist-sync";
-
-export { getChecklistProgress };
+import { syncRoadmapFromChecklist } from "@/lib/checklist-sync";
 
 interface AppState {
   userQuery: string;
