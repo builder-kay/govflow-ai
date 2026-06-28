@@ -57,6 +57,8 @@ function AuthPageContent() {
   const [otpLoading, setOtpLoading] = useState(false);
   const [status, setStatus] = useState<string>("");
   const [error, setError] = useState<string>("");
+  const [otpVerified, setOtpVerified] = useState(false);
+  const [resendAvailableIn, setResendAvailableIn] = useState(0);
 
   useEffect(() => {
     if (!hasSupabaseConfig) return;
@@ -73,8 +75,22 @@ function AuthPageContent() {
     if (!parsed || parsed.type !== "phone") {
       setOtpCode("");
       setUssdCode(null);
+      setOtpVerified(false);
     }
   }, [identifier]);
+
+  useEffect(() => {
+    if (mode === "login") {
+      setOtpVerified(false);
+      setResendAvailableIn(0);
+    }
+  }, [mode]);
+
+  useEffect(() => {
+    if (resendAvailableIn <= 0) return;
+    const timer = window.setTimeout(() => setResendAvailableIn((prev) => Math.max(0, prev - 1)), 1000);
+    return () => window.clearTimeout(timer);
+  }, [resendAvailableIn]);
 
   const parsedIdentifier = useMemo(() => parseIdentifier(identifier), [identifier]);
   const normalizedPhone = parsedIdentifier?.type === "phone" ? parsedIdentifier.value : null;
@@ -97,25 +113,41 @@ function AuthPageContent() {
       setError("Enter a valid Ghana mobile number first (e.g. 0241234567).");
       return;
     }
+    if (mode === "login") {
+      setError("OTP is only needed for Sign up or Reset password.");
+      return;
+    }
+    if (resendAvailableIn > 0) {
+      setError(`Please wait ${resendAvailableIn}s before requesting another OTP.`);
+      return;
+    }
 
     setOtpLoading(true);
     try {
       const response = await fetch("/api/auth/send-otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone: normalizedPhone }),
+        body: JSON.stringify({ phone: normalizedPhone, purpose: mode }),
       });
 
       const payload = (await response.json().catch(() => ({}))) as {
         error?: string;
         message?: string;
         ussdCode?: string | null;
+        code?: string;
       };
       if (!response.ok) {
+        if (payload.code === "ACCOUNT_EXISTS") {
+          setMode("login");
+        } else if (payload.code === "ACCOUNT_NOT_FOUND") {
+          setMode("signup");
+        }
         throw new Error(payload.error || "Failed to send OTP.");
       }
       setStatus(payload.message || "OTP sent to your phone.");
       setUssdCode(payload.ussdCode ?? null);
+      setOtpVerified(false);
+      setResendAvailableIn(45);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to send OTP.");
     } finally {
@@ -149,7 +181,9 @@ function AuthPageContent() {
         throw new Error(payload.error || "OTP verification failed.");
       }
       setStatus(payload.message || "Phone number verified.");
+      setOtpVerified(true);
     } catch (err) {
+      setOtpVerified(false);
       setError(err instanceof Error ? err.message : "OTP verification failed.");
     } finally {
       setOtpLoading(false);
@@ -169,6 +203,7 @@ function AuthPageContent() {
     }
     setStatus("Verify OTP and set a new password to recover your account.");
     setMode("reset");
+    setOtpVerified(false);
   };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -207,9 +242,20 @@ function AuthPageContent() {
           email: authEmail,
           password,
         });
-        if (signInError) throw signInError;
+        if (signInError) {
+          const msg = signInError.message.toLowerCase();
+          if (msg.includes("invalid login credentials")) {
+            throw new Error(
+              "Wrong phone/password. If this number has no account, sign up first. If you forgot password, use Reset password."
+            );
+          }
+          throw signInError;
+        }
         router.replace(redirectTo);
       } else if (mode === "signup") {
+        if (!otpVerified) {
+          throw new Error("Verify your OTP first before creating an account.");
+        }
         if (!otpCode.trim()) {
           throw new Error("Enter the OTP code sent to your phone.");
         }
@@ -242,7 +288,11 @@ function AuthPageContent() {
 
         setStatus(signupPayload.message || "Account created successfully. Please log in.");
         setMode("login");
+        setOtpVerified(false);
       } else {
+        if (!otpVerified) {
+          throw new Error("Verify your OTP first before resetting your password.");
+        }
         if (!otpCode.trim()) {
           throw new Error("Enter the OTP code sent to your phone.");
         }
@@ -267,6 +317,7 @@ function AuthPageContent() {
         setPassword("");
         setConfirmPassword("");
         setOtpCode("");
+        setOtpVerified(false);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Authentication failed. Please try again.");
@@ -282,6 +333,7 @@ function AuthPageContent() {
     if (nextMode === "login") {
       setOtpCode("");
       setConfirmPassword("");
+      setOtpVerified(false);
     }
   };
 
@@ -409,7 +461,10 @@ function AuthPageContent() {
                           <input
                             type="text"
                             value={otpCode}
-                            onChange={(e) => setOtpCode(e.target.value)}
+                            onChange={(e) => {
+                              setOtpCode(e.target.value);
+                              setOtpVerified(false);
+                            }}
                             placeholder="Enter 6-digit OTP"
                             className="h-10 min-w-[180px] flex-1 rounded-lg border border-gray-200 px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
                           />
@@ -418,9 +473,9 @@ function AuthPageContent() {
                             size="sm"
                             variant="outline"
                             onClick={handleSendOtp}
-                            disabled={otpLoading}
+                            disabled={otpLoading || resendAvailableIn > 0}
                           >
-                            Send OTP
+                            {resendAvailableIn > 0 ? `Resend in ${resendAvailableIn}s` : "Send OTP"}
                           </Button>
                           <Button
                             type="button"
@@ -435,6 +490,11 @@ function AuthPageContent() {
                           <p className="mt-2 text-xs text-primary-dark">
                             SMS delayed? Dial <span className="font-semibold">{ussdCode}</span> to
                             check your OTP via Arkesel shortcode.
+                          </p>
+                        ) : null}
+                        {otpVerified ? (
+                          <p className="mt-2 text-xs font-medium text-emerald-700">
+                            OTP verified. You can continue.
                           </p>
                         ) : null}
                       </motion.div>
@@ -551,7 +611,11 @@ function AuthPageContent() {
                     </p>
                   ) : null}
 
-                  <Button type="submit" className="h-12 w-full text-base" disabled={loading || otpLoading}>
+                  <Button
+                    type="submit"
+                    className="h-12 w-full text-base"
+                    disabled={loading || otpLoading || ((mode === "signup" || mode === "reset") && !otpVerified)}
+                  >
                     {loading ? (
                       <>
                         <Loader2 className="h-4 w-4 animate-spin" />

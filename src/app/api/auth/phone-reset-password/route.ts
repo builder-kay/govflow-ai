@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { parseIdentifier, phoneToEmailAlias } from "@/lib/auth-identifiers";
+import { parseIdentifier } from "@/lib/auth-identifiers";
+import { getAuthUserByPhone } from "@/lib/auth-account";
 import { getSupabaseAdminClient, hasSupabaseAdminConfig } from "@/lib/supabase-admin";
 
 type PhoneResetPayload = {
@@ -58,17 +59,15 @@ export async function POST(request: Request) {
   }
 
   const admin = getSupabaseAdminClient();
-  const aliasEmail = phoneToEmailAlias(parsed.value);
-
-  const { data: usersData, error: listError } = await admin.auth.admin.listUsers({
-    page: 1,
-    perPage: 1000,
-  });
-  if (listError) {
-    return NextResponse.json({ error: listError.message }, { status: 500 });
+  let matchedUser: Awaited<ReturnType<typeof getAuthUserByPhone>> | null = null;
+  try {
+    matchedUser = await getAuthUserByPhone(parsed.value);
+  } catch (error) {
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : "Could not validate account status." },
+      { status: 500 }
+    );
   }
-
-  const matchedUser = usersData.users.find((user) => user.email?.toLowerCase() === aliasEmail);
   if (!matchedUser) {
     return NextResponse.json(
       { error: "No account found for this phone number. Please create a new account first." },

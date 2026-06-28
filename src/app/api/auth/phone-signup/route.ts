@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { parseIdentifier, phoneToEmailAlias } from "@/lib/auth-identifiers";
+import { getAuthUserByPhone } from "@/lib/auth-account";
 import { getSupabaseAdminClient, hasSupabaseAdminConfig } from "@/lib/supabase-admin";
 
 type PhoneSignupPayload = {
@@ -59,6 +60,22 @@ export async function POST(request: Request) {
 
   const admin = getSupabaseAdminClient();
   const aliasEmail = phoneToEmailAlias(parsed.value);
+
+  let existingUser: Awaited<ReturnType<typeof getAuthUserByPhone>> | null = null;
+  try {
+    existingUser = await getAuthUserByPhone(parsed.value);
+  } catch (error) {
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : "Could not validate account status." },
+      { status: 500 }
+    );
+  }
+  if (existingUser) {
+    return NextResponse.json(
+      { error: "Account already exists. Please log in instead.", code: "ACCOUNT_EXISTS" },
+      { status: 409 }
+    );
+  }
 
   const { error: createError } = await admin.auth.admin.createUser({
     email: aliasEmail,
