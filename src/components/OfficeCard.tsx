@@ -23,6 +23,7 @@ import { cn } from "@/lib/utils";
 
 interface OfficeCardProps {
   office: Office;
+  cityLabel?: string;
   distanceKm?: number | null;
   coordinates?: { lat: number; lon: number } | null;
   isNearest?: boolean;
@@ -33,6 +34,7 @@ interface OfficeCardProps {
 
 export function OfficeCard({
   office,
+  cityLabel,
   distanceKm,
   coordinates,
   isNearest = false,
@@ -115,7 +117,14 @@ export function OfficeCard({
                 </div>
               </div>
               <p className="text-sm font-semibold text-primary">{office.service}</p>
-              <p className="mt-1 text-sm text-muted">{office.useCase}</p>
+              <p className="mt-1 flex flex-wrap items-center gap-2 text-sm text-muted">
+                <span>{office.useCase}</span>
+                {cityLabel ? (
+                  <span className="rounded-full bg-soft-blue px-2 py-0.5 text-xs font-semibold text-primary-dark">
+                    {cityLabel}
+                  </span>
+                ) : null}
+              </p>
             </div>
           </div>
 

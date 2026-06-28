@@ -81,6 +81,8 @@ export interface Office {
   service: string;
   useCase: string;
   address: string;
+  /** Ghana city/area id for filtering — see ghana-cities */
+  city: string;
   osmQuery?: string;
   phone: string;
   hours?: string;

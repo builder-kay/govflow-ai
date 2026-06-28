@@ -5,16 +5,17 @@ import { motion, AnimatePresence } from "framer-motion";
 import { AppShell } from "@/components/layout/AppShell";
 import { OfficeCard } from "@/components/OfficeCard";
 import { OfficeProximityRadar } from "@/components/offices/OfficeProximityRadar";
+import { OfficeAreaPicker } from "@/components/offices/OfficeAreaPicker";
 import { offices } from "@/data/offices";
 import { Coordinates, haversineDistanceKm } from "@/lib/geo";
 import { getOfficeMeta, OFFICE_FILTERS, type OfficeCategory } from "@/lib/office-meta";
-import { NoticeCard } from "@/components/NoticeCard";
 import {
-  Loader2,
-  MapPin,
-  Search,
-  Sparkles,
-} from "lucide-react";
+  CITIES_WITH_LISTED_OFFICES,
+  getGhanaCity,
+  type GhanaCityId,
+} from "@/lib/ghana-cities";
+import { NoticeCard } from "@/components/NoticeCard";
+import { Loader2, MapPin, Search, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type OfficeLocation = {
@@ -35,6 +36,8 @@ type LocatedOffice = (typeof offices)[number] & {
 
 export default function OfficesPage() {
   const [userLocation, setUserLocation] = useState<Coordinates | null>(null);
+  const [usingGps, setUsingGps] = useState(false);
+  const [selectedCityId, setSelectedCityId] = useState<GhanaCityId>("all");
   const [locationsByOfficeId, setLocationsByOfficeId] = useState<Record<string, OfficeLocation>>({});
   const [locating, setLocating] = useState(false);
   const [loadingPins, setLoadingPins] = useState(true);
@@ -95,12 +98,27 @@ export default function OfficesPage() {
     };
   }, [loadOfficeCoordinates]);
 
+  const referenceLocation = useMemo<Coordinates | null>(() => {
+    if (usingGps && userLocation) return userLocation;
+    if (selectedCityId !== "all") {
+      return getGhanaCity(selectedCityId).coordinates;
+    }
+    return null;
+  }, [usingGps, userLocation, selectedCityId]);
+
+  const referenceLabel = useMemo(() => {
+    if (usingGps && userLocation) return "From your location";
+    if (selectedCityId !== "all") return `From ${getGhanaCity(selectedCityId).label}`;
+    return null;
+  }, [usingGps, userLocation, selectedCityId]);
+
   const locatedOffices = useMemo<LocatedOffice[]>(() => {
     return offices
       .map((office) => {
         const coordinates = locationsByOfficeId[office.id] || null;
-        const distanceKm =
-          userLocation && coordinates ? haversineDistanceKm(userLocation, coordinates) : null;
+        const distanceKm = referenceLocation && coordinates
+          ? haversineDistanceKm(referenceLocation, coordinates)
+          : null;
         return { ...office, coordinates, distanceKm };
       })
       .sort((a, b) => {
@@ -109,27 +127,44 @@ export default function OfficesPage() {
         if (b.distanceKm == null) return -1;
         return a.distanceKm - b.distanceKm;
       });
-  }, [locationsByOfficeId, userLocation]);
+  }, [locationsByOfficeId, referenceLocation]);
 
   const filteredOffices = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
+    const filterByListedCity =
+      !usingGps &&
+      selectedCityId !== "all" &&
+      CITIES_WITH_LISTED_OFFICES.has(selectedCityId);
+
     return locatedOffices.filter((office) => {
+      if (filterByListedCity && office.city !== selectedCityId) {
+        return false;
+      }
+
       const meta = getOfficeMeta(office.id);
       const matchesFilter = activeFilter === "all" || meta.category === activeFilter;
       if (!matchesFilter) return false;
+
       if (!query) return true;
+      const cityLabel = getGhanaCity(office.city as GhanaCityId).label.toLowerCase();
       return (
         office.name.toLowerCase().includes(query) ||
         office.service.toLowerCase().includes(query) ||
         office.address.toLowerCase().includes(query) ||
-        office.useCase.toLowerCase().includes(query)
+        office.useCase.toLowerCase().includes(query) ||
+        cityLabel.includes(query)
       );
     });
-  }, [locatedOffices, activeFilter, searchQuery]);
+  }, [locatedOffices, activeFilter, searchQuery, selectedCityId, usingGps]);
 
-  const nearestOfficeId = userLocation
-    ? locatedOffices.find((o) => o.distanceKm != null)?.id ?? null
+  const nearestOfficeId = referenceLocation
+    ? filteredOffices.find((o) => o.distanceKm != null)?.id ?? null
     : null;
+
+  const showRegionalHint =
+    !usingGps &&
+    selectedCityId !== "all" &&
+    !CITIES_WITH_LISTED_OFFICES.has(selectedCityId);
 
   const handleFindNearest = () => {
     if (!navigator.geolocation) {
@@ -145,6 +180,7 @@ export default function OfficesPage() {
           lat: position.coords.latitude,
           lon: position.coords.longitude,
         });
+        setUsingGps(true);
         try {
           await loadOfficeCoordinates();
         } catch (error) {
@@ -167,6 +203,12 @@ export default function OfficesPage() {
       },
       { enableHighAccuracy: true, timeout: 12000 }
     );
+  };
+
+  const handleSelectCity = (cityId: GhanaCityId) => {
+    setUsingGps(false);
+    setSelectedCityId(cityId);
+    setLocationError("");
   };
 
   const scrollToOffice = (officeId: string) => {
@@ -199,10 +241,24 @@ export default function OfficesPage() {
               Office Locator
             </h1>
             <p className="max-w-2xl text-muted">
-              Find government offices, compare distances from your location, and jump to directions or
-              official portals in one place.
+              Browse government offices in Accra, Kumasi, Cape Coast, and other areas — or use your
+              live location to see what is closest to you.
             </p>
           </div>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.05 }}
+        >
+          <OfficeAreaPicker
+            selectedCityId={selectedCityId}
+            onSelectCity={handleSelectCity}
+            usingGps={usingGps}
+            onUseMyLocation={handleFindNearest}
+            locating={locating}
+          />
         </motion.div>
 
         <motion.div
@@ -211,13 +267,14 @@ export default function OfficesPage() {
           transition={{ delay: 0.1 }}
         >
           <OfficeProximityRadar
-            offices={locatedOffices.map((o) => ({
+            offices={filteredOffices.map((o) => ({
               id: o.id,
               name: o.name,
               distanceKm: o.distanceKm,
             }))}
             selectedId={selectedOfficeId}
-            hasUserLocation={Boolean(userLocation)}
+            hasReferenceLocation={Boolean(referenceLocation)}
+            referenceLabel={referenceLabel}
             locating={locating}
             onSelect={scrollToOffice}
             onLocate={handleFindNearest}
@@ -232,6 +289,14 @@ export default function OfficesPage() {
           >
             {locationError}
           </motion.p>
+        ) : null}
+
+        {showRegionalHint ? (
+          <NoticeCard
+            variant="info"
+            title={`Offices nearest to ${getGhanaCity(selectedCityId).label}`}
+            description="We do not have dedicated listings in this city yet. Showing the closest GovFlow offices ranked by travel distance — always confirm the official office before you go."
+          />
         ) : null}
 
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -268,8 +333,8 @@ export default function OfficesPage() {
 
         <NoticeCard
           variant="warning"
-          title="Nearest office is an estimate"
-          description="Distances use OpenStreetMap pin data and your live location. Always confirm the latest office details with the official agency before visiting."
+          title="Distances are estimates"
+          description="Pins use OpenStreetMap data and your chosen area or live location. Always confirm the latest office details with the official agency before visiting."
         />
 
         {loadingPins ? (
@@ -288,14 +353,17 @@ export default function OfficesPage() {
                 exit={{ opacity: 0 }}
                 className="rounded-2xl border border-dashed border-gray-200 bg-white p-10 text-center"
               >
-                <p className="font-semibold text-foreground">No offices match your search</p>
-                <p className="mt-1 text-sm text-muted">Try a different filter or clear your search.</p>
+                <p className="font-semibold text-foreground">No offices match your filters</p>
+                <p className="mt-1 text-sm text-muted">
+                  Try another city, clear your search, or choose All areas.
+                </p>
               </motion.div>
             ) : (
               filteredOffices.map((office, index) => (
                 <OfficeCard
                   key={office.id}
                   office={office}
+                  cityLabel={getGhanaCity(office.city as GhanaCityId).label}
                   distanceKm={office.distanceKm}
                   coordinates={office.coordinates}
                   isNearest={office.id === nearestOfficeId}

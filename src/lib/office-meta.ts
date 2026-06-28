@@ -5,6 +5,7 @@ import {
   GraduationCap,
   type LucideIcon,
 } from "lucide-react";
+import { OFFICE_CITY_SUFFIXES } from "@/lib/ghana-cities";
 
 export type OfficeCategory = "all" | "passport" | "identity" | "business" | "national-service";
 
@@ -55,9 +56,22 @@ export const OFFICE_FILTERS: { id: OfficeCategory; label: string }[] = [
   { id: "national-service", label: "National Service" },
 ];
 
+export function resolveOfficeMetaId(officeId: string): string {
+  if (OFFICE_META[officeId]) return officeId;
+
+  const parts = officeId.split("-");
+  const last = parts[parts.length - 1];
+  if (OFFICE_CITY_SUFFIXES.has(last)) {
+    return parts.slice(0, -1).join("-");
+  }
+
+  return officeId;
+}
+
 export function getOfficeMeta(officeId: string): OfficeMeta {
+  const metaKey = resolveOfficeMetaId(officeId);
   return (
-    OFFICE_META[officeId] ?? {
+    OFFICE_META[metaKey] ?? {
       category: "business",
       icon: Briefcase,
       accent: "from-primary/15 to-soft-blue/30",

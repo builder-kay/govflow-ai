@@ -14,7 +14,8 @@ interface RadarOffice {
 interface OfficeProximityRadarProps {
   offices: RadarOffice[];
   selectedId: string | null;
-  hasUserLocation: boolean;
+  hasReferenceLocation: boolean;
+  referenceLabel?: string | null;
   locating: boolean;
   onSelect: (id: string) => void;
   onLocate: () => void;
@@ -23,7 +24,8 @@ interface OfficeProximityRadarProps {
 export function OfficeProximityRadar({
   offices,
   selectedId,
-  hasUserLocation,
+  hasReferenceLocation,
+  referenceLabel,
   locating,
   onSelect,
   onLocate,
@@ -38,7 +40,7 @@ export function OfficeProximityRadar({
         <div className="absolute left-1/2 top-1/2 h-24 w-24 -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/15" />
       </div>
 
-      {hasUserLocation ? (
+      {hasReferenceLocation ? (
         <motion.div
           className="pointer-events-none absolute left-1/2 top-1/2 h-20 w-20 -translate-x-1/2 -translate-y-1/2 rounded-full bg-sky-400/20"
           animate={{ scale: [1, 1.35, 1], opacity: [0.35, 0.15, 0.35] }}
@@ -48,9 +50,13 @@ export function OfficeProximityRadar({
 
       <div className="relative z-10 mb-6 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wider text-white/70">Live proximity</p>
+          <p className="text-xs font-semibold uppercase tracking-wider text-white/70">
+            {referenceLabel ?? "Proximity map"}
+          </p>
           <p className="text-lg font-bold">
-            {hasUserLocation ? "Offices ranked by distance" : "Enable location to rank nearby offices"}
+            {hasReferenceLocation
+              ? "Offices ranked by distance"
+              : "Pick an area or enable location to rank offices"}
           </p>
         </div>
         <motion.button
@@ -61,7 +67,7 @@ export function OfficeProximityRadar({
           whileTap={{ scale: 0.98 }}
           className={cn(
             "inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition-colors",
-            hasUserLocation
+            hasReferenceLocation
               ? "bg-white/15 text-white hover:bg-white/25"
               : "bg-white text-slate-900 hover:bg-white/90"
           )}
@@ -71,15 +77,15 @@ export function OfficeProximityRadar({
           ) : (
             <LocateFixed className="h-4 w-4" />
           )}
-          {locating ? "Locating..." : hasUserLocation ? "Refresh location" : "Use my location"}
+          {locating ? "Locating..." : hasReferenceLocation ? "Use my location" : "Use my location"}
         </motion.button>
       </div>
 
-      <div className="relative z-10 grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <div className="relative z-10 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
         {offices.map((office, index) => {
           const meta = getOfficeMeta(office.id);
           const Icon = meta.icon;
-          const isNearest = office.id === nearestId && hasUserLocation;
+          const isNearest = office.id === nearestId && hasReferenceLocation;
           const isSelected = office.id === selectedId;
 
           return (

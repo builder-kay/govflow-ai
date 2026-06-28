@@ -56,7 +56,7 @@ async function geocodeQuery(query: string): Promise<GeocodeResult> {
 
 export async function POST(request: NextRequest) {
   const body = (await request.json().catch(() => ({}))) as { queries?: string[] };
-  const queries = Array.isArray(body.queries) ? body.queries.slice(0, 20) : [];
+  const queries = Array.isArray(body.queries) ? body.queries.slice(0, 40) : [];
 
   if (!queries.length) {
     return NextResponse.json({ error: "Provide at least one geocoding query." }, { status: 400 });
