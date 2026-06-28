@@ -10,10 +10,8 @@ import { Coordinates, haversineDistanceKm } from "@/lib/geo";
 import { getOfficeMeta, OFFICE_FILTERS, type OfficeCategory } from "@/lib/office-meta";
 import { NoticeCard } from "@/components/NoticeCard";
 import {
-  Building2,
   Loader2,
   MapPin,
-  Navigation,
   Search,
   Sparkles,
 } from "lucide-react";
@@ -133,9 +131,6 @@ export default function OfficesPage() {
     ? locatedOffices.find((o) => o.distanceKm != null)?.id ?? null
     : null;
 
-  const pinsLoaded = Object.keys(locationsByOfficeId).length;
-  const nearestDistance = locatedOffices.find((o) => o.distanceKm != null)?.distanceKm;
-
   const handleFindNearest = () => {
     if (!navigator.geolocation) {
       setLocationError("Your browser does not support location services.");
@@ -207,42 +202,6 @@ export default function OfficesPage() {
               Find government offices, compare distances from your location, and jump to directions or
               official portals in one place.
             </p>
-
-            <div className="mt-6 grid gap-3 sm:grid-cols-3">
-              <motion.div
-                whileHover={{ y: -2 }}
-                className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm"
-              >
-                <p className="text-xs text-muted">Offices listed</p>
-                <p className="mt-1 flex items-center gap-2 text-2xl font-bold">
-                  <Building2 className="h-5 w-5 text-primary" />
-                  {offices.length}
-                </p>
-              </motion.div>
-              <motion.div
-                whileHover={{ y: -2 }}
-                className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm"
-              >
-                <p className="text-xs text-muted">Map pins ready</p>
-                <p className="mt-1 flex items-center gap-2 text-2xl font-bold">
-                  {loadingPins ? (
-                    <Loader2 className="h-5 w-5 animate-spin text-primary" />
-                  ) : (
-                    <Navigation className="h-5 w-5 text-primary" />
-                  )}
-                  {loadingPins ? "..." : `${pinsLoaded}/${offices.length}`}
-                </p>
-              </motion.div>
-              <motion.div
-                whileHover={{ y: -2 }}
-                className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm"
-              >
-                <p className="text-xs text-muted">Nearest office</p>
-                <p className="mt-1 text-2xl font-bold">
-                  {typeof nearestDistance === "number" ? `${nearestDistance.toFixed(1)} km` : "—"}
-                </p>
-              </motion.div>
-            </div>
           </div>
         </motion.div>
 
