@@ -56,6 +56,7 @@ body {
 }
 
 .dark-mode {
+  color-scheme: dark;
   --background: #0B1220;
   --foreground: #E5E7EB;
   --primary: #10B981;
@@ -69,7 +70,18 @@ body {
   --gold: #FACC15;
 }
 
+.dark-mode body {
+  background: var(--background);
+  color: var(--foreground);
+}
+
 .dark-mode .bg-white {
+  background-color: #111827 !important;
+}
+
+.dark-mode .bg-white\/95,
+.dark-mode .bg-white\/90,
+.dark-mode .bg-white\/80 {
   background-color: #111827 !important;
 }
 
@@ -77,13 +89,116 @@ body {
   background-color: #0B1220 !important;
 }
 
+.dark-mode .bg-gray-50,
+.dark-mode .bg-gray-100,
+.dark-mode .bg-gray-50\/50,
+.dark-mode .bg-gray-50\/60,
+.dark-mode .bg-gray-50\/70,
+.dark-mode .bg-gray-50\/80 {
+  background-color: #1F2937 !important;
+}
+
+.dark-mode .bg-soft-blue,
+.dark-mode .bg-soft-blue\/20,
+.dark-mode .bg-soft-blue\/30,
+.dark-mode .bg-soft-blue\/40,
+.dark-mode .bg-soft-blue\/50,
+.dark-mode .bg-soft-blue\/60 {
+  background-color: #1F2937 !important;
+}
+
+.dark-mode .from-white,
+.dark-mode .via-white,
+.dark-mode .to-white {
+  --tw-gradient-from: #111827 !important;
+  --tw-gradient-via: #111827 !important;
+  --tw-gradient-to: #1F2937 !important;
+}
+
 .dark-mode .border-gray-100,
 .dark-mode .border-gray-200 {
   border-color: #374151 !important;
 }
 
+.dark-mode .border-white\/60,
+.dark-mode .border-white\/80 {
+  border-color: #374151 !important;
+}
+
+.dark-mode .text-gray-900,
+.dark-mode .text-gray-800,
+.dark-mode .text-gray-700 {
+  color: #E5E7EB !important;
+}
+
+.dark-mode .text-gray-600,
+.dark-mode .text-gray-500,
+.dark-mode .text-gray-400 {
+  color: #9CA3AF !important;
+}
+
 .dark-mode .text-muted {
   color: #9CA3AF !important;
+}
+
+.dark-mode .bg-amber-50,
+.dark-mode .bg-amber-50\/50,
+.dark-mode .bg-amber-50\/60,
+.dark-mode .bg-amber-50\/70,
+.dark-mode .bg-amber-100 {
+  background-color: #3F2A0F !important;
+}
+
+.dark-mode .text-amber-900,
+.dark-mode .text-amber-800,
+.dark-mode .text-amber-700 {
+  color: #FCD34D !important;
+}
+
+.dark-mode .bg-emerald-50,
+.dark-mode .bg-emerald-50\/50,
+.dark-mode .bg-emerald-50\/70,
+.dark-mode .bg-emerald-100 {
+  background-color: #0F2E25 !important;
+}
+
+.dark-mode .text-emerald-900,
+.dark-mode .text-emerald-800,
+.dark-mode .text-emerald-700 {
+  color: #6EE7B7 !important;
+}
+
+.dark-mode .bg-red-50,
+.dark-mode .bg-red-50\/50,
+.dark-mode .bg-red-50\/60,
+.dark-mode .bg-red-100 {
+  background-color: #3B1111 !important;
+}
+
+.dark-mode .text-red-900,
+.dark-mode .text-red-800,
+.dark-mode .text-red-700 {
+  color: #FCA5A5 !important;
+}
+
+.dark-mode .bg-orange-50,
+.dark-mode .bg-orange-50\/70,
+.dark-mode .bg-orange-100 {
+  background-color: #3D1E0E !important;
+}
+
+.dark-mode .text-orange-900,
+.dark-mode .text-orange-800,
+.dark-mode .text-orange-700 {
+  color: #FDBA74 !important;
+}
+
+.dark-mode .shadow-sm,
+.dark-mode .shadow-md,
+.dark-mode .shadow-lg,
+.dark-mode .shadow-xl,
+.dark-mode .shadow-2xl {
+  --tw-shadow-color: rgba(0, 0, 0, 0.45);
 }
 
 .openai-chatkit,
