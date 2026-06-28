@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import Script from "next/script";
 import { PwaInstallPrompt } from "@/components/pwa/PwaInstallPrompt";
+import { ThemeModeSync } from "@/components/theme/ThemeModeSync";
 import "./globals.css";
 
 const inter = Inter({
@@ -34,6 +35,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} h-full`}>
       <body className="min-h-full antialiased font-sans">
+        <ThemeModeSync />
         {children}
         <PwaInstallPrompt />
         <Script

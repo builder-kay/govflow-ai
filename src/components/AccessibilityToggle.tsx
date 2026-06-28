@@ -8,7 +8,7 @@ import type { LucideIcon } from "lucide-react";
 interface AccessibilityToggleProps {
   label: string;
   description?: string;
-  settingKey: "biggerText" | "voiceReading" | "highContrast" | "reduceAnimations";
+  settingKey: "darkMode" | "biggerText" | "voiceReading" | "highContrast" | "reduceAnimations";
   icon?: LucideIcon;
 }
 

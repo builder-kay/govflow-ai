@@ -20,6 +20,7 @@ import {
   ShieldCheck,
   Globe,
   Accessibility,
+  MoonStar,
   Scale,
   Type,
   Check,
@@ -293,6 +294,7 @@ export default function ProfilePage() {
               reduceMotion={reduceMotion}
             >
               <div className="space-y-3">
+                <AccessibilityToggle label="Dark mode" settingKey="darkMode" icon={MoonStar} />
                 <AccessibilityToggle label="Bigger text" settingKey="biggerText" icon={Type} />
               </div>
             </ProfileSection>

@@ -176,6 +176,7 @@ export interface SavedDocument {
 export interface AccessibilitySettings {
   language: string;
   explanationStyle: "simple" | "normal" | "detailed";
+  darkMode: boolean;
   biggerText: boolean;
   voiceReading: boolean;
   highContrast: boolean;

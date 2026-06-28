@@ -55,6 +55,7 @@ interface AppState {
 const defaultAccessibility: AccessibilitySettings = {
   language: "English",
   explanationStyle: "simple",
+  darkMode: false,
   biggerText: false,
   voiceReading: false,
   highContrast: false,

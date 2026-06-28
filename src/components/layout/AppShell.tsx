@@ -33,6 +33,7 @@ export function AppShell({
       <div
         className={cn(
           "min-h-screen bg-background",
+          accessibility.darkMode && "dark-mode",
           accessibility.biggerText && "bigger-text",
           accessibility.highContrast && "high-contrast",
           accessibility.reduceAnimations && "reduce-motion"

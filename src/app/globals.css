@@ -55,6 +55,37 @@ body {
   --primary: #064E3B;
 }
 
+.dark-mode {
+  --background: #0B1220;
+  --foreground: #E5E7EB;
+  --primary: #10B981;
+  --primary-dark: #059669;
+  --soft-blue: #1F2937;
+  --card: #111827;
+  --muted: #9CA3AF;
+  --warning: #FBBF24;
+  --success: #34D399;
+  --danger: #F87171;
+  --gold: #FACC15;
+}
+
+.dark-mode .bg-white {
+  background-color: #111827 !important;
+}
+
+.dark-mode .bg-background {
+  background-color: #0B1220 !important;
+}
+
+.dark-mode .border-gray-100,
+.dark-mode .border-gray-200 {
+  border-color: #374151 !important;
+}
+
+.dark-mode .text-muted {
+  color: #9CA3AF !important;
+}
+
 .openai-chatkit,
 .govflow-chatkit {
   display: block;
