@@ -15,9 +15,9 @@ export const metadata: Metadata = {
     "AI Government Copilot for Ghana. Turn confusing government procedures into clear step-by-step workflows.",
   manifest: "/manifest.webmanifest",
   icons: {
-    icon: "/govflow-mark.svg",
-    shortcut: "/govflow-mark.svg",
-    apple: "/govflow-mark.svg",
+    icon: "/govflow-mark.png",
+    shortcut: "/govflow-mark.png",
+    apple: "/govflow-mark.png",
   },
   appleWebApp: {
     capable: true,

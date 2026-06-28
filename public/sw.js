@@ -1,4 +1,4 @@
-const CACHE_VERSION = "govflow-v1";
+const CACHE_VERSION = "govflow-v2";
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
@@ -14,8 +14,7 @@ const APP_SHELL_URLS = [
   "/assistant",
   "/profile",
   "/manifest.webmanifest",
-  "/govflow-mark.svg",
-  "/govflow-logo.svg",
+  "/govflow-mark.png",
   OFFLINE_FALLBACK,
 ];
 

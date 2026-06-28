@@ -15,14 +15,10 @@ export default function manifest(): MetadataRoute.Manifest {
     categories: ["productivity", "utilities", "government"],
     icons: [
       {
-        src: "/govflow-mark.svg",
-        sizes: "any",
-        type: "image/svg+xml",
-      },
-      {
-        src: "/govflow-logo.svg",
-        sizes: "any",
-        type: "image/svg+xml",
+        src: "/govflow-mark.png",
+        sizes: "1024x1024",
+        type: "image/png",
+        purpose: "maskable",
       },
     ],
   };
