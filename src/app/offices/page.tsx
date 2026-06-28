@@ -1,13 +1,23 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { AppShell } from "@/components/layout/AppShell";
 import { OfficeCard } from "@/components/OfficeCard";
+import { OfficeProximityRadar } from "@/components/offices/OfficeProximityRadar";
 import { offices } from "@/data/offices";
 import { Coordinates, haversineDistanceKm } from "@/lib/geo";
-import { Button } from "@/components/ui/button";
+import { getOfficeMeta, OFFICE_FILTERS, type OfficeCategory } from "@/lib/office-meta";
 import { NoticeCard } from "@/components/NoticeCard";
-import { Loader2, LocateFixed, MapPin } from "lucide-react";
+import {
+  Building2,
+  Loader2,
+  MapPin,
+  Navigation,
+  Search,
+  Sparkles,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
 
 type OfficeLocation = {
   lat: number;
@@ -31,6 +41,9 @@ export default function OfficesPage() {
   const [locating, setLocating] = useState(false);
   const [loadingPins, setLoadingPins] = useState(true);
   const [locationError, setLocationError] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activeFilter, setActiveFilter] = useState<OfficeCategory>("all");
+  const [selectedOfficeId, setSelectedOfficeId] = useState<string | null>(null);
 
   const loadOfficeCoordinates = useCallback(async () => {
     const queries = offices.map((office) => office.osmQuery || office.address);
@@ -84,7 +97,7 @@ export default function OfficesPage() {
     };
   }, [loadOfficeCoordinates]);
 
-  const nearestOffices = useMemo<LocatedOffice[]>(() => {
+  const locatedOffices = useMemo<LocatedOffice[]>(() => {
     return offices
       .map((office) => {
         const coordinates = locationsByOfficeId[office.id] || null;
@@ -100,6 +113,29 @@ export default function OfficesPage() {
       });
   }, [locationsByOfficeId, userLocation]);
 
+  const filteredOffices = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase();
+    return locatedOffices.filter((office) => {
+      const meta = getOfficeMeta(office.id);
+      const matchesFilter = activeFilter === "all" || meta.category === activeFilter;
+      if (!matchesFilter) return false;
+      if (!query) return true;
+      return (
+        office.name.toLowerCase().includes(query) ||
+        office.service.toLowerCase().includes(query) ||
+        office.address.toLowerCase().includes(query) ||
+        office.useCase.toLowerCase().includes(query)
+      );
+    });
+  }, [locatedOffices, activeFilter, searchQuery]);
+
+  const nearestOfficeId = userLocation
+    ? locatedOffices.find((o) => o.distanceKm != null)?.id ?? null
+    : null;
+
+  const pinsLoaded = Object.keys(locationsByOfficeId).length;
+  const nearestDistance = locatedOffices.find((o) => o.distanceKm != null)?.distanceKm;
+
   const handleFindNearest = () => {
     if (!navigator.geolocation) {
       setLocationError("Your browser does not support location services.");
@@ -110,11 +146,10 @@ export default function OfficesPage() {
     setLocationError("");
     navigator.geolocation.getCurrentPosition(
       async (position) => {
-        const currentUserLocation = {
+        setUserLocation({
           lat: position.coords.latitude,
           lon: position.coords.longitude,
-        };
-        setUserLocation(currentUserLocation);
+        });
         try {
           await loadOfficeCoordinates();
         } catch (error) {
@@ -139,60 +174,189 @@ export default function OfficesPage() {
     );
   };
 
+  const scrollToOffice = (officeId: string) => {
+    setSelectedOfficeId(officeId);
+    window.setTimeout(() => {
+      document.getElementById(`office-${officeId}`)?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+    }, 80);
+  };
+
   return (
     <AppShell title="Office Locator">
-      <div className="mx-auto max-w-3xl">
-        <div className="mb-6">
-          <h1 className="mb-2 flex items-center gap-2 text-3xl font-bold text-foreground">
-            <MapPin className="h-8 w-8 text-primary" />
-            Office Locator
-          </h1>
-          <p className="text-muted">
-            Use your current location to rank nearby offices with OpenStreetMap data.
-          </p>
-          <div className="mt-4">
-            <Button onClick={handleFindNearest} disabled={locating}>
-              {locating ? <Loader2 className="h-4 w-4 animate-spin" /> : <LocateFixed className="h-4 w-4" />}
-              {locating ? "Finding nearest offices..." : "Use my location"}
-            </Button>
-          </div>
-          {locationError ? <p className="mt-3 text-sm text-red-600">{locationError}</p> : null}
-          {userLocation ? (
-            <p className="mt-3 text-sm text-muted">
-              Showing nearest offices from your detected location ({userLocation.lat.toFixed(4)},{" "}
-              {userLocation.lon.toFixed(4)}).
+      <div className="mx-auto max-w-5xl space-y-6">
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="overflow-hidden rounded-3xl border border-primary/10 bg-gradient-to-br from-white via-white to-soft-blue/50"
+        >
+          <div className="p-6 md:p-8">
+            <p className="mb-3 inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary-dark">
+              <Sparkles className="h-3.5 w-3.5" />
+              Smart office finder
             </p>
-          ) : null}
+            <h1 className="mb-2 flex items-center gap-3 text-3xl font-bold text-foreground md:text-4xl">
+              <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-soft-blue">
+                <MapPin className="h-7 w-7 text-primary" />
+              </span>
+              Office Locator
+            </h1>
+            <p className="max-w-2xl text-muted">
+              Find government offices, compare distances from your location, and jump to directions or
+              official portals in one place.
+            </p>
+
+            <div className="mt-6 grid gap-3 sm:grid-cols-3">
+              <motion.div
+                whileHover={{ y: -2 }}
+                className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm"
+              >
+                <p className="text-xs text-muted">Offices listed</p>
+                <p className="mt-1 flex items-center gap-2 text-2xl font-bold">
+                  <Building2 className="h-5 w-5 text-primary" />
+                  {offices.length}
+                </p>
+              </motion.div>
+              <motion.div
+                whileHover={{ y: -2 }}
+                className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm"
+              >
+                <p className="text-xs text-muted">Map pins ready</p>
+                <p className="mt-1 flex items-center gap-2 text-2xl font-bold">
+                  {loadingPins ? (
+                    <Loader2 className="h-5 w-5 animate-spin text-primary" />
+                  ) : (
+                    <Navigation className="h-5 w-5 text-primary" />
+                  )}
+                  {loadingPins ? "..." : `${pinsLoaded}/${offices.length}`}
+                </p>
+              </motion.div>
+              <motion.div
+                whileHover={{ y: -2 }}
+                className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm"
+              >
+                <p className="text-xs text-muted">Nearest office</p>
+                <p className="mt-1 text-2xl font-bold">
+                  {typeof nearestDistance === "number" ? `${nearestDistance.toFixed(1)} km` : "—"}
+                </p>
+              </motion.div>
+            </div>
+          </div>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+        >
+          <OfficeProximityRadar
+            offices={locatedOffices.map((o) => ({
+              id: o.id,
+              name: o.name,
+              distanceKm: o.distanceKm,
+            }))}
+            selectedId={selectedOfficeId}
+            hasUserLocation={Boolean(userLocation)}
+            locating={locating}
+            onSelect={scrollToOffice}
+            onLocate={handleFindNearest}
+          />
+        </motion.div>
+
+        {locationError ? (
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+          >
+            {locationError}
+          </motion.p>
+        ) : null}
+
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="relative max-w-md flex-1">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
+            <input
+              type="search"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search offices, services, or areas..."
+              className="w-full rounded-2xl border border-gray-200 bg-white py-3 pl-10 pr-4 text-sm shadow-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
+            />
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {OFFICE_FILTERS.map((filter) => (
+              <motion.button
+                key={filter.id}
+                type="button"
+                whileHover={{ scale: 1.04 }}
+                whileTap={{ scale: 0.96 }}
+                onClick={() => setActiveFilter(filter.id)}
+                className={cn(
+                  "rounded-full px-4 py-2 text-sm font-medium transition-colors",
+                  activeFilter === filter.id
+                    ? "bg-primary text-white shadow-md shadow-primary/25"
+                    : "border border-gray-200 bg-white text-muted hover:border-primary/30 hover:text-foreground"
+                )}
+              >
+                {filter.label}
+              </motion.button>
+            ))}
+          </div>
         </div>
 
         <NoticeCard
           variant="warning"
           title="Nearest office is an estimate"
-          description="Open in OSM now uses pinned coordinates for each office. Distance is estimated from your live location after you tap Use my location."
-          className="mb-6"
+          description="Distances use OpenStreetMap pin data and your live location. Always confirm the latest office details with the official agency before visiting."
         />
 
         {loadingPins ? (
-          <p className="mb-4 text-sm text-muted">Loading office map pins for exact OSM locations...</p>
+          <div className="flex items-center gap-2 text-sm text-muted">
+            <Loader2 className="h-4 w-4 animate-spin text-primary" />
+            Loading exact map pins from OpenStreetMap...
+          </div>
         ) : null}
 
-        <div className="space-y-4">
-          {nearestOffices.map((office, index) => (
-            <OfficeCard
-              key={office.id}
-              office={{
-                ...office,
-                name: userLocation && index === 0 ? `${office.name} (Nearest)` : office.name,
-              }}
-              distanceKm={office.distanceKm}
-              coordinates={office.coordinates}
-            />
-          ))}
-        </div>
+        <AnimatePresence mode="popLayout">
+          <motion.div layout className="space-y-4">
+            {filteredOffices.length === 0 ? (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="rounded-2xl border border-dashed border-gray-200 bg-white p-10 text-center"
+              >
+                <p className="font-semibold text-foreground">No offices match your search</p>
+                <p className="mt-1 text-sm text-muted">Try a different filter or clear your search.</p>
+              </motion.div>
+            ) : (
+              filteredOffices.map((office, index) => (
+                <OfficeCard
+                  key={office.id}
+                  office={office}
+                  distanceKm={office.distanceKm}
+                  coordinates={office.coordinates}
+                  isNearest={office.id === nearestOfficeId}
+                  isSelected={office.id === selectedOfficeId}
+                  index={index}
+                  onSelect={() => setSelectedOfficeId(office.id)}
+                />
+              ))
+            )}
+          </motion.div>
+        </AnimatePresence>
 
-        <p className="mt-8 rounded-xl bg-amber-50 p-4 text-sm text-amber-900">
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
+          className="rounded-2xl border border-amber-200/80 bg-amber-50/80 p-4 text-sm text-amber-950"
+        >
           Office details may change. Always confirm from the official agency before visiting.
-        </p>
+        </motion.p>
       </div>
     </AppShell>
   );
