@@ -58,6 +58,7 @@ function AuthPageContent() {
   const [status, setStatus] = useState<string>("");
   const [error, setError] = useState<string>("");
   const [otpVerified, setOtpVerified] = useState(false);
+  const [otpSent, setOtpSent] = useState(false);
   const [resendAvailableIn, setResendAvailableIn] = useState(0);
 
   useEffect(() => {
@@ -76,12 +77,14 @@ function AuthPageContent() {
       setOtpCode("");
       setUssdCode(null);
       setOtpVerified(false);
+      setOtpSent(false);
     }
   }, [identifier]);
 
   useEffect(() => {
     if (mode === "login") {
       setOtpVerified(false);
+      setOtpSent(false);
       setResendAvailableIn(0);
     }
   }, [mode]);
@@ -147,6 +150,7 @@ function AuthPageContent() {
       setStatus(payload.message || "OTP sent to your phone.");
       setUssdCode(payload.ussdCode ?? null);
       setOtpVerified(false);
+      setOtpSent(true);
       setResendAvailableIn(45);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to send OTP.");
@@ -188,6 +192,14 @@ function AuthPageContent() {
     } finally {
       setOtpLoading(false);
     }
+  };
+
+  const handleOtpPrimaryAction = async () => {
+    if (!otpSent) {
+      await handleSendOtp();
+      return;
+    }
+    await handleVerifyOtp();
   };
 
   const handleForgotPassword = async () => {
@@ -330,10 +342,13 @@ function AuthPageContent() {
     setMode(nextMode);
     setError("");
     setStatus("");
+    setOtpVerified(false);
+    setOtpSent(false);
+    setResendAvailableIn(0);
+    setUssdCode(null);
+    setOtpCode("");
     if (nextMode === "login") {
-      setOtpCode("");
       setConfirmPassword("");
-      setOtpVerified(false);
     }
   };
 
@@ -472,18 +487,16 @@ function AuthPageContent() {
                             type="button"
                             size="sm"
                             variant="outline"
-                            onClick={handleSendOtp}
-                            disabled={otpLoading || resendAvailableIn > 0}
+                            onClick={() => void handleOtpPrimaryAction()}
+                            disabled={otpLoading || (otpSent ? otpVerified : resendAvailableIn > 0)}
                           >
-                            {resendAvailableIn > 0 ? `Resend in ${resendAvailableIn}s` : "Send OTP"}
-                          </Button>
-                          <Button
-                            type="button"
-                            size="sm"
-                            onClick={handleVerifyOtp}
-                            disabled={otpLoading}
-                          >
-                            Verify
+                            {!otpSent
+                              ? resendAvailableIn > 0
+                                ? `Resend in ${resendAvailableIn}s`
+                                : "Send OTP"
+                              : otpVerified
+                                ? "OTP Verified"
+                                : "Verify OTP"}
                           </Button>
                         </div>
                         {ussdCode ? (
@@ -502,7 +515,9 @@ function AuthPageContent() {
                   </AnimatePresence>
 
                   <div>
-                    <label className="mb-1 block text-sm font-medium text-foreground">Password</label>
+                    <label className="mb-1 block text-sm font-medium text-foreground">
+                      {mode === "reset" ? "Set New Password" : "Password"}
+                    </label>
                     <div className="relative">
                       <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted">
                         <KeyRound className="h-4 w-4" />
@@ -537,7 +552,7 @@ function AuthPageContent() {
                         transition={{ duration: 0.16 }}
                       >
                         <label className="mb-1 block text-sm font-medium text-foreground">
-                          Confirm password
+                          {mode === "reset" ? "Confirm New Password" : "Confirm password"}
                         </label>
                         <div className="relative">
                           <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted">
