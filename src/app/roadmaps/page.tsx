@@ -12,8 +12,8 @@ export default function RoadmapsPage() {
   const { roadmap, currentServiceId } = useAppStore();
 
   const allRoadmaps = savedRoadmaps.map((r) =>
-    r.id === "food-delivery-cape-coast"
-      ? { ...r, progress: roadmap.progress || r.progress }
+    r.id === "start-business"
+      ? { ...r, progress: roadmap.progress || r.progress, title: roadmap.title || r.title }
       : r
   );
   const totalRoadmaps = allRoadmaps.length;
@@ -26,7 +26,9 @@ export default function RoadmapsPage() {
       ? "Passport"
       : currentServiceId === "ghana-card"
         ? "Ghana Card"
-        : "Food Delivery Business";
+        : currentServiceId === "start-business"
+          ? roadmap.title || "Business Startup"
+          : "Business Startup";
 
   return (
     <AppShell title="My Roadmaps">
@@ -105,17 +107,17 @@ export default function RoadmapsPage() {
 
               <div className="flex flex-wrap gap-2">
                 <ActionButton
-                  href={saved.id === "food-delivery-cape-coast" ? "/roadmap" : "/services"}
+                  href={saved.id === "start-business" ? "/roadmap" : "/services"}
                   size="sm"
                 >
                   Continue
                 </ActionButton>
                 <ActionButton
-                  href={saved.id === "food-delivery-cape-coast" ? "/checklist" : "/documents"}
+                  href={saved.id === "start-business" ? "/checklist" : "/documents"}
                   size="sm"
                   variant="outline"
                 >
-                  {saved.id === "food-delivery-cape-coast" ? "Checklist" : "Documents"}
+                  {saved.id === "start-business" ? "Checklist" : "Documents"}
                 </ActionButton>
                 <ActionButton href="/risk" size="sm" variant="ghost">
                   Risk check

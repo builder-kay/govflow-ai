@@ -8,7 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { ActionButton } from "@/components/ActionButton";
 import { NoticeCard } from "@/components/NoticeCard";
 import { useAppStore } from "@/store/useAppStore";
-import { getServiceFlow } from "@/lib/service-registry";
+import { getServiceFlow, getStartBusinessRiskProfile } from "@/lib/service-registry";
 import type { RiskLevel } from "@/types";
 
 const riskDescriptions: Record<RiskLevel, string> = {
@@ -18,8 +18,12 @@ const riskDescriptions: Record<RiskLevel, string> = {
 };
 
 export default function RiskPage() {
-  const { roadmap, currentServiceId } = useAppStore();
+  const { roadmap, currentServiceId, answers } = useAppStore();
   const flow = getServiceFlow(currentServiceId);
+  const startBusinessRisk =
+    currentServiceId === "start-business" ? getStartBusinessRiskProfile(answers) : null;
+  const riskFactors = startBusinessRisk?.riskFactors ?? flow.riskFactors;
+  const riskFixes = startBusinessRisk?.riskFixes ?? flow.riskFixes;
 
   return (
     <AppShell title="Rejection Risk Checker">
@@ -54,7 +58,7 @@ export default function RiskPage() {
             Risk factors
           </h2>
           <div className="space-y-3">
-            {flow.riskFactors.map((factor, index) => (
+            {riskFactors.map((factor, index) => (
               <motion.div
                 key={factor.id}
                 initial={{ opacity: 0, y: 10 }}
@@ -77,7 +81,7 @@ export default function RiskPage() {
         <section className="mb-8">
           <h2 className="mb-4 text-xl font-bold">Recommended fixes</h2>
           <div className="grid gap-3 sm:grid-cols-2">
-            {flow.riskFixes.map((fix) => (
+            {riskFixes.map((fix) => (
               <ActionButton
                 key={fix.id}
                 href={fix.href}

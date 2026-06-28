@@ -141,6 +141,8 @@ export interface AccessibilitySettings {
 
 export interface UserAnswers {
   businessType?: string;
+  businessCategory?: string;
+  /** @deprecated Use businessCategory instead */
   foodPreparation?: string;
   location?: string;
   businessName?: string;

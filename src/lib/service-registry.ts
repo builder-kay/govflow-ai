@@ -1,6 +1,11 @@
-import type { RiskFactor, RiskFix, Roadmap, SmartQuestion } from "@/types";
-import { foodDeliveryRoadmap, riskFactors, riskFixes } from "@/data/roadmap";
-import { foodBusinessQuestions } from "@/data/questions";
+import type { RiskFactor, RiskFix, Roadmap, SmartQuestion, UserAnswers } from "@/types";
+import { riskFactors, riskFixes } from "@/data/roadmap";
+import { startBusinessQuestions } from "@/data/questions";
+import {
+  buildStartBusinessRiskFactors,
+  buildStartBusinessRiskFixes,
+  startBusinessBaseRoadmap,
+} from "@/lib/start-business-roadmap";
 import {
   passportAnswerKeys,
   passportQuestionKeyMap,
@@ -51,26 +56,26 @@ export interface ServiceFlow {
 
 const startBusinessFlow: ServiceFlow = {
   id: "start-business",
-  questions: foodBusinessQuestions,
+  questions: startBusinessQuestions,
   questionKeyMap: {
     "business-type": "businessType",
-    "food-preparation": "foodPreparation",
+    "business-category": "businessCategory",
     location: "location",
     "business-name": "businessName",
     hiring: "hiring",
   },
-  answerKeys: ["businessType", "foodPreparation", "location", "businessName", "hiring"],
-  roadmap: foodDeliveryRoadmap,
+  answerKeys: ["businessType", "businessCategory", "location", "businessName", "hiring"],
+  roadmap: startBusinessBaseRoadmap,
   riskFactors,
   riskFixes,
-  checklistTitle: "Food Business Startup Checklist",
+  checklistTitle: "Business Startup Checklist",
   checklistDescription:
-    "Track every task you need to complete for your food delivery business in Cape Coast.",
-  roadmapTitle: "Your Food Business Roadmap",
+    "Track registration, tax, permits, and compliance tasks for your business.",
+  roadmapTitle: "Your Business Roadmap",
   roadmapDescription:
-    "Based on your answers, here is a step-by-step plan for starting a small food delivery business in Cape Coast.",
+    "Based on your answers, here is a step-by-step plan to register and launch your business.",
   generatingMessage:
-    "Building steps for business registration, tax, FDA, and local permits in Cape Coast.",
+    "Building steps for business registration, tax setup, permits, and local compliance.",
 };
 
 const passportFlow: ServiceFlow = {
@@ -160,6 +165,16 @@ export function getServiceFlow(serviceId: string | null | undefined): ServiceFlo
 
 export function getSupportedServiceIds(): string[] {
   return Object.keys(SERVICE_FLOWS);
+}
+
+export function getStartBusinessRiskProfile(answers: UserAnswers): {
+  riskFactors: RiskFactor[];
+  riskFixes: RiskFix[];
+} {
+  return {
+    riskFactors: buildStartBusinessRiskFactors(answers),
+    riskFixes: buildStartBusinessRiskFixes(answers),
+  };
 }
 
 export function serviceHasQuestions(serviceId: string): boolean {

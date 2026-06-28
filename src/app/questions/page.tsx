@@ -8,6 +8,7 @@ import { BusinessTypeExplainer } from "@/components/BusinessTypeExplainer";
 import { Button } from "@/components/ui/button";
 import { ProgressBar } from "@/components/ui/progress";
 import { getServiceFlow } from "@/lib/service-registry";
+import { buildStartBusinessRoadmap } from "@/lib/start-business-roadmap";
 import { useAppStore } from "@/store/useAppStore";
 import { cn } from "@/lib/utils";
 import { ChevronLeft, ChevronRight, HelpCircle } from "lucide-react";
@@ -146,6 +147,14 @@ export default function QuestionsPage() {
               : state.roadmap.businessType,
           },
         }));
+      }
+
+      if (currentServiceId === "start-business") {
+        const personalizedRoadmap = buildStartBusinessRoadmap(nextAnswers);
+        useAppStore.setState({
+          roadmap: personalizedRoadmap,
+          checklist: personalizedRoadmap.checklist.map((item) => ({ ...item, completed: false })),
+        });
       }
 
       setTimeout(() => router.push("/roadmap"), 1500);

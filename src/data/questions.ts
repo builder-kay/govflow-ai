@@ -1,6 +1,6 @@
 import type { SmartQuestion } from "@/types";
 
-export const foodBusinessQuestions: SmartQuestion[] = [
+export const startBusinessQuestions: SmartQuestion[] = [
   {
     id: "business-type",
     question: "What type of business do you want to register?",
@@ -14,24 +14,25 @@ export const foodBusinessQuestions: SmartQuestion[] = [
     ],
   },
   {
-    id: "food-preparation",
-    question: "Will you prepare or package the food yourself?",
-    whyWeAsk: "If you prepare or package food, you may need FDA food hygiene approval and food-handler certificates.",
+    id: "business-category",
+    question: "What kind of business are you starting?",
+    whyWeAsk: "Your industry affects which permits, inspections, and agencies you may need beyond basic registration.",
     options: [
-      { id: "yes-cook", label: "Yes, I will cook or package the food" },
-      { id: "delivery-only", label: "No, I will only deliver" },
-      { id: "shared-kitchen", label: "I will use a shared kitchen" },
-      { id: "unsure", label: "I'm not sure yet" },
+      { id: "retail", label: "Retail / shop" },
+      { id: "food", label: "Food & beverage (restaurant, catering, delivery)" },
+      { id: "services", label: "Professional or personal services (salon, consulting, repairs)" },
+      { id: "online", label: "Online / home-based business" },
+      { id: "other", label: "Other / not sure yet" },
     ],
   },
   {
     id: "location",
     question: "Do you already have a business location?",
-    whyWeAsk: "Your location affects local assembly permits, FDA inspection, and the address on your registration.",
+    whyWeAsk: "Your location affects local assembly permits, sector approvals, and the address on your registration.",
     options: [
-      { id: "shop", label: "Yes, I have a shop or kitchen" },
+      { id: "shop", label: "Yes, I have a shop or office" },
       { id: "home", label: "I work from home" },
-      { id: "shared", label: "I use a shared kitchen" },
+      { id: "online", label: "I operate online only" },
       { id: "not-yet", label: "Not yet" },
     ],
   },
@@ -56,3 +57,6 @@ export const foodBusinessQuestions: SmartQuestion[] = [
     ],
   },
 ];
+
+/** @deprecated Use startBusinessQuestions instead */
+export const foodBusinessQuestions = startBusinessQuestions;

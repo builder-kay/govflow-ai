@@ -11,7 +11,7 @@ export const BUSINESS_TYPES: BusinessTypeDefinition[] = [
     label: "Sole proprietorship",
     summary:
       "One person owns and runs the business. You keep all profits and are personally responsible for debts and losses.",
-    bestFor: "Small one-person businesses like a food stall, home kitchen, or solo delivery service.",
+    bestFor: "Small one-person businesses like a shop, freelance service, or solo operator.",
   },
   {
     id: "partnership",
