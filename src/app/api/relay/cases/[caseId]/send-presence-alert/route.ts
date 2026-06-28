@@ -16,12 +16,12 @@ export async function POST(request: Request, context: { params: Promise<{ caseId
   const { caseId } = await context.params;
   const relayCase = await getRelayCaseById(caseId);
   if (!relayCase) {
-    return NextResponse.json({ error: "Relay case not found." }, { status: 404 });
+    return NextResponse.json({ error: "Agent case not found." }, { status: 404 });
   }
 
   const sms = await sendArkeselSms(
     relayCase.intake.contact.phone,
-    `GovFlow Relay update: your presence is now required for ${relayCase.serviceType}. Open GovFlow for next instructions.`
+    `GovFlow Agent update: your presence is now required for ${relayCase.serviceType}. Open GovFlow for next instructions.`
   );
   if (!sms.ok) {
     return NextResponse.json({ error: sms.error || "Could not send SMS." }, { status: 502 });

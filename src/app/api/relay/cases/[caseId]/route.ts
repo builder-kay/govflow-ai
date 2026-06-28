@@ -24,7 +24,7 @@ export async function GET(_request: Request, context: { params: Promise<{ caseId
   try {
     const relayCase = await getRelayCaseById(caseId);
     if (!relayCase) {
-      return NextResponse.json({ error: "Relay case not found." }, { status: 404 });
+      return NextResponse.json({ error: "Agent case not found." }, { status: 404 });
     }
     return NextResponse.json({ case: relayCase });
   } catch (error) {
@@ -49,7 +49,7 @@ export async function PATCH(request: Request, context: { params: Promise<{ caseI
   try {
     const existing = await getRelayCaseById(caseId);
     if (!existing) {
-      return NextResponse.json({ error: "Relay case not found." }, { status: 404 });
+      return NextResponse.json({ error: "Agent case not found." }, { status: 404 });
     }
 
     const nextSteps =

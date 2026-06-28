@@ -139,7 +139,7 @@ export default function ProfilePage() {
             { href: "/roadmap", label: "Continue roadmap", icon: Map, desc: `${roadmapProgress}% complete` },
             { href: "/documents", label: "Your documents", icon: FileText, desc: `${savedDocuments.length} saved` },
             { href: "/assistant", label: "Open assistant", icon: MessageCircle, desc: "Ask in simple English" },
-            { href: "/relay", label: "GovFlow Relay", icon: Handshake, desc: "Delegated assistance" },
+            { href: "/relay", label: "GovFlow Agent", icon: Handshake, desc: "Delegated assistance" },
           ].map((link, index) => {
             const Icon = link.icon;
             const LinkWrapper = reduceMotion ? "div" : motion.div;

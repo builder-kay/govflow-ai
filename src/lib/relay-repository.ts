@@ -106,7 +106,7 @@ export async function createRelayCase(userId: string, request: RelayCaseRequest)
       {
         id: crypto.randomUUID(),
         type: "case_created",
-        message: "Relay case created and waiting for payment confirmation.",
+        message: "Agent case created and waiting for payment confirmation.",
         actor: "system",
         createdAt: now,
       },
@@ -193,7 +193,7 @@ export async function updateRelayCase(
   > & { eventMessage?: string; eventType?: RelayCaseEvent["type"]; actor?: string }
 ): Promise<RelayCase> {
   const existing = await getRelayCaseById(caseId);
-  if (!existing) throw new Error("Relay case not found.");
+  if (!existing) throw new Error("Agent case not found.");
 
   const next: RelayCase = {
     ...existing,

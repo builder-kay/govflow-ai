@@ -5,7 +5,7 @@ import type {
   RelayServiceType,
 } from "@/types/relay";
 
-export const RELAY_FEATURE_NAME = "GovFlow Relay";
+export const RELAY_FEATURE_NAME = "GovFlow Agent";
 export const RELAY_PILOT_SERVICE: RelayServiceType = "passport";
 export const RELAY_DEFAULT_FEE_GHS = 280;
 export const RELAY_DEFAULT_SLA_HOURS = 72;

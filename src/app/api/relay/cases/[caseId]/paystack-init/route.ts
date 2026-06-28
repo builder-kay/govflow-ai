@@ -13,7 +13,7 @@ export async function POST(request: Request, context: { params: Promise<{ caseId
   try {
     const relayCase = await getRelayCaseById(caseId);
     if (!relayCase) {
-      return NextResponse.json({ error: "Relay case not found." }, { status: 404 });
+      return NextResponse.json({ error: "Agent case not found." }, { status: 404 });
     }
 
     const paystackSecret = process.env.PAYSTACK_SECRET_KEY;

@@ -44,12 +44,12 @@ export function RelayCtaCard() {
       <div className="mt-4 flex flex-wrap gap-2">
         <Button asChild>
           <Link href="/relay/passport">
-            Start Relay intake
+            Start Agent intake
             <ArrowRight className="h-4 w-4" />
           </Link>
         </Button>
         <Button asChild variant="outline">
-          <Link href="/relay">View my Relay cases</Link>
+          <Link href="/relay">View my Agent cases</Link>
         </Button>
       </div>
     </motion.section>

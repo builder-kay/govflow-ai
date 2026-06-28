@@ -36,7 +36,7 @@ export default function RelayCasesPage() {
       setRelayCases(response.cases);
       setMetrics(response.metrics);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not load Relay cases.");
+      setError(err instanceof Error ? err.message : "Could not load Agent cases.");
     } finally {
       setLoading(false);
     }
@@ -63,7 +63,7 @@ export default function RelayCasesPage() {
             in-person action is needed.
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
-            <ActionButton href="/relay/passport">Start new passport Relay case</ActionButton>
+            <ActionButton href="/relay/passport">Start new passport Agent case</ActionButton>
             <Button variant="outline" size="sm" onClick={() => void loadCases()}>
               <RefreshCcw className="h-4 w-4" />
               Refresh
@@ -80,7 +80,7 @@ export default function RelayCasesPage() {
         ) : null}
 
         {loading ? (
-          <p className="text-sm text-muted">Loading Relay cases...</p>
+          <p className="text-sm text-muted">Loading Agent cases...</p>
         ) : relayCases.length ? (
           <div className="grid gap-4 md:grid-cols-2">
             {relayCases.map((relayCase) => (
@@ -114,12 +114,12 @@ export default function RelayCasesPage() {
           </div>
         ) : (
           <article className="rounded-2xl border border-dashed border-gray-200 bg-white p-8 text-center">
-            <p className="text-lg font-semibold text-foreground">No Relay cases yet</p>
+            <p className="text-lg font-semibold text-foreground">No Agent cases yet</p>
             <p className="mt-2 text-sm text-muted">
-              Start a passport Relay case and GovFlow will handle non-presence steps for you.
+              Start a passport Agent case and GovFlow will handle non-presence steps for you.
             </p>
             <ActionButton href="/relay/passport" className="mt-4">
-              Start passport Relay intake
+              Start passport Agent intake
             </ActionButton>
           </article>
         )}

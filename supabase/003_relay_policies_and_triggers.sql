@@ -1,5 +1,5 @@
 -- 003_relay_policies_and_triggers.sql
--- RLS + update triggers for Relay tables.
+-- RLS + update triggers for Agent tables.
 
 create or replace function public.set_updated_at()
 returns trigger

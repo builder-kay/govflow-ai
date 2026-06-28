@@ -25,7 +25,7 @@ export async function GET(request: Request) {
     for (const relayCase of awaitingUserCases) {
       const sms = await sendArkeselSms(
         relayCase.intake.contact.phone,
-        `GovFlow Relay: your passport case needs your presence for the next step. Open GovFlow to view instructions.`
+        `GovFlow Agent: your passport case needs your presence for the next step. Open GovFlow to view instructions.`
       );
       if (!sms.ok) continue;
 

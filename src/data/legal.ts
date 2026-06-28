@@ -45,7 +45,7 @@ export const termsOfService: LegalDocument = {
       title: "2. What GovFlow provides",
       paragraphs: [
         "GovFlow is a guidance and preparation platform for government-related processes in Ghana. We help users understand steps, build checklists, locate offices, upload documents for AI-assisted explanation, and interact with an AI assistant.",
-        "Some users may be offered a paid delegated-assistance pilot called GovFlow Relay. Under Relay, GovFlow coordinators and vetted field runners may assist with non-presence administrative follow-ups based on your explicit consent and submitted authorization details.",
+        "Some users may be offered a paid delegated-assistance pilot called GovFlow Agent. Under Agent, GovFlow coordinators and vetted field runners may assist with non-presence administrative follow-ups based on your explicit consent and submitted authorization details.",
         "GovFlow does not submit applications on your behalf, does not represent any government agency, and does not provide legal, tax, or immigration advice. Official applications must still be completed through the relevant government portals, offices, or authorised channels.",
       ],
     },
@@ -103,11 +103,11 @@ export const termsOfService: LegalDocument = {
     },
     {
       id: "relay",
-      title: "9. GovFlow Relay (delegated assistance)",
+      title: "9. GovFlow Agent (delegated assistance)",
       paragraphs: [
-        "When available, GovFlow Relay is a paid concierge-style support layer for selected services. Relay covers preparation and follow-up support only within the scope you authorize.",
+        "When available, GovFlow Agent is a paid concierge-style support layer for selected services. Agent covers preparation and follow-up support only within the scope you authorize.",
         "You remain responsible for all legally required in-person appearances (for example biometric capture), truthfulness of submitted information, and final review of official submissions before completion.",
-        "Relay fees cover GovFlow coordination services only unless explicitly stated otherwise. Government processing fees, penalties, third-party charges, and courier costs are separate.",
+        "Agent fees cover GovFlow coordination services only unless explicitly stated otherwise. Government processing fees, penalties, third-party charges, and courier costs are separate.",
         "If you cancel after work has started, refunds may be partial or unavailable depending on completed activities and incurred costs.",
       ],
     },
@@ -152,7 +152,7 @@ export const privacyPolicy: LegalDocument = {
         "Account information — phone number or email used to sign in, and optional display name.",
         "Usage data — pages visited, service selections, checklist progress, and roadmap state stored on your device.",
         "Documents you upload — file name, type, extracted text, and AI-generated summaries stored locally in your browser for chat context.",
-        "Relay case data (if you use GovFlow Relay) — contact details, service-specific intake details, authorization selections, operations timeline events, and support notes.",
+        "Agent case data (if you use GovFlow Agent) — contact details, service-specific intake details, authorization selections, operations timeline events, and support notes.",
         "Location data — only if you enable “Use my location” on the Office Locator; used to estimate distances, not stored on our servers by default.",
         "AI interactions — prompts and context sent to our AI providers when you use the assistant or document analysis features.",
         "Technical data — browser type, device information, and logs needed for security and debugging.",
@@ -165,7 +165,7 @@ export const privacyPolicy: LegalDocument = {
       bullets: [
         "Create and manage your account (via Supabase authentication).",
         "Personalise roadmaps, checklists, and saved progress.",
-        "Operate GovFlow Relay workflows, including coordinator assignments, user-presence alerts, and completion tracking where you opted into delegated support.",
+        "Operate GovFlow Agent workflows, including coordinator assignments, user-presence alerts, and completion tracking where you opted into delegated support.",
         "Provide AI chat and document explanation features.",
         "Show nearby or area-based office listings.",
         "Improve reliability, prevent abuse, and comply with law.",
@@ -181,7 +181,7 @@ export const privacyPolicy: LegalDocument = {
       bullets: [
         "Supabase — authentication and account management.",
         "OpenAI — AI assistant and document analysis (when configured).",
-        "Arkesel — OTP and service notifications by SMS (including Relay presence alerts).",
+        "Arkesel — OTP and service notifications by SMS (including Agent presence alerts).",
         "Paystack — payment processing for paid services (if enabled).",
         "OpenStreetMap / Nominatim — geocoding office locations.",
         "Infrastructure providers — hosting and security services.",
@@ -193,7 +193,7 @@ export const privacyPolicy: LegalDocument = {
       paragraphs: [
         "Much of your GovFlow progress (checklists, roadmaps, uploaded document summaries) is stored locally in your browser via local storage. Clearing browser data may remove this information.",
         "Account credentials are managed through Supabase. We retain account-related records as long as your account is active and as needed for legal, security, or operational purposes.",
-        "Relay case records, payment references, and operations logs may be retained for support, fraud prevention, accounting, and dispute resolution for a reasonable period under applicable law.",
+        "Agent case records, payment references, and operations logs may be retained for support, fraud prevention, accounting, and dispute resolution for a reasonable period under applicable law.",
         "AI providers may retain API logs according to their own policies. Avoid uploading unnecessary sensitive information.",
       ],
     },
@@ -304,7 +304,7 @@ export const disclaimer: LegalDocument = {
       paragraphs: [
         `${LEGAL_PRODUCT} is an informational and preparation tool operated by ${LEGAL_OPERATOR}. It is not a government agency, law firm, accounting firm, or official application portal.`,
         "All content — including roadmaps, checklists, office listings, fee estimates, timelines, and AI responses — is provided for general guidance only and may be incomplete, outdated, or incorrect.",
-        "Where GovFlow Relay is offered, delegated assistance remains a support service. It does not guarantee approvals, accelerated processing, or preferred treatment by any government office.",
+        "Where GovFlow Agent is offered, delegated assistance remains a support service. It does not guarantee approvals, accelerated processing, or preferred treatment by any government office.",
       ],
     },
     {
@@ -312,7 +312,7 @@ export const disclaimer: LegalDocument = {
       title: "Official sources",
       paragraphs: [
         "Always confirm requirements, forms, fees, appointment rules, and processing times directly with the responsible agency or official portal before paying, travelling, or submitting documents.",
-        "Even with Relay support, you are responsible for attending required in-person steps, confirming final submission details, and providing truthful documents.",
+        "Even with Agent support, you are responsible for attending required in-person steps, confirming final submission details, and providing truthful documents.",
         "Links to third-party websites (government portals, OpenStreetMap, etc.) are provided for convenience. We do not control and are not responsible for their content or availability.",
       ],
     },

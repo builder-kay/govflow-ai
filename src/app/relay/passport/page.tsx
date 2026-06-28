@@ -96,7 +96,7 @@ export default function PassportRelayIntakePage() {
       }
       window.location.href = payment.authorizationUrl;
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not start Relay case.");
+      setError(err instanceof Error ? err.message : "Could not start Agent case.");
       setSubmitting(false);
     }
   };
@@ -243,7 +243,7 @@ export default function PassportRelayIntakePage() {
                 checked={acceptedFeePolicy}
                 onChange={(event) => setAcceptedFeePolicy(event.target.checked)}
               />
-              I understand the Relay fee excludes official government fees and third-party charges.
+              I understand the Agent fee excludes official government fees and third-party charges.
             </label>
             <label className="inline-flex items-start gap-2">
               <input
@@ -251,7 +251,7 @@ export default function PassportRelayIntakePage() {
                 checked={acceptedLegalNotice}
                 onChange={(event) => setAcceptedLegalNotice(event.target.checked)}
               />
-              I accept Relay terms, cancellation policy, and responsibility boundaries.
+              I accept Agent terms, cancellation policy, and responsibility boundaries.
             </label>
           </div>
         </section>
@@ -274,7 +274,7 @@ export default function PassportRelayIntakePage() {
             )}
           </Button>
           <ActionButton href="/relay" variant="outline">
-            Back to Relay dashboard
+            Back to Agent dashboard
           </ActionButton>
         </div>
       </div>

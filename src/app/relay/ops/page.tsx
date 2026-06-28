@@ -78,7 +78,7 @@ export default function RelayOpsPage() {
   };
 
   return (
-    <AppShell title="Relay Ops">
+    <AppShell title="Agent Ops">
       <div className="mx-auto max-w-5xl space-y-5">
         <section className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
           <p className="text-sm font-semibold text-foreground">Operations queue</p>

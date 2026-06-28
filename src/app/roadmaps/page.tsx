@@ -146,11 +146,11 @@ export default function RoadmapsPage() {
         >
           <p className="font-semibold text-foreground">Need someone to handle the heavy lifting?</p>
           <p className="mt-1 text-sm text-muted">
-            Try GovFlow Relay for passport cases. GovFlow coordinates follow-ups and alerts you only
+            Try GovFlow Agent for passport cases. GovFlow coordinates follow-ups and alerts you only
             when your presence is mandatory.
           </p>
           <ActionButton href="/relay" className="mt-3" size="sm">
-            Open Relay dashboard
+            Open Agent dashboard
           </ActionButton>
         </motion.div>
       </div>

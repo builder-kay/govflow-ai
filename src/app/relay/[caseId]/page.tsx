@@ -38,7 +38,7 @@ export default function RelayCaseDetailPage({
       const payload = await fetchRelayCase(caseId);
       setRelayCase(payload);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not load Relay case.");
+      setError(err instanceof Error ? err.message : "Could not load Agent case.");
     } finally {
       setLoading(false);
     }
@@ -69,7 +69,7 @@ export default function RelayCaseDetailPage({
   };
 
   return (
-    <AppShell title="Relay case">
+    <AppShell title="Agent case">
       <div className="mx-auto max-w-4xl space-y-6">
         {loading ? (
           <p className="inline-flex items-center gap-2 text-sm text-muted">
@@ -160,7 +160,7 @@ export default function RelayCaseDetailPage({
 
             <div className="flex flex-wrap gap-2">
               <Button asChild variant="outline">
-                <Link href="/relay">Back to Relay dashboard</Link>
+                  <Link href="/relay">Back to Agent dashboard</Link>
               </Button>
               <Button onClick={() => void load()} variant="ghost">
                 Refresh updates

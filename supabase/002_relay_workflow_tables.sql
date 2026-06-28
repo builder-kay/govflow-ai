@@ -1,5 +1,5 @@
 -- 002_relay_workflow_tables.sql
--- Normalized workflow tables for Relay operations.
+-- Normalized workflow tables for Agent operations.
 
 create extension if not exists pgcrypto;
 

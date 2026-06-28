@@ -1,5 +1,5 @@
 -- 000_bootstrap_all.sql
--- Fresh Supabase bootstrap for GovFlow Relay data layer.
+-- Fresh Supabase bootstrap for GovFlow Agent data layer.
 -- Run this once on a new Supabase project.
 
 create extension if not exists pgcrypto;

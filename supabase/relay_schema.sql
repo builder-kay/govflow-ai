@@ -1,5 +1,5 @@
--- GovFlow Relay pilot schema (passport only)
--- Run in Supabase SQL editor before using Relay APIs in production.
+-- GovFlow Agent pilot schema (passport only)
+-- Run in Supabase SQL editor before using Agent APIs in production.
 
 create table if not exists public.relay_cases (
   id uuid primary key,

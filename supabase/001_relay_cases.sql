@@ -1,5 +1,5 @@
 -- 001_relay_cases.sql
--- Core Relay case table (passport pilot)
+-- Core Agent case table (passport pilot)
 
 create extension if not exists pgcrypto;
 

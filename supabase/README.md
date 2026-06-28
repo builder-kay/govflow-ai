@@ -1,4 +1,4 @@
-# Supabase Relay Schema Run Order
+# Supabase Agent Schema Run Order
 
 Quick start (single file):
 
@@ -16,4 +16,4 @@ Run these SQL files in order:
 Notes:
 
 - `relay_schema.sql` is the earlier minimal single-table schema used for quick setup.
-- The numbered files are the full schema set for the Relay pilot (cases, steps, documents, events, presence alerts, RLS, and metrics view).
+- The numbered files are the full schema set for the Agent pilot (cases, steps, documents, events, presence alerts, RLS, and metrics view).

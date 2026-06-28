@@ -115,15 +115,15 @@ src/
 - Office locator (Cape Coast)
 - Progress tracker & saved roadmaps
 - Accessibility settings (language, text size, contrast)
-- GovFlow Relay (pilot delegated assistance for passport)
+- GovFlow Agent (pilot delegated assistance for passport)
 
-## GovFlow Relay Pilot
+## GovFlow Agent Pilot
 
-GovFlow Relay is a paid delegated-assistance pilot for passport cases. Users submit intake details,
-pay a Relay service fee, and GovFlow handles non-presence follow-ups. Users are alerted only for
+GovFlow Agent is a paid delegated-assistance pilot for passport cases. Users submit intake details,
+pay an Agent service fee, and GovFlow handles non-presence follow-ups. Users are alerted only for
 mandatory in-person steps.
 
-### Relay setup
+### Agent setup
 
 1. Apply SQL schema in Supabase:
 
