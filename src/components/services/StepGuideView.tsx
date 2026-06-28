@@ -120,7 +120,8 @@ interface StepGuideViewProps {
   prevHref?: string;
   nextHref?: string;
   questionsHref?: string;
-  onStartRoadmap?: () => void;
+  continueServiceHref?: string;
+  showPersonalizeRoadmap?: boolean;
 }
 
 export function StepGuideView({
@@ -137,7 +138,8 @@ export function StepGuideView({
   prevHref,
   nextHref,
   questionsHref = "/questions",
-  onStartRoadmap,
+  continueServiceHref,
+  showPersonalizeRoadmap = false,
 }: StepGuideViewProps) {
   const taskProgress = useMemo(() => {
     const done = guide.tasks.filter((task) => {
@@ -148,17 +150,19 @@ export function StepGuideView({
   }, [guide.tasks, checklistCompleted, localCompleted]);
 
   const handleToggle = (task: ServiceStepTask) => {
-    if (task.checklistItemId && checklistCompleted[task.checklistItemId] !== undefined) {
+    if (task.checklistItemId && task.checklistItemId in checklistCompleted) {
       onToggleChecklistItem(task.checklistItemId);
-    } else {
-      onToggleLocal(task.id);
+      return;
     }
+    onToggleLocal(task.id);
   };
 
   const isTaskDone = (task: ServiceStepTask) => {
     if (task.checklistItemId && checklistCompleted[task.checklistItemId]) return true;
     return localCompleted[task.id];
   };
+
+  const allTasksDone = taskProgress === 100;
 
   return (
     <div className="mx-auto max-w-3xl">
@@ -222,6 +226,17 @@ export function StepGuideView({
         ))}
       </ol>
 
+      {allTasksDone ? (
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-6 rounded-2xl border border-emerald-200 bg-emerald-50/80 p-4 text-sm text-emerald-900"
+        >
+          Step complete. Continue with the remaining service steps or open your checklist to track
+          overall progress.
+        </motion.div>
+      ) : null}
+
       <div className="flex flex-wrap gap-2 border-t border-gray-100 pt-6">
         {prevHref ? (
           <Link
@@ -238,15 +253,22 @@ export function StepGuideView({
           >
             Next step
           </Link>
-        ) : (
+        ) : continueServiceHref ? (
           <Link
-            href={questionsHref}
-            onClick={onStartRoadmap}
+            href={continueServiceHref}
             className="inline-flex items-center rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-white hover:bg-primary/90"
           >
-            Build my full roadmap
+            Continue service steps
           </Link>
-        )}
+        ) : null}
+        {showPersonalizeRoadmap ? (
+          <Link
+            href={questionsHref}
+            className="inline-flex items-center rounded-xl border border-primary/20 px-4 py-2.5 text-sm font-medium text-primary hover:bg-soft-blue/50"
+          >
+            Personalize full roadmap
+          </Link>
+        ) : null}
         {guide.assistantTopic ? (
           <Link
             href={`/assistant?topic=${guide.assistantTopic}`}

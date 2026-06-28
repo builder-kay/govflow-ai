@@ -26,7 +26,7 @@ import { cn } from "@/lib/utils";
 import { NoticeCard } from "@/components/NoticeCard";
 
 const quickServices = [
-  { id: "start-business", icon: Briefcase, title: "Start a Business", href: "/questions" },
+  { id: "start-business", icon: Briefcase, title: "Start a Business", href: "/services/start-business" },
   { id: "passport", icon: BookOpen, title: "Passport", href: "/services/passport" },
   {
     id: "national-service",
@@ -56,7 +56,7 @@ const quickServices = [
 
 export default function HomePage() {
   const router = useRouter();
-  const { userQuery, setUserQuery, activateService, roadmap, currentServiceId } = useAppStore();
+  const { userQuery, setUserQuery, roadmap, currentServiceId } = useAppStore();
   const [query, setQuery] = useState(userQuery || "");
 
   const handleBuildRoadmap = () => {
@@ -75,16 +75,7 @@ export default function HomePage() {
 
   const handleQuickService = (serviceId: string, href: string, comingSoon?: boolean) => {
     if (comingSoon) return;
-    if (
-      serviceId === "start-business" ||
-      serviceId === "passport" ||
-      serviceId === "national-service" ||
-      serviceId === "ghana-card"
-    ) {
-      activateService(serviceId);
-    } else {
-      useAppStore.getState().setCurrentServiceId(serviceId);
-    }
+    useAppStore.getState().setCurrentServiceId(serviceId);
     router.push(href);
   };
 
@@ -181,14 +172,7 @@ export default function HomePage() {
           <RoadmapCard
             title={roadmap.title}
             location={roadmap.location}
-            progress={
-              roadmap.progress ||
-              (currentServiceId === "passport"
-                ? 15
-                : currentServiceId === "ghana-card"
-                  ? 10
-                  : 25)
-            }
+            progress={roadmap.progress}
             riskLevel={roadmap.riskLevel}
             nextStep={roadmap.mainNextStep}
             continueHref="/roadmap"

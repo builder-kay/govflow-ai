@@ -21,9 +21,9 @@ import { useAppStore } from "@/store/useAppStore";
 import { getServiceFlow } from "@/lib/service-registry";
 
 export default function RoadmapPage() {
-  const { roadmap, hasCompletedQuestions, currentServiceId } = useAppStore();
+  const { roadmap, currentServiceId } = useAppStore();
   const flow = getServiceFlow(currentServiceId);
-  const displayProgress = hasCompletedQuestions ? Math.max(roadmap.progress, 20) : roadmap.progress;
+  const displayProgress = roadmap.progress;
   const typeLabel = currentServiceId === "passport" ? "Application type" : "Business type";
 
   return (

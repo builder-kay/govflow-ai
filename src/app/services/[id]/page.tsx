@@ -2,6 +2,7 @@
 
 import { notFound } from "next/navigation";
 import { use, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import {
   Briefcase,
@@ -79,14 +80,15 @@ export default function ServiceGuidePage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
+  const router = useRouter();
   const service = getServiceById(id);
-  const { activateService, savedDocuments } = useAppStore();
+  const { savedDocuments, hasCompletedQuestions, checklist, ensureServiceChecklist } = useAppStore();
 
   useEffect(() => {
     if (service) {
-      useAppStore.getState().setCurrentServiceId(service.id);
+      ensureServiceChecklist(service.id);
     }
-  }, [service]);
+  }, [service, ensureServiceChecklist]);
 
   if (!service) {
     notFound();
@@ -95,26 +97,31 @@ export default function ServiceGuidePage({
   const Icon = iconMap[service.icon] || Briefcase;
   const isComingSoon = COMING_SOON_SERVICE_IDS.has(service.id);
   const hasRoadmapFlow = ROADMAP_SERVICES.has(service.id);
-  const startHref = hasRoadmapFlow ? "/questions" : `/assistant?topic=${service.id === "ghana-card" ? "ghana-card" : service.id}`;
-  const startLabel = hasRoadmapFlow
-    ? service.id === "passport"
-      ? "Start passport roadmap"
-      : service.id === "national-service"
-        ? "Start national service roadmap"
+  const hasChecklistProgress = checklist.some((item) => item.completed);
+  const startHref =
+    hasCompletedQuestions || hasChecklistProgress
+      ? "/roadmap"
+      : hasRoadmapFlow
+        ? "/questions"
+        : `/assistant?topic=${service.id === "ghana-card" ? "ghana-card" : service.id}`;
+  const startLabel =
+    hasCompletedQuestions || hasChecklistProgress
+      ? "Continue your roadmap"
+      : hasRoadmapFlow
+        ? service.id === "passport"
+          ? "Personalize passport roadmap"
+          : service.id === "national-service"
+            ? "Personalize national service roadmap"
+            : service.id === "ghana-card"
+              ? "Personalize Ghana Card roadmap"
+              : "Personalize business roadmap"
         : service.id === "ghana-card"
-          ? "Start Ghana Card roadmap"
-          : service.id === "gra-tin"
-            ? "Start GRA/Tax roadmap"
-            : "Start business roadmap"
-    : service.id === "ghana-card"
-      ? "Get Ghana Card guidance"
-      : "Ask the AI assistant";
+          ? "Get Ghana Card guidance"
+          : "Ask the AI assistant";
 
   const handleStart = () => {
     if (isComingSoon) return;
-    if (hasRoadmapFlow) {
-      activateService(service.id);
-    }
+    router.push(startHref);
   };
 
   return (

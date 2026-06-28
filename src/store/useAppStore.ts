@@ -10,6 +10,9 @@ import type {
   SavedDocument,
 } from "@/types";
 import { getServiceFlow } from "@/lib/service-registry";
+import { syncRoadmapFromChecklist, getChecklistProgress } from "@/lib/checklist-sync";
+
+export { getChecklistProgress };
 
 interface AppState {
   userQuery: string;
@@ -27,6 +30,7 @@ interface AppState {
   setUsername: (username: string) => void;
   setCurrentServiceId: (id: string | null) => void;
   activateService: (serviceId: string) => void;
+  ensureServiceChecklist: (serviceId: string) => void;
   setAnswer: (key: keyof UserAnswers, value: string) => void;
   resetAnswers: () => void;
   setHasCompletedQuestions: (value: boolean) => void;
@@ -69,15 +73,54 @@ export const useAppStore = create<AppState>()(
       setCurrentServiceId: (id) => set({ currentServiceId: id }),
       activateService: (serviceId) => {
         const flow = getServiceFlow(serviceId);
+        const checklist = flow.roadmap.checklist.map((item) => ({ ...item, completed: false }));
+        const roadmap = syncRoadmapFromChecklist(checklist, { ...flow.roadmap, progress: 0 }, serviceId);
         set({
           currentServiceId: serviceId,
-          roadmap: { ...flow.roadmap, progress: 0 },
-          checklist: flow.roadmap.checklist.map((item) => ({ ...item, completed: false })),
+          roadmap,
+          checklist,
           answers: {},
           hasCompletedQuestions: false,
           userQuery: "",
         });
       },
+      ensureServiceChecklist: (serviceId) =>
+        set((state) => {
+          const flow = getServiceFlow(serviceId);
+
+          if (state.hasCompletedQuestions && state.currentServiceId === serviceId) {
+            const roadmap = syncRoadmapFromChecklist(state.checklist, state.roadmap, serviceId);
+            return { currentServiceId: serviceId, roadmap };
+          }
+
+          const expectedIds = new Set(flow.roadmap.checklist.map((item) => item.id));
+          const sameService = state.currentServiceId === serviceId;
+          const checklistMatches =
+            state.checklist.length > 0 &&
+            state.checklist.every((item) => expectedIds.has(item.id));
+
+          if (sameService && checklistMatches) {
+            const roadmap = syncRoadmapFromChecklist(state.checklist, state.roadmap, serviceId);
+            return { currentServiceId: serviceId, roadmap };
+          }
+
+          const completedMap = new Map(state.checklist.map((item) => [item.id, item.completed]));
+          const checklist = flow.roadmap.checklist.map((item) => ({
+            ...item,
+            completed: completedMap.get(item.id) ?? false,
+          }));
+          const roadmap = syncRoadmapFromChecklist(
+            checklist,
+            { ...flow.roadmap, ...state.roadmap, steps: flow.roadmap.steps },
+            serviceId
+          );
+
+          return {
+            currentServiceId: serviceId,
+            checklist,
+            roadmap,
+          };
+        }),
       setAnswer: (key, value) =>
         set((state) => ({ answers: { ...state.answers, [key]: value } })),
       resetAnswers: () => set({ answers: {}, hasCompletedQuestions: false }),
@@ -87,12 +130,12 @@ export const useAppStore = create<AppState>()(
           const checklist = state.checklist.map((item) =>
             item.id === id ? { ...item, completed: !item.completed } : item
           );
-          const completed = checklist.filter((i) => i.completed).length;
-          const progress = Math.round((completed / checklist.length) * 100);
-          return {
+          const roadmap = syncRoadmapFromChecklist(
             checklist,
-            roadmap: { ...state.roadmap, progress },
-          };
+            state.roadmap,
+            state.currentServiceId
+          );
+          return { checklist, roadmap };
         }),
       setDocumentUploaded: (value) => set({ documentUploaded: value }),
       addSavedDocument: (document) =>
@@ -131,12 +174,16 @@ export const useAppStore = create<AppState>()(
         accessibility: state.accessibility,
         currentServiceId: state.currentServiceId,
       }),
+      onRehydrateStorage: () => (state) => {
+        if (!state) return;
+        state.roadmap = syncRoadmapFromChecklist(
+          state.checklist,
+          state.roadmap,
+          state.currentServiceId
+        );
+      },
     }
   )
 );
 
-export function getChecklistProgress(checklist: ChecklistItem[]): number {
-  if (checklist.length === 0) return 0;
-  const completed = checklist.filter((i) => i.completed).length;
-  return Math.round((completed / checklist.length) * 100);
-}
+export { getChecklistProgress } from "@/lib/checklist-sync";

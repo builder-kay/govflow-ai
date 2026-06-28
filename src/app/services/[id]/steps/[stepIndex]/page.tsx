@@ -24,14 +24,19 @@ export default function ServiceStepGuidePage({
   const guide = Number.isNaN(stepIndex) ? undefined : getServiceStepGuide(id, stepIndex);
   const allGuides = getServiceStepGuides(id);
 
-  const { checklist, toggleChecklistItem, setCurrentServiceId, activateService } = useAppStore();
+  const {
+    checklist,
+    toggleChecklistItem,
+    ensureServiceChecklist,
+    hasCompletedQuestions,
+  } = useAppStore();
   const [localCompleted, setLocalCompleted] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     if (service) {
-      setCurrentServiceId(service.id);
+      ensureServiceChecklist(service.id);
     }
-  }, [service, setCurrentServiceId]);
+  }, [service, ensureServiceChecklist]);
 
   const checklistCompleted = useMemo(() => {
     const map: Record<string, boolean> = {};
@@ -45,8 +50,7 @@ export default function ServiceStepGuidePage({
     notFound();
   }
 
-  const prevHref =
-    stepIndex > 0 ? getServiceStepGuideHref(id, stepIndex - 1) : undefined;
+  const prevHref = stepIndex > 0 ? getServiceStepGuideHref(id, stepIndex - 1) : undefined;
   const nextHref =
     stepIndex < allGuides.length - 1 ? getServiceStepGuideHref(id, stepIndex + 1) : undefined;
 
@@ -69,8 +73,9 @@ export default function ServiceStepGuidePage({
         backHref={`/services/${id}`}
         prevHref={prevHref}
         nextHref={nextHref}
+        continueServiceHref={`/services/${id}`}
         questionsHref="/questions"
-        onStartRoadmap={() => activateService(id)}
+        showPersonalizeRoadmap={!hasCompletedQuestions}
       />
     </AppShell>
   );

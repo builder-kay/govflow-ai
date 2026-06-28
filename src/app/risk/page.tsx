@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { AlertTriangle, ArrowRight, ListPlus, MessageCircle } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
@@ -8,7 +9,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { ActionButton } from "@/components/ActionButton";
 import { NoticeCard } from "@/components/NoticeCard";
 import { useAppStore } from "@/store/useAppStore";
-import { getServiceFlow, getStartBusinessRiskProfile } from "@/lib/service-registry";
+import { getServiceFlow } from "@/lib/service-registry";
+import { getChecklistRiskFactors } from "@/lib/checklist-sync";
 import type { RiskLevel } from "@/types";
 
 const riskDescriptions: Record<RiskLevel, string> = {
@@ -18,12 +20,11 @@ const riskDescriptions: Record<RiskLevel, string> = {
 };
 
 export default function RiskPage() {
-  const { roadmap, currentServiceId, answers } = useAppStore();
+  const { roadmap, currentServiceId, checklist } = useAppStore();
   const flow = getServiceFlow(currentServiceId);
-  const startBusinessRisk =
-    currentServiceId === "start-business" ? getStartBusinessRiskProfile(answers) : null;
-  const riskFactors = startBusinessRisk?.riskFactors ?? flow.riskFactors;
-  const riskFixes = startBusinessRisk?.riskFixes ?? flow.riskFixes;
+  const checklistFactors = getChecklistRiskFactors(checklist);
+  const riskFactors = checklistFactors.length > 0 ? checklistFactors : flow.riskFactors;
+  const riskFixes = flow.riskFixes;
 
   return (
     <AppShell title="Rejection Risk Checker">

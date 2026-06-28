@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { ProgressBar } from "@/components/ui/progress";
 import { getServiceFlow } from "@/lib/service-registry";
 import { buildStartBusinessRoadmap } from "@/lib/start-business-roadmap";
+import { syncRoadmapFromChecklist } from "@/lib/checklist-sync";
 import { useAppStore } from "@/store/useAppStore";
 import { cn } from "@/lib/utils";
 import { ChevronLeft, ChevronRight, HelpCircle } from "lucide-react";
@@ -151,11 +152,16 @@ export default function QuestionsPage() {
 
       if (currentServiceId === "start-business") {
         const personalizedRoadmap = buildStartBusinessRoadmap(nextAnswers);
+        const checklist = personalizedRoadmap.checklist.map((item) => ({ ...item, completed: false }));
         useAppStore.setState({
-          roadmap: personalizedRoadmap,
-          checklist: personalizedRoadmap.checklist.map((item) => ({ ...item, completed: false })),
+          checklist,
+          roadmap: syncRoadmapFromChecklist(checklist, personalizedRoadmap, "start-business"),
         });
       }
+
+      useAppStore.setState((state) => ({
+        roadmap: syncRoadmapFromChecklist(state.checklist, state.roadmap, currentServiceId),
+      }));
 
       setTimeout(() => router.push("/roadmap"), 1500);
     }
