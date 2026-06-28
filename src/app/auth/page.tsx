@@ -563,6 +563,20 @@ function AuthPageContent() {
                     </p>
                   ) : null}
 
+                  {mode === "signup" ? (
+                    <p className="text-xs leading-relaxed text-muted">
+                      By creating an account, you agree to our{" "}
+                      <a href="/terms" className="font-medium text-primary hover:underline">
+                        Terms of Service
+                      </a>{" "}
+                      and{" "}
+                      <a href="/privacy" className="font-medium text-primary hover:underline">
+                        Privacy Policy
+                      </a>
+                      .
+                    </p>
+                  ) : null}
+
                   <Button type="submit" className="h-12 w-full text-base" disabled={loading || otpLoading}>
                     {loading ? (
                       <>

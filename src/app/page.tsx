@@ -16,6 +16,8 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { LegalNavLinks } from "@/components/legal/LegalNavLinks";
+import { LEGAL_OPERATOR } from "@/data/legal";
 
 export default function WelcomePage() {
   return (
@@ -221,6 +223,13 @@ export default function WelcomePage() {
             </div>
           </div>
         </section>
+
+        <footer className="mt-12 border-t border-gray-100 pt-8 text-center">
+          <LegalNavLinks variant="inline" className="mb-4" />
+          <p className="text-xs text-muted">
+            Built and managed by {LEGAL_OPERATOR} © {new Date().getFullYear()}
+          </p>
+        </footer>
       </div>
     </div>
   );

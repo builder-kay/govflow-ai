@@ -9,6 +9,7 @@ import { ProfileHero } from "@/components/profile/ProfileHero";
 import { ProfileSection } from "@/components/profile/ProfileSection";
 import { Button } from "@/components/ui/button";
 import { SignOutButton } from "@/components/auth/SignOutButton";
+import { LegalNavLinks } from "@/components/legal/LegalNavLinks";
 import { useAppStore, getChecklistProgress } from "@/store/useAppStore";
 import { getServiceFlow } from "@/lib/service-registry";
 import { cn } from "@/lib/utils";
@@ -18,15 +19,9 @@ import {
   Save,
   ShieldCheck,
   Globe,
-  MessageSquareText,
   Accessibility,
-  Gauge,
+  Scale,
   Type,
-  Volume2,
-  Contrast,
-  Minimize2,
-  Sparkles,
-  Zap,
   Check,
   Map,
   FileText,
@@ -34,24 +29,6 @@ import {
 } from "lucide-react";
 
 const languages = ["English"];
-
-const explanationStyles = [
-  {
-    id: "simple" as const,
-    label: "Simple",
-    description: "Short, plain-language answers — best for first-time users.",
-  },
-  {
-    id: "normal" as const,
-    label: "Normal",
-    description: "Balanced detail with clear steps and context.",
-  },
-  {
-    id: "detailed" as const,
-    label: "Detailed",
-    description: "More thorough explanations when you want extra depth.",
-  },
-];
 
 const SERVICE_LABELS: Record<string, string> = {
   "start-business": "Start a Business",
@@ -302,33 +279,6 @@ export default function ProfilePage() {
                 </div>
               </div>
             </ProfileSection>
-
-            <ProfileSection
-              icon={MessageSquareText}
-              title="Explanation style"
-              description="Adjust answer depth based on your comfort level."
-              delay={0.15}
-              reduceMotion={reduceMotion}
-            >
-              <div className="grid gap-3 md:grid-cols-3">
-                {explanationStyles.map((style) => (
-                  <button
-                    key={style.id}
-                    type="button"
-                    onClick={() => setAccessibility({ explanationStyle: style.id })}
-                    className={cn(
-                      "rounded-2xl border-2 p-4 text-left transition-all",
-                      accessibility.explanationStyle === style.id
-                        ? "border-primary bg-soft-blue shadow-sm ring-1 ring-primary/10"
-                        : "border-gray-100 bg-white hover:border-primary/30 hover:shadow-sm"
-                    )}
-                  >
-                    <p className="font-bold text-foreground">{style.label}</p>
-                    <p className="mt-2 text-sm leading-relaxed text-muted">{style.description}</p>
-                  </button>
-                ))}
-              </div>
-            </ProfileSection>
           </div>
 
           {/* Sidebar settings — sticky on large screens */}
@@ -342,66 +292,17 @@ export default function ProfilePage() {
             >
               <div className="space-y-3">
                 <AccessibilityToggle label="Bigger text" settingKey="biggerText" icon={Type} />
-                <AccessibilityToggle
-                  label="Voice reading"
-                  description="Read explanations aloud"
-                  settingKey="voiceReading"
-                  icon={Volume2}
-                />
-                <AccessibilityToggle label="High contrast mode" settingKey="highContrast" icon={Contrast} />
-                <AccessibilityToggle label="Reduce animations" settingKey="reduceAnimations" icon={Minimize2} />
               </div>
             </ProfileSection>
 
             <ProfileSection
-              icon={Gauge}
-              title="Interaction mode"
-              description="Pick the interface style that best matches your pace."
-              delay={0.12}
+              icon={Scale}
+              title="Legal"
+              description="Terms, privacy, cookies, and platform policies."
+              delay={0.1}
               reduceMotion={reduceMotion}
             >
-              <div className="grid gap-3">
-                <button
-                  type="button"
-                  onClick={() => setAccessibility({ mode: "simple", biggerText: true })}
-                  className={cn(
-                    "rounded-2xl border-2 p-4 text-left transition-all",
-                    accessibility.mode === "simple"
-                      ? "border-primary bg-soft-blue shadow-sm"
-                      : "border-gray-100 bg-white hover:border-primary/25"
-                  )}
-                >
-                  <div className="mb-2 flex items-center gap-2">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10">
-                      <Sparkles className="h-4 w-4 text-primary" />
-                    </div>
-                    <p className="font-bold text-foreground">Simple mode</p>
-                  </div>
-                  <p className="text-sm leading-relaxed text-muted">
-                    Better for first-time users. Larger text and guided explanations.
-                  </p>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setAccessibility({ mode: "quick", biggerText: false })}
-                  className={cn(
-                    "rounded-2xl border-2 p-4 text-left transition-all",
-                    accessibility.mode === "quick"
-                      ? "border-primary bg-soft-blue shadow-sm"
-                      : "border-gray-100 bg-white hover:border-primary/25"
-                  )}
-                >
-                  <div className="mb-2 flex items-center gap-2">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10">
-                      <Zap className="h-4 w-4 text-primary" />
-                    </div>
-                    <p className="font-bold text-foreground">Quick mode</p>
-                  </div>
-                  <p className="text-sm leading-relaxed text-muted">
-                    Shorter answers and a compact interface for faster task completion.
-                  </p>
-                </button>
-              </div>
+              <LegalNavLinks />
             </ProfileSection>
 
             <section className="rounded-2xl border border-amber-200/80 bg-gradient-to-br from-amber-50 to-white p-5 shadow-sm md:rounded-3xl">
@@ -427,9 +328,12 @@ export default function ProfilePage() {
         </div>
 
         <p className="rounded-2xl border border-gray-100 bg-white/80 px-4 py-3 text-xs leading-relaxed text-muted md:px-5">
-          GovFlow AI helps users understand and prepare for government services. It does not replace
-          official government agencies, legal advice, or official application portals. Always confirm
-          final requirements, fees, and timelines from the responsible agency.
+          GovFlow AI helps users understand and prepare for government services. See our{" "}
+          <Link href="/legal" className="font-medium text-primary hover:underline">
+            legal policies
+          </Link>{" "}
+          for terms, privacy, and disclaimers. Always confirm final requirements from the responsible
+          agency.
         </p>
       </div>
     </AppShell>
