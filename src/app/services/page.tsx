@@ -36,7 +36,7 @@ const COMING_SOON_SERVICE_IDS = new Set([
 ]);
 
 export default function ServicesPage() {
-  const { setCurrentServiceId } = useAppStore();
+  const { ensureServiceChecklist } = useAppStore();
 
   return (
     <AppShell title="Services">
@@ -55,8 +55,10 @@ export default function ServicesPage() {
             return (
               <div
                 key={service.id}
-                onClick={() => !isComingSoon && setCurrentServiceId(service.id)}
-                onKeyDown={(e) => e.key === "Enter" && !isComingSoon && setCurrentServiceId(service.id)}
+                onClick={() => !isComingSoon && ensureServiceChecklist(service.id)}
+                onKeyDown={(e) =>
+                  e.key === "Enter" && !isComingSoon && ensureServiceChecklist(service.id)
+                }
                 role="presentation"
               >
                 <ServiceCard

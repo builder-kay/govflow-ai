@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import {
@@ -66,17 +67,15 @@ export default function HomePage() {
     setUserQuery(trimmed);
     const serviceId = detectServiceFromQuery(trimmed);
     if (serviceId) {
-      activateService(serviceId);
-      router.push("/questions");
+      useAppStore.getState().ensureServiceChecklist(serviceId);
+      router.push(`/services/${serviceId}`);
       return;
     }
     router.push("/services");
   };
 
-  const handleQuickService = (serviceId: string, href: string, comingSoon?: boolean) => {
-    if (comingSoon) return;
-    useAppStore.getState().setCurrentServiceId(serviceId);
-    router.push(href);
+  const handleServiceSelect = (serviceId: string) => {
+    useAppStore.getState().ensureServiceChecklist(serviceId);
   };
 
   return (
@@ -133,14 +132,9 @@ export default function HomePage() {
         <section>
           <h3 className="mb-4 text-lg font-bold text-foreground">Quick services</h3>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            {quickServices.map(({ id, icon, title, href, comingSoon }) => (
-              <button
-                key={id}
-                type="button"
-                onClick={() => handleQuickService(id, href, comingSoon)}
-                className="text-left"
-                disabled={comingSoon}
-              >
+            {quickServices.map(({ id, icon, title, href, comingSoon }) => {
+              const Icon = icon;
+              const card = (
                 <Card
                   className={cn(
                     "h-full transition-all hover:border-primary/20 hover:shadow-md",
@@ -149,10 +143,7 @@ export default function HomePage() {
                 >
                   <CardContent className="flex flex-col items-center p-4 text-center">
                     <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-xl bg-soft-blue text-primary">
-                      {(() => {
-                        const Icon = icon;
-                        return <Icon className="h-5 w-5" />;
-                      })()}
+                      <Icon className="h-5 w-5" />
                     </div>
                     <p className="text-sm font-semibold">{title}</p>
                     {comingSoon ? (
@@ -162,8 +153,27 @@ export default function HomePage() {
                     ) : null}
                   </CardContent>
                 </Card>
-              </button>
-            ))}
+              );
+
+              if (comingSoon) {
+                return (
+                  <div key={id} className="text-left">
+                    {card}
+                  </div>
+                );
+              }
+
+              return (
+                <Link
+                  key={id}
+                  href={href}
+                  onClick={() => handleServiceSelect(id)}
+                  className="block text-left"
+                >
+                  {card}
+                </Link>
+              );
+            })}
           </div>
         </section>
 

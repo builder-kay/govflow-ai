@@ -18,7 +18,7 @@ export function ServiceCard({
   icon: Icon,
   title,
   description,
-  href = "/questions",
+  href = "/services",
   compact = false,
   comingSoon = false,
 }: ServiceCardProps) {
