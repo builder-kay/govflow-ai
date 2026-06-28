@@ -6,6 +6,8 @@ export interface Service {
   id: string;
   title: string;
   description: string;
+  overview: string;
+  involves: string[];
   agency: string;
   icon: string;
   requiredDocuments: string[];
