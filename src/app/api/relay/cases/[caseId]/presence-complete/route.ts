@@ -12,7 +12,7 @@ export async function POST(request: Request, context: { params: Promise<{ caseId
   try {
     const relayCase = await getRelayCaseById(caseId);
     if (!relayCase || relayCase.userId !== userId) {
-      return NextResponse.json({ error: "Agent case not found." }, { status: 404 });
+      return NextResponse.json({ error: "Agent request not found." }, { status: 404 });
     }
 
     const nextAwaitingStep = relayCase.steps.find(

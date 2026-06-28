@@ -23,9 +23,20 @@ export async function GET(request: Request) {
 
     let remindersSent = 0;
     for (const relayCase of awaitingUserCases) {
+      const nextUserStep = relayCase.steps.find(
+        (step) => step.assignee === "user" && step.status !== "completed"
+      );
+      const actionTitle = nextUserStep?.title ?? "your next in-person step";
+      const actionDetail = (
+        nextUserStep?.description ?? "Open GovFlow and follow the dashboard instructions."
+      )
+        .replace(/\s+/g, " ")
+        .trim()
+        .slice(0, 150);
+
       const sms = await sendArkeselSms(
         relayCase.intake.contact.phone,
-        `GovFlow Agent: your passport case needs your presence for the next step. Open GovFlow to view instructions.`
+        `GovFlow Agent reminder: your presence is needed. Next action: ${actionTitle}. ${actionDetail}`
       );
       if (!sms.ok) continue;
 

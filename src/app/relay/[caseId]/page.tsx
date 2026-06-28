@@ -38,7 +38,7 @@ export default function RelayCaseDetailPage({
       const payload = await fetchRelayCase(caseId);
       setRelayCase(payload);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not load Agent case.");
+      setError(err instanceof Error ? err.message : "Could not load Agent request.");
     } finally {
       setLoading(false);
     }
@@ -69,12 +69,12 @@ export default function RelayCaseDetailPage({
   };
 
   return (
-    <AppShell title="Agent case">
+    <AppShell title="Agent request">
       <div className="mx-auto max-w-4xl space-y-6">
         {loading ? (
           <p className="inline-flex items-center gap-2 text-sm text-muted">
             <Loader2 className="h-4 w-4 animate-spin" />
-            Loading case timeline...
+            Loading request timeline...
           </p>
         ) : relayCase ? (
           <>
@@ -82,9 +82,9 @@ export default function RelayCaseDetailPage({
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
                   <p className="text-sm font-semibold uppercase tracking-wide text-primary">{RELAY_FEATURE_NAME}</p>
-                  <h1 className="mt-1 text-2xl font-bold text-foreground">Passport case timeline</h1>
+                  <h1 className="mt-1 text-2xl font-bold text-foreground">Passport request timeline</h1>
                   <p className="mt-1 text-sm text-muted">
-                    Case {relayCase.id.slice(0, 8)} • Created{" "}
+                    Request {relayCase.id.slice(0, 8).toUpperCase()} • Created{" "}
                     {new Date(relayCase.createdAt).toLocaleString()}
                   </p>
                 </div>
@@ -168,7 +168,7 @@ export default function RelayCaseDetailPage({
             </div>
           </>
         ) : (
-          <p className="text-sm text-muted">Case not found.</p>
+          <p className="text-sm text-muted">Request not found.</p>
         )}
 
         {error ? (

@@ -10,7 +10,7 @@ interface RelayMetricsCardsProps {
 export function RelayMetricsCards({ metrics }: RelayMetricsCardsProps) {
   const cards = [
     {
-      label: "Total Agent cases",
+      label: "Total Agent requests",
       value: String(metrics.totalCases),
       icon: BarChart3,
     },

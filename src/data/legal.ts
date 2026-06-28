@@ -152,7 +152,7 @@ export const privacyPolicy: LegalDocument = {
         "Account information — phone number or email used to sign in, and optional display name.",
         "Usage data — pages visited, service selections, checklist progress, and roadmap state stored on your device.",
         "Documents you upload — file name, type, extracted text, and AI-generated summaries stored locally in your browser for chat context.",
-        "Agent case data (if you use GovFlow Agent) — contact details, service-specific intake details, authorization selections, operations timeline events, and support notes.",
+        "Agent request data (if you use GovFlow Agent) — contact details, service-specific intake details, authorization selections, operations timeline events, and support notes.",
         "Location data — only if you enable “Use my location” on the Office Locator; used to estimate distances, not stored on our servers by default.",
         "AI interactions — prompts and context sent to our AI providers when you use the assistant or document analysis features.",
         "Technical data — browser type, device information, and logs needed for security and debugging.",
@@ -193,7 +193,7 @@ export const privacyPolicy: LegalDocument = {
       paragraphs: [
         "Much of your GovFlow progress (checklists, roadmaps, uploaded document summaries) is stored locally in your browser via local storage. Clearing browser data may remove this information.",
         "Account credentials are managed through Supabase. We retain account-related records as long as your account is active and as needed for legal, security, or operational purposes.",
-        "Agent case records, payment references, and operations logs may be retained for support, fraud prevention, accounting, and dispute resolution for a reasonable period under applicable law.",
+        "Agent request records, payment references, and operations logs may be retained for support, fraud prevention, accounting, and dispute resolution for a reasonable period under applicable law.",
         "AI providers may retain API logs according to their own policies. Avoid uploading unnecessary sensitive information.",
       ],
     },

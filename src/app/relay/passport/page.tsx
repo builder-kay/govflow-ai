@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
 import { CalendarClock, CreditCard, FileCheck2, Loader2, ShieldCheck } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
 import { ActionButton } from "@/components/ActionButton";
@@ -96,7 +97,7 @@ export default function PassportRelayIntakePage() {
       }
       window.location.href = payment.authorizationUrl;
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not start Agent case.");
+      setError(err instanceof Error ? err.message : "Could not start Agent request.");
       setSubmitting(false);
     }
   };
@@ -104,7 +105,11 @@ export default function PassportRelayIntakePage() {
   return (
     <AppShell title={`${RELAY_FEATURE_NAME} Intake`}>
       <div className="mx-auto max-w-4xl space-y-6">
-        <section className="rounded-3xl border border-primary/15 bg-gradient-to-br from-soft-blue/50 to-white p-6 shadow-sm">
+        <motion.section
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="rounded-3xl border border-primary/15 bg-gradient-to-br from-soft-blue/50 to-white p-6 shadow-sm"
+        >
           <p className="text-sm font-semibold uppercase tracking-wide text-primary">Passport pilot</p>
           <h1 className="mt-1 text-3xl font-bold text-foreground">Hire {RELAY_FEATURE_NAME}</h1>
           <p className="mt-2 text-sm text-muted">
@@ -125,7 +130,7 @@ export default function PassportRelayIntakePage() {
               Includes presence alerts
             </p>
           </div>
-        </section>
+        </motion.section>
 
         <section className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm md:p-6">
           <h2 className="text-lg font-bold text-foreground">Contact details</h2>
@@ -152,7 +157,7 @@ export default function PassportRelayIntakePage() {
         </section>
 
         <section className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm md:p-6">
-          <h2 className="text-lg font-bold text-foreground">Passport case details</h2>
+          <h2 className="text-lg font-bold text-foreground">Passport request details</h2>
           <div className="mt-4 grid gap-3 md:grid-cols-2">
             <label className="text-sm text-muted">
               Application type
@@ -235,7 +240,7 @@ export default function PassportRelayIntakePage() {
                 checked={allowDocumentHandling}
                 onChange={(event) => setAllowDocumentHandling(event.target.checked)}
               />
-              I allow GovFlow to review and organize my uploaded documents for this case.
+              I allow GovFlow to review and organize my uploaded documents for this request.
             </label>
             <label className="inline-flex items-start gap-2">
               <input
@@ -270,7 +275,7 @@ export default function PassportRelayIntakePage() {
                 Processing...
               </>
             ) : (
-              <>Create case and pay</>
+              <>Create request and pay</>
             )}
           </Button>
           <ActionButton href="/relay" variant="outline">

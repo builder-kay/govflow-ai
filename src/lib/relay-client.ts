@@ -24,7 +24,7 @@ export async function fetchRelayCases(userId: string): Promise<RelayCasesRespons
   });
   const payload = await parseJson<RelayCasesResponse & { error?: string }>(response);
   if (!response.ok) {
-    throw new Error(payload.error || "Could not load Agent cases.");
+    throw new Error(payload.error || "Could not load Agent requests.");
   }
   return payload;
 }
@@ -37,7 +37,7 @@ export async function createRelayCaseClient(userId: string, request: RelayCaseRe
   });
   const payload = await parseJson<{ case?: RelayCase; error?: string }>(response);
   if (!response.ok || !payload.case) {
-    throw new Error(payload.error || "Could not create Agent case.");
+    throw new Error(payload.error || "Could not create Agent request.");
   }
   return payload.case;
 }
@@ -70,7 +70,7 @@ export async function fetchRelayCase(caseId: string): Promise<RelayCase> {
   const response = await fetch(`/api/relay/cases/${caseId}`);
   const payload = await parseJson<{ case?: RelayCase; error?: string }>(response);
   if (!response.ok || !payload.case) {
-    throw new Error(payload.error || "Could not load Agent case.");
+    throw new Error(payload.error || "Could not load Agent request.");
   }
   return payload.case;
 }

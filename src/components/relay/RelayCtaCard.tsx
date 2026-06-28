@@ -49,7 +49,7 @@ export function RelayCtaCard() {
           </Link>
         </Button>
         <Button asChild variant="outline">
-          <Link href="/relay">View my Agent cases</Link>
+          <Link href="/relay">View my Agent requests</Link>
         </Button>
       </div>
     </motion.section>
