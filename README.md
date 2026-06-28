@@ -115,6 +115,37 @@ src/
 - Office locator (Cape Coast)
 - Progress tracker & saved roadmaps
 - Accessibility settings (language, text size, contrast)
+- GovFlow Relay (pilot delegated assistance for passport)
+
+## GovFlow Relay Pilot
+
+GovFlow Relay is a paid delegated-assistance pilot for passport cases. Users submit intake details,
+pay a Relay service fee, and GovFlow handles non-presence follow-ups. Users are alerted only for
+mandatory in-person steps.
+
+### Relay setup
+
+1. Apply SQL schema in Supabase:
+
+```sql
+-- run file
+supabase/relay_schema.sql
+```
+
+2. Configure environment variables:
+
+```env
+PAYSTACK_SECRET_KEY=sk_test_...
+PAYSTACK_CALLBACK_URL=https://your-domain.com/relay/callback
+RELAY_OPS_SECRET=your_internal_ops_secret
+RELAY_CRON_SECRET=your_cron_secret
+```
+
+3. Optional operational endpoints:
+
+- `POST /api/webhooks/paystack` for payment confirmations
+- `GET /api/cron/relay-reminders` for reminder jobs (`Authorization: Bearer RELAY_CRON_SECRET`)
+- `GET /api/relay/ops/cases` and related ops updates (`x-relay-ops-secret` header)
 
 ## Disclaimer
 

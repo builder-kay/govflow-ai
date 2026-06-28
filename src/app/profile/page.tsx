@@ -26,6 +26,7 @@ import {
   Map,
   FileText,
   MessageCircle,
+  Handshake,
 } from "lucide-react";
 
 const languages = ["English"];
@@ -133,11 +134,12 @@ export default function ProfilePage() {
         />
 
         {/* Desktop quick links */}
-        <div className="hidden gap-3 md:grid md:grid-cols-3">
+        <div className="hidden gap-3 md:grid md:grid-cols-4">
           {[
             { href: "/roadmap", label: "Continue roadmap", icon: Map, desc: `${roadmapProgress}% complete` },
             { href: "/documents", label: "Your documents", icon: FileText, desc: `${savedDocuments.length} saved` },
             { href: "/assistant", label: "Open assistant", icon: MessageCircle, desc: "Ask in simple English" },
+            { href: "/relay", label: "GovFlow Relay", icon: Handshake, desc: "Delegated assistance" },
           ].map((link, index) => {
             const Icon = link.icon;
             const LinkWrapper = reduceMotion ? "div" : motion.div;

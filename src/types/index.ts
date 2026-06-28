@@ -210,3 +210,5 @@ export interface UserAnswers {
   nationalServiceRegionPreference?: string;
   nationalServicePostingStatus?: string;
 }
+
+export * from "./relay";

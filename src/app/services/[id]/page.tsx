@@ -23,6 +23,7 @@ import { TaxEstimatorCard } from "@/components/TaxEstimatorCard";
 import { ServiceOverview } from "@/components/services/ServiceOverview";
 import { ServiceStepsPreview } from "@/components/services/ServiceStepsPreview";
 import { ServiceMissingDocsCta } from "@/components/services/ServiceMissingDocsCta";
+import { RelayCtaCard } from "@/components/relay/RelayCtaCard";
 import { Card, CardContent } from "@/components/ui/card";
 import { getServiceById } from "@/data/services";
 import { NIA_PORTAL_URL } from "@/lib/ghana-card-links";
@@ -153,6 +154,8 @@ export default function ServiceGuidePage({
         </motion.header>
 
         <ServiceOverview overview={service.overview} involves={service.involves} />
+
+        {service.id === "passport" ? <RelayCtaCard /> : null}
 
         <ServiceStepsPreview serviceId={service.id} steps={service.steps} />
 

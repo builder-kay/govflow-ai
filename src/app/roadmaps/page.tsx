@@ -138,6 +138,21 @@ export default function RoadmapsPage() {
             Browse all services
           </ActionButton>
         </motion.div>
+
+        <motion.div
+          initial={reduceMotion ? false : { opacity: 0, y: 10 }}
+          animate={reduceMotion ? undefined : { opacity: 1, y: 0 }}
+          className="rounded-2xl border border-amber-200 bg-amber-50/60 p-5"
+        >
+          <p className="font-semibold text-foreground">Need someone to handle the heavy lifting?</p>
+          <p className="mt-1 text-sm text-muted">
+            Try GovFlow Relay for passport cases. GovFlow coordinates follow-ups and alerts you only
+            when your presence is mandatory.
+          </p>
+          <ActionButton href="/relay" className="mt-3" size="sm">
+            Open Relay dashboard
+          </ActionButton>
+        </motion.div>
       </div>
 
       <ConfirmDialog

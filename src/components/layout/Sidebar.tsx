@@ -11,6 +11,7 @@ import {
   LayoutGrid,
   Sparkles,
   User,
+  Handshake,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -21,6 +22,7 @@ const navItems = [
   { href: "/documents", label: "Documents", icon: FileText },
   { href: "/offices", label: "Offices", icon: Building2 },
   { href: "/services", label: "Services", icon: LayoutGrid },
+  { href: "/relay", label: "Relay", icon: Handshake },
   { href: "/profile", label: "Profile", icon: User },
 ];
 
