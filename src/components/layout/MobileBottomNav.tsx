@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Map, FileText, Building2, User, Handshake } from "lucide-react";
+import { Home, Map, FileText, Building2, Handshake } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
@@ -11,7 +11,6 @@ const navItems = [
   { href: "/documents", label: "Documents", icon: FileText },
   { href: "/relay", label: "Agent", icon: Handshake },
   { href: "/offices", label: "Offices", icon: Building2 },
-  { href: "/profile", label: "Profile", icon: User },
 ];
 
 export function MobileBottomNav() {

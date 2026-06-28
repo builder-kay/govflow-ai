@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { useState } from "react";
-import { MessageCircle, X, Sparkles, ExternalLink } from "lucide-react";
+import { Sparkles, X, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import Link from "next/link";
@@ -68,7 +68,7 @@ export function ChatPanel() {
         size="icon"
         aria-label="Open GovFlow AI assistant"
       >
-        <MessageCircle className="h-6 w-6" />
+        <Sparkles className="h-6 w-6" />
       </Button>
 
       <AnimatePresence>
