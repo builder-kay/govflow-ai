@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import {
   ArrowRight,
   BadgeCheck,
+  Handshake,
   MapPinned,
   ShieldCheck,
   Sparkles,
@@ -15,6 +16,7 @@ import { Button } from "@/components/ui/button";
 const heroStats = [
   { label: "Guided roadmaps", icon: MapPinned },
   { label: "Safer applications", icon: ShieldCheck },
+  { label: "Delegated Agent help", icon: Handshake },
   { label: "AI document help", icon: Sparkles },
 ];
 
@@ -75,7 +77,8 @@ export function LandingHero() {
 
           <motion.p variants={item} className="mb-8 max-w-xl text-lg leading-relaxed text-muted md:text-xl">
             GovFlow AI helps citizens navigate complex service processes with confidence. Get
-            roadmaps, checklists, document guidance, and risk alerts in one modern platform.
+            roadmaps, checklists, document guidance, risk alerts, and GovFlow Agent support in one
+            modern platform.
           </motion.p>
 
           <motion.div variants={item} className="flex flex-col gap-3 sm:flex-row">

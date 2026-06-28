@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { FileText, MapPinned, ShieldCheck } from "lucide-react";
+import { FileText, Handshake, MapPinned, ShieldCheck } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 
 const features = [
@@ -26,6 +26,14 @@ const features = [
     accent: "bg-amber-50 text-amber-700",
     bar: "from-amber-400 to-orange-500",
   },
+  {
+    icon: Handshake,
+    title: "Delegate hard follow-ups",
+    description:
+      "Use GovFlow Agent when you need support handling office follow-ups while you focus on essentials.",
+    accent: "bg-violet-50 text-violet-700",
+    bar: "from-violet-400 to-indigo-600",
+  },
 ];
 
 export function LandingFeatures() {
@@ -47,7 +55,7 @@ export function LandingFeatures() {
         <p className="text-sm text-muted">Designed for clarity, speed, and confidence.</p>
       </motion.div>
 
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         {features.map((feature, index) => {
           const Icon = feature.icon;
           return (
