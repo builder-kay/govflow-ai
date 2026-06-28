@@ -86,7 +86,7 @@ export function LandingHero() {
               </Link>
             </Button>
             <Button asChild variant="outline" size="lg">
-              <Link href="/services">Explore Services</Link>
+              <Link href="#services">Explore Services</Link>
             </Button>
           </motion.div>
 

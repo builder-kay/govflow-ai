@@ -104,7 +104,7 @@ export function LandingHowItWorks() {
                 </Link>
               </Button>
               <Button asChild variant="outline">
-                <Link href="/services">
+                <Link href="#services">
                   <Building2 className="h-4 w-4" />
                   View Service Catalog
                 </Link>

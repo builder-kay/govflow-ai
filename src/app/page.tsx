@@ -3,6 +3,7 @@
 import { LandingHeader } from "@/components/landing/LandingHeader";
 import { LandingHero } from "@/components/landing/LandingHero";
 import { LandingFeatures } from "@/components/landing/LandingFeatures";
+import { LandingServices } from "@/components/landing/LandingServices";
 import { LandingShowcase } from "@/components/landing/LandingShowcase";
 import { LandingHowItWorks } from "@/components/landing/LandingHowItWorks";
 import { LandingCta } from "@/components/landing/LandingCta";
@@ -16,6 +17,7 @@ export default function WelcomePage() {
         <LandingHeader />
         <LandingHero />
         <LandingFeatures />
+        <LandingServices />
         <LandingShowcase />
         <LandingHowItWorks />
         <LandingCta />

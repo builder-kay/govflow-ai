@@ -29,8 +29,8 @@ export function LandingHeader() {
           </div>
         </Link>
         <div className="flex shrink-0 items-center gap-2">
-          <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
-            <Link href="/services">Services</Link>
+          <Button asChild variant="ghost" size="sm">
+            <Link href="#services">Services</Link>
           </Button>
           <Button asChild variant="outline" size="sm" className="hidden sm:inline-flex">
             <Link href="/auth">Log in</Link>
