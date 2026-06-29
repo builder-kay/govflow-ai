@@ -3,10 +3,14 @@
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Moon, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAppStore } from "@/store/useAppStore";
 
 export function LandingHeader() {
+  const darkMode = useAppStore((state) => state.accessibility.darkMode);
+  const setAccessibility = useAppStore((state) => state.setAccessibility);
+
   return (
     <motion.header
       initial={{ opacity: 0, y: -16 }}
@@ -29,6 +33,15 @@ export function LandingHeader() {
           </div>
         </Link>
         <div className="flex shrink-0 items-center gap-2">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setAccessibility({ darkMode: !darkMode })}
+            aria-label={darkMode ? "Switch to light mode" : "Switch to dark mode"}
+            title={darkMode ? "Switch to light mode" : "Switch to dark mode"}
+          >
+            {darkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+          </Button>
           <Button asChild variant="ghost" size="sm">
             <Link href="#services">Services</Link>
           </Button>

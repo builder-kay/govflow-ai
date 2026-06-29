@@ -3,10 +3,11 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
-import { ArrowLeft, User } from "lucide-react";
+import { ArrowLeft, Moon, Sun, User } from "lucide-react";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { SignOutButton } from "@/components/auth/SignOutButton";
 import { Button } from "@/components/ui/button";
+import { useAppStore } from "@/store/useAppStore";
 import { cn } from "@/lib/utils";
 
 interface HeaderProps {
@@ -17,6 +18,8 @@ interface HeaderProps {
 export function Header({ showLogo = true, title }: HeaderProps) {
   const router = useRouter();
   const pathname = usePathname();
+  const darkMode = useAppStore((state) => state.accessibility.darkMode);
+  const setAccessibility = useAppStore((state) => state.setAccessibility);
   const isHome = pathname === "/home" || pathname === "/";
 
   const handleBack = () => {
@@ -68,6 +71,16 @@ export function Header({ showLogo = true, title }: HeaderProps) {
         </div>
 
         <div className="flex shrink-0 items-center gap-1.5 sm:gap-2 md:gap-3">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setAccessibility({ darkMode: !darkMode })}
+            className="h-9 w-9 shrink-0"
+            aria-label={darkMode ? "Switch to light mode" : "Switch to dark mode"}
+            title={darkMode ? "Switch to light mode" : "Switch to dark mode"}
+          >
+            {darkMode ? <Sun className="h-4 w-4 sm:h-5 sm:w-5" /> : <Moon className="h-4 w-4 sm:h-5 sm:w-5" />}
+          </Button>
           <LanguageSelector compact className="sm:[&_select]:min-w-0" />
           <SignOutButton iconOnly className="sm:hidden" />
           <SignOutButton

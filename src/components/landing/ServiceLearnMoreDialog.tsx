@@ -163,17 +163,17 @@ export function ServiceLearnMoreDialog({
                       key={pair.pain}
                       className="overflow-hidden rounded-2xl border border-gray-100 bg-white"
                     >
-                      <div className="border-b border-red-100/80 bg-red-50/60 px-4 py-3">
-                        <p className="text-[10px] font-semibold uppercase tracking-wide text-red-700/80">
+                      <div className="border-b border-red-200 bg-red-50 px-4 py-3">
+                        <p className="text-[10px] font-semibold uppercase tracking-wide text-red-800">
                           The problem
                         </p>
-                        <p className="mt-1 text-sm leading-relaxed text-red-950/90">{pair.pain}</p>
+                        <p className="mt-1 text-sm leading-relaxed text-red-900">{pair.pain}</p>
                       </div>
-                      <div className="bg-emerald-50/50 px-4 py-3">
-                        <p className="text-[10px] font-semibold uppercase tracking-wide text-emerald-700/80">
+                      <div className="bg-emerald-50 px-4 py-3">
+                        <p className="text-[10px] font-semibold uppercase tracking-wide text-emerald-800">
                           How GovFlow turns it around
                         </p>
-                        <p className="mt-1 text-sm leading-relaxed text-emerald-950/90">{pair.gain}</p>
+                        <p className="mt-1 text-sm leading-relaxed text-emerald-900">{pair.gain}</p>
                       </div>
                     </div>
                   ))}

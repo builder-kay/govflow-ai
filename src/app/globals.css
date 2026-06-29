@@ -85,6 +85,11 @@ body {
   background-color: #111827 !important;
 }
 
+.dark-mode .bg-white\/70,
+.dark-mode .bg-white\/60 {
+  background-color: #1F2937 !important;
+}
+
 .dark-mode .bg-background {
   background-color: #0B1220 !important;
 }
@@ -142,6 +147,7 @@ body {
 }
 
 .dark-mode .bg-amber-50,
+.dark-mode .bg-amber-50\/40,
 .dark-mode .bg-amber-50\/50,
 .dark-mode .bg-amber-50\/60,
 .dark-mode .bg-amber-50\/70,
@@ -149,6 +155,7 @@ body {
   background-color: #3F2A0F !important;
 }
 
+.dark-mode .text-amber-950,
 .dark-mode .text-amber-900,
 .dark-mode .text-amber-800,
 .dark-mode .text-amber-700 {
@@ -169,6 +176,7 @@ body {
 }
 
 .dark-mode .bg-red-50,
+.dark-mode .bg-red-50\/40,
 .dark-mode .bg-red-50\/50,
 .dark-mode .bg-red-50\/60,
 .dark-mode .bg-red-100 {
@@ -191,6 +199,20 @@ body {
 .dark-mode .text-orange-800,
 .dark-mode .text-orange-700 {
   color: #FDBA74 !important;
+}
+
+.dark-mode .bg-blue-50,
+.dark-mode .bg-blue-50\/50,
+.dark-mode .bg-blue-50\/60,
+.dark-mode .bg-blue-50\/70,
+.dark-mode .bg-blue-100 {
+  background-color: #0F2740 !important;
+}
+
+.dark-mode .text-blue-900,
+.dark-mode .text-blue-800,
+.dark-mode .text-blue-700 {
+  color: #93C5FD !important;
 }
 
 .dark-mode .shadow-sm,
