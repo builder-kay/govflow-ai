@@ -21,6 +21,8 @@ export interface ChatKitWidgetProps {
   greeting?: string;
   showStartScreen?: boolean;
   showSetupError?: boolean;
+  historyStorageKey?: string;
+  persistHistory?: boolean;
 }
 
 const DEFAULT_PROMPTS = [
@@ -64,6 +66,8 @@ export function ChatKitWidget({
   greeting = "Hi! I'm GovFlow AI. Tell me what government process you need help with.",
   showStartScreen = true,
   showSetupError = true,
+  historyStorageKey = "govflow-chatkit-client-secret",
+  persistHistory = true,
 }: ChatKitWidgetProps) {
   const [error, setError] = useState<string | null>(null);
   const workflowId = getWorkflowId();
@@ -72,11 +76,17 @@ export function ChatKitWidget({
     async (existing: string | null): Promise<string> => {
       setError(null);
 
+      const persistedExisting =
+        persistHistory && typeof window !== "undefined"
+          ? window.localStorage.getItem(historyStorageKey)
+          : null;
+      const existingSecret = existing || persistedExisting;
+
       const response = await fetch("/api/chatkit/session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          existing,
+          existing: existingSecret,
           stateVariables,
           enableFileUpload,
         }),
@@ -105,9 +115,13 @@ export function ChatKitWidget({
         throw new Error("Response did not include a client secret");
       }
 
+      if (persistHistory && typeof window !== "undefined") {
+        window.localStorage.setItem(historyStorageKey, data.client_secret);
+      }
+
       return data.client_secret;
     },
-    [enableFileUpload, stateVariables]
+    [enableFileUpload, historyStorageKey, persistHistory, stateVariables]
   );
 
   const options = useMemo(

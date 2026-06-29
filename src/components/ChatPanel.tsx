@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { useState } from "react";
-import { Sparkles, X, ExternalLink } from "lucide-react";
+import { Sparkles, X, ExternalLink, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import Link from "next/link";
@@ -30,8 +30,11 @@ const ChatKitWidget = dynamic(
   }
 );
 
+const CHATKIT_HISTORY_STORAGE_KEY = "govflow-chatkit-client-secret";
+
 export function ChatPanel() {
   const [open, setOpen] = useState(false);
+  const [sessionNonce, setSessionNonce] = useState(0);
   const { userQuery, roadmap, accessibility, currentServiceId, username, savedDocuments } =
     useAppStore();
   const agentConfigured = Boolean(getWorkflowId());
@@ -59,6 +62,12 @@ export function ChatPanel() {
   const greeting = username.trim()
     ? `Hi ${username.trim()}! I'm GovFlow AI. What government process should we work on today?`
     : "Hi! I'm GovFlow AI. What government process should we work on today?";
+
+  const clearChatHistory = () => {
+    if (typeof window === "undefined") return;
+    window.localStorage.removeItem(CHATKIT_HISTORY_STORAGE_KEY);
+    setSessionNonce((value) => value + 1);
+  };
 
   return (
     <>
@@ -93,6 +102,15 @@ export function ChatPanel() {
                   </div>
                 </div>
                 <div className="flex items-center gap-1">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={clearChatHistory}
+                    aria-label="Delete chat history"
+                    title="Delete chat history"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
                   <Button variant="ghost" size="icon" asChild aria-label="Open full assistant">
                     <Link href="/assistant">
                       <ExternalLink className="h-4 w-4" />
@@ -111,11 +129,13 @@ export function ChatPanel() {
 
               {agentConfigured ? (
                 <ChatKitWidget
+                  key={sessionNonce}
                   compact
                   className="bg-white"
                   initialPrompt={userQuery || undefined}
                   stateVariables={stateVariables}
                   greeting={greeting}
+                  historyStorageKey={CHATKIT_HISTORY_STORAGE_KEY}
                 />
               ) : (
                 <div className="space-y-4 p-4">

@@ -5,11 +5,12 @@ import { Suspense, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { AppShell } from "@/components/layout/AppShell";
 import { useAppStore } from "@/store/useAppStore";
-import { Mic, MicOff, Sparkles } from "lucide-react";
+import { Mic, MicOff, Sparkles, Trash2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { getWorkflowId } from "@/lib/openai-config";
 import { getAssistantTopic } from "@/lib/assistant-topics";
 import { buildSavedDocumentsContext } from "@/lib/saved-documents";
+import { Button } from "@/components/ui/button";
 
 const ChatKitWidget = dynamic(
   () => import("@/components/chat/ChatKitWidget").then((m) => m.ChatKitWidget),
@@ -22,6 +23,8 @@ const ChatKitWidget = dynamic(
     ),
   }
 );
+
+const CHATKIT_HISTORY_STORAGE_KEY = "govflow-chatkit-client-secret";
 
 function personalizeGreeting(baseGreeting: string, username: string): string {
   const trimmed = username.trim();
@@ -70,6 +73,7 @@ function AssistantContent() {
   const [voiceDraft, setVoiceDraft] = useState("");
   const [isListening, setIsListening] = useState(false);
   const [voiceError, setVoiceError] = useState("");
+  const [sessionNonce, setSessionNonce] = useState(0);
   const dragBoundsRef = useRef<HTMLDivElement | null>(null);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
 
@@ -89,6 +93,12 @@ function AssistantContent() {
     topicConfig?.greeting ??
     "Hi! I'm GovFlow AI — your government services copilot for Ghana. What would you like help with today?";
   const greeting = personalizeGreeting(baseGreeting, username);
+
+  const clearChatHistory = () => {
+    if (typeof window === "undefined") return;
+    window.localStorage.removeItem(CHATKIT_HISTORY_STORAGE_KEY);
+    setSessionNonce((value) => value + 1);
+  };
 
   useEffect(() => {
     return () => {
@@ -148,9 +158,21 @@ function AssistantContent() {
     <AppShell title="AI Assistant" showChat={false}>
       <div className="mx-auto max-w-4xl">
         <div className="mb-6">
-          <div className="mb-2 flex items-center gap-2">
-            <Sparkles className="h-6 w-6 text-primary" />
-            <h1 className="text-3xl font-bold text-foreground">GovFlow AI Assistant</h1>
+          <div className="mb-2 flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <Sparkles className="h-6 w-6 text-primary" />
+              <h1 className="text-3xl font-bold text-foreground">GovFlow AI Assistant</h1>
+            </div>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={clearChatHistory}
+              className="shrink-0"
+            >
+              <Trash2 className="h-4 w-4" />
+              Delete chat history
+            </Button>
           </div>
           <p className="text-muted">
             {agentConfigured
@@ -163,6 +185,7 @@ function AssistantContent() {
 
         <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
           <ChatKitWidget
+            key={sessionNonce}
             className="h-[68vh] min-h-[500px]"
             enableFileUpload
             showStartScreen={false}
@@ -170,6 +193,7 @@ function AssistantContent() {
             draftText={voiceDraft || undefined}
             stateVariables={stateVariables}
             greeting={greeting}
+            historyStorageKey={CHATKIT_HISTORY_STORAGE_KEY}
           />
         </div>
         {voiceError ? <p className="mt-3 text-sm text-red-600">{voiceError}</p> : null}
