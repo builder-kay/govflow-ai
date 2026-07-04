@@ -90,13 +90,24 @@ function pushEvent(events: RelayCaseEvent[], message: string, type: RelayCaseEve
   ];
 }
 
+function mergeDefined<T extends object>(base: T, patch: Partial<T>): T {
+  const next = { ...base };
+  (Object.keys(patch) as Array<keyof T>).forEach((key) => {
+    const value = patch[key];
+    if (value !== undefined) {
+      next[key] = value as T[keyof T];
+    }
+  });
+  return next;
+}
+
 export async function createRelayCase(userId: string, request: RelayCaseRequest): Promise<RelayCase> {
   const now = new Date().toISOString();
   const relayCase: RelayCase = {
     id: crypto.randomUUID(),
     userId,
     serviceType: request.serviceType,
-    status: "payment_pending",
+    status: "intake_received",
     feeGhs: RELAY_DEFAULT_FEE_GHS,
     paymentStatus: "unpaid",
     slaHours: RELAY_DEFAULT_SLA_HOURS,
@@ -106,7 +117,7 @@ export async function createRelayCase(userId: string, request: RelayCaseRequest)
       {
         id: crypto.randomUUID(),
         type: "case_created",
-        message: "Agent request created and waiting for payment confirmation.",
+        message: "Agent request submitted and queued for admin review.",
         actor: "system",
         createdAt: now,
       },
@@ -195,19 +206,16 @@ export async function updateRelayCase(
   const existing = await getRelayCaseById(caseId);
   if (!existing) throw new Error("Agent request not found.");
 
-  const next: RelayCase = {
-    ...existing,
-    ...patch,
-    events: patch.eventMessage
-      ? pushEvent(
-          existing.events,
-          patch.eventMessage,
-          patch.eventType ?? "note",
-          patch.actor ?? "system"
-        )
-      : existing.events,
-    updatedAt: new Date().toISOString(),
-  };
+  const next = mergeDefined(existing, patch);
+  next.events = patch.eventMessage
+    ? pushEvent(
+        existing.events,
+        patch.eventMessage,
+        patch.eventType ?? "note",
+        patch.actor ?? "system"
+      )
+    : existing.events;
+  next.updatedAt = new Date().toISOString();
 
   if (!hasSupabaseAdminConfig) {
     inMemoryCases.set(caseId, next);

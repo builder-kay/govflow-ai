@@ -24,7 +24,7 @@ export async function GET(request: Request) {
     let remindersSent = 0;
     for (const relayCase of awaitingUserCases) {
       const nextUserStep = relayCase.steps.find(
-        (step) => step.assignee === "user" && step.status !== "completed"
+        (step) => step.assignee === "user" && step.requiresUserPresence && step.status !== "completed"
       );
       const actionTitle = nextUserStep?.title ?? "your next in-person step";
       const actionDetail = (
@@ -36,14 +36,14 @@ export async function GET(request: Request) {
 
       const sms = await sendArkeselSms(
         relayCase.intake.contact.phone,
-        `GovFlow Agent reminder: your presence is needed. Next action: ${actionTitle}. ${actionDetail}`
+        `GovFlow Agent reminder: your presence is needed. Next action: ${actionTitle}. ${actionDetail}. We will also follow up on WhatsApp.`
       );
       if (!sms.ok) continue;
 
       remindersSent += 1;
       await updateRelayCase(relayCase.id, {
         eventType: "presence_required",
-        eventMessage: "Presence reminder sent via SMS.",
+        eventMessage: "Presence reminder sent via SMS and in-app. WhatsApp follow-up flagged.",
         actor: "system",
       });
     }

@@ -83,7 +83,8 @@ export default function RelayOpsPage() {
         <section className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
           <p className="text-sm font-semibold text-foreground">Operations queue</p>
           <p className="mt-1 text-sm text-muted">
-            Internal tool for coordinators and runners. Requires `RELAY_OPS_SECRET`.
+            Internal tool for coordinators and runners. Review intake, approve for payment, track
+            WhatsApp coordination, and push user-action alerts.
           </p>
           <div className="mt-3 flex flex-wrap gap-2">
             <input
@@ -125,16 +126,42 @@ export default function RelayOpsPage() {
                   variant="outline"
                   onClick={() =>
                     void updateCase(item.id, {
-                      status: "in_progress",
+                      status: "payment_pending",
                       eventType: "ops_assigned",
-                      eventMessage: "Coordinator started processing this case.",
+                      eventMessage:
+                        "Admin approved intake. User instructed to confirm details on WhatsApp and pay securely.",
                     })
                   }
                 >
-                  Start case
+                  Approve intake
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() =>
+                    void updateCase(item.id, {
+                      eventType: "note",
+                      eventMessage: "WhatsApp coordination completed. Awaiting secure payment from user.",
+                    })
+                  }
+                >
+                  Log WhatsApp agreement
                 </Button>
                 <Button size="sm" variant="outline" onClick={() => void sendPresenceAlert(item.id)}>
-                  Alert user (presence required)
+                  Send user action alert
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() =>
+                    void updateCase(item.id, {
+                      status: "in_progress",
+                      eventType: "step_updated",
+                      eventMessage: "Ops moved request into active processing.",
+                    })
+                  }
+                >
+                  Start processing
                 </Button>
                 <Button
                   size="sm"

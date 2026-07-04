@@ -9,29 +9,57 @@ export const RELAY_FEATURE_NAME = "GovFlow Agent";
 export const RELAY_PILOT_SERVICE: RelayServiceType = "passport";
 export const RELAY_DEFAULT_FEE_GHS = 280;
 export const RELAY_DEFAULT_SLA_HOURS = 72;
+export const RELAY_DOCUMENTS_BUCKET = process.env.RELAY_DOCUMENTS_BUCKET || "relay-documents";
+export const RELAY_REQUIRED_PASSPORT_DOCUMENTS = [
+  "Birth certificate (or affidavit where applicable)",
+  "Ghana Card (front and back)",
+  "Passport photograph page requirements confirmation",
+  "Proof of address (utility bill or tenancy document)",
+];
 
 export function buildRelayPassportSteps(_request: RelayCaseRequest): RelayCaseStep[] {
   return [
     {
       id: crypto.randomUUID(),
-      title: "Intake verification and checklist review",
-      description: "Coordinator validates your documents and confirms application category.",
+      title: "Admin review of your intake",
+      description:
+        "GovFlow admin verifies your request details and confirms whether everything is ready to proceed.",
       assignee: "govflow_coordinator",
+      status: "pending",
+      requiresUserPresence: false,
+    },
+    {
+      id: crypto.randomUUID(),
+      title: "WhatsApp consultation and agreement",
+      description:
+        "Admin reaches you on WhatsApp to align scope, timeline, and final service fee before payment.",
+      assignee: "user",
+      status: "pending",
+      requiresUserPresence: false,
+    },
+    {
+      id: crypto.randomUUID(),
+      title: "Secure payment confirmation",
+      description:
+        "After agreement, you return to GovFlow to make secure payment and unlock active case handling.",
+      assignee: "user",
+      status: "pending",
+      requiresUserPresence: false,
+    },
+    {
+      id: crypto.randomUUID(),
+      title: "Upload passport supporting documents",
+      description:
+        "Submit your birth certificate, Ghana Card, and related documents for coordinated processing.",
+      assignee: "user",
       status: "pending",
       requiresUserPresence: false,
     },
     {
       id: crypto.randomUUID(),
       title: "Passport portal form support",
-      description: "GovFlow helps complete and verify online form details before submission.",
-      assignee: "govflow_coordinator",
-      status: "pending",
-      requiresUserPresence: false,
-    },
-    {
-      id: crypto.randomUUID(),
-      title: "Appointment booking and readiness",
-      description: "GovFlow secures suitable slots and confirms your in-person requirements.",
+      description:
+        "GovFlow validates your uploads, prepares forms, and confirms details before official submission.",
       assignee: "govflow_coordinator",
       status: "pending",
       requiresUserPresence: false,

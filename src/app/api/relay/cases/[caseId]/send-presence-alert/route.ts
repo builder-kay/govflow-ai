@@ -20,7 +20,7 @@ export async function POST(request: Request, context: { params: Promise<{ caseId
   }
 
   const nextUserStep = relayCase.steps.find(
-    (step) => step.assignee === "user" && step.status !== "completed"
+    (step) => step.assignee === "user" && step.requiresUserPresence && step.status !== "completed"
   );
   const actionTitle = nextUserStep?.title ?? "your next in-person step";
   const actionDetail = (nextUserStep?.description ?? "Please check your dashboard for instructions.")
@@ -30,7 +30,7 @@ export async function POST(request: Request, context: { params: Promise<{ caseId
 
   const sms = await sendArkeselSms(
     relayCase.intake.contact.phone,
-    `GovFlow Agent alert: your presence is now required. Next action: ${actionTitle}. ${actionDetail}`
+    `GovFlow Agent alert: your presence is now required. Next action: ${actionTitle}. ${actionDetail}. We will also follow up on WhatsApp.`
   );
   if (!sms.ok) {
     return NextResponse.json({ error: sms.error || "Could not send SMS." }, { status: 502 });
@@ -39,7 +39,7 @@ export async function POST(request: Request, context: { params: Promise<{ caseId
   const updated = await updateRelayCase(caseId, {
     status: "awaiting_user",
     eventType: "presence_required",
-    eventMessage: "Presence alert sent by operations.",
+    eventMessage: "Presence alert sent via SMS and in-app. Coordinator will also follow up on WhatsApp.",
     actor: "ops",
   });
 

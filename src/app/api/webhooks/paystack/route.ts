@@ -47,7 +47,8 @@ export async function POST(request: Request) {
     paymentStatus: "paid",
     paystackReference: payload.data?.reference || relayCase.paystackReference,
     eventType: "payment_confirmed",
-    eventMessage: "Payment confirmed via Paystack webhook.",
+    eventMessage:
+      "Payment confirmed. Upload your passport supporting documents so GovFlow can begin active processing.",
     actor: "system",
   });
 

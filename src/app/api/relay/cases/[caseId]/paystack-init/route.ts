@@ -15,6 +15,15 @@ export async function POST(request: Request, context: { params: Promise<{ caseId
     if (!relayCase) {
       return NextResponse.json({ error: "Agent request not found." }, { status: 404 });
     }
+    if (relayCase.status !== "payment_pending") {
+      return NextResponse.json(
+        {
+          error:
+            "Payment is not available yet. Wait for admin approval and WhatsApp confirmation before paying.",
+        },
+        { status: 409 }
+      );
+    }
 
     const paystackSecret = process.env.PAYSTACK_SECRET_KEY;
     const callbackUrl = body.callbackUrl || process.env.PAYSTACK_CALLBACK_URL || "";
@@ -24,7 +33,7 @@ export async function POST(request: Request, context: { params: Promise<{ caseId
       const updated = await updateRelayCase(caseId, {
         paymentStatus: "pending",
         eventType: "payment_initialized",
-        eventMessage: "Payment initialized in demo mode (PAYSTACK_SECRET_KEY not configured).",
+        eventMessage: "Secure payment initialized in demo mode.",
         actor: "system",
       });
       return NextResponse.json({
@@ -72,7 +81,7 @@ export async function POST(request: Request, context: { params: Promise<{ caseId
       paystackReference: reference,
       paystackAuthorizationUrl: payload.data.authorization_url,
       eventType: "payment_initialized",
-      eventMessage: "Payment link created. Waiting for confirmation.",
+      eventMessage: "Secure payment link created after admin approval.",
       actor: "system",
     });
 

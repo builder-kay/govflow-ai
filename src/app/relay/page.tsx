@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import {
+  CheckCircle2,
   ArrowRight,
   RefreshCcw,
   Briefcase,
@@ -17,6 +18,9 @@ import {
   Building2,
   Sparkles,
   Lock,
+  MessageCircleMore,
+  ShieldCheck,
+  WalletCards,
 } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
 import { RelayMetricsCards } from "@/components/relay/RelayMetricsCards";
@@ -93,17 +97,53 @@ export default function RelayCasesPage() {
           <p className="text-sm font-semibold uppercase tracking-wide text-primary">Delegated assistance</p>
           <h1 className="mt-1 text-3xl font-bold text-foreground">{RELAY_FEATURE_NAME} dashboard</h1>
           <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted md:text-base">
-            Track requests GovFlow is helping you complete. We handle office follow-ups and notify
-            you only when your in-person action is required.
+            Submit your request, wait for admin review, agree on WhatsApp, then pay securely. After
+            payment, upload your documents and track every action here.
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
-            <ActionButton href="/relay/passport">Start passport request</ActionButton>
+            <ActionButton href="/relay/passport">Start detailed passport intake</ActionButton>
             <Button variant="outline" size="sm" onClick={() => void loadCases()}>
               <RefreshCcw className="h-4 w-4" />
               Refresh
             </Button>
           </div>
         </motion.section>
+
+        <section className="grid gap-3 md:grid-cols-4">
+          {[
+            {
+              title: "Admin review",
+              desc: "Your intake is checked before any payment request.",
+              icon: CheckCircle2,
+            },
+            {
+              title: "WhatsApp agreement",
+              desc: "Admin confirms scope, timeline, and price with you.",
+              icon: MessageCircleMore,
+            },
+            {
+              title: "Secure payment",
+              desc: "Pay only after approval and agreement.",
+              icon: WalletCards,
+            },
+            {
+              title: "Guided execution",
+              desc: "Upload docs and get SMS + WhatsApp + in-app updates.",
+              icon: ShieldCheck,
+            },
+          ].map((item) => {
+            const Icon = item.icon;
+            return (
+              <article key={item.title} className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
+                <p className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-soft-blue text-primary">
+                  <Icon className="h-4 w-4" />
+                </p>
+                <p className="mt-2 font-semibold text-foreground">{item.title}</p>
+                <p className="mt-1 text-xs leading-relaxed text-muted">{item.desc}</p>
+              </article>
+            );
+          })}
+        </section>
 
         {metrics ? <RelayMetricsCards metrics={metrics} /> : null}
 
@@ -195,12 +235,21 @@ export default function RelayCasesPage() {
                   <RelayCaseStatusPill status={relayCase.status} />
                 </div>
                 <p className="mt-3 text-sm text-muted">
-                  Passport • Fee GHS {relayCase.feeGhs} • Created{" "}
+                  Passport • Fee GHS {relayCase.feeGhs} • Payment {relayCase.paymentStatus} • Created{" "}
                   {new Date(relayCase.createdAt).toLocaleDateString()}
                 </p>
                 <p className="mt-2 text-sm text-foreground">
                   {relayCase.events[relayCase.events.length - 1]?.message ||
                     "Waiting for first operations update."}
+                </p>
+                <p className="mt-2 text-xs text-muted">
+                  {relayCase.status === "intake_received"
+                    ? "Next: wait for admin review and WhatsApp confirmation."
+                    : relayCase.status === "payment_pending"
+                      ? "Next: return and complete secure payment."
+                      : relayCase.status === "ops_triage"
+                        ? "Next: upload required documents if not done already."
+                        : "Next: monitor updates and complete requested user actions."}
                 </p>
                 <Button asChild size="sm" className="mt-4">
                   <Link href={`/relay/${relayCase.id}`}>
@@ -227,8 +276,8 @@ export default function RelayCasesPage() {
           <div className="rounded-2xl border border-amber-200 bg-amber-50/70 p-4 text-sm text-amber-900">
             <p className="font-semibold">Presence alert policy</p>
             <p className="mt-1 leading-relaxed">
-              When your in-person step is due, we send SMS to your saved number with the exact next
-              action you must take.
+              When your in-person step is due, we notify you on SMS, WhatsApp follow-up, and in-app
+              timeline with your exact next action.
             </p>
             <p className="mt-2 inline-flex items-center gap-1 text-xs font-medium">
               <Sparkles className="h-3.5 w-3.5" />

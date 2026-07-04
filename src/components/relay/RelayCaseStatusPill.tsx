@@ -4,9 +4,9 @@ import type { RelayCaseStatus } from "@/types/relay";
 import { cn } from "@/lib/utils";
 
 const statusLabels: Record<RelayCaseStatus, string> = {
-  intake_received: "Intake received",
-  payment_pending: "Payment pending",
-  ops_triage: "Ops triage",
+  intake_received: "Submitted for admin review",
+  payment_pending: "Approved - waiting payment",
+  ops_triage: "Preparing your workflow",
   in_progress: "In progress",
   awaiting_user: "Awaiting you",
   completed: "Completed",

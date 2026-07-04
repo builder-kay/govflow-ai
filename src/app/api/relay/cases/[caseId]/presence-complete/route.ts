@@ -16,7 +16,7 @@ export async function POST(request: Request, context: { params: Promise<{ caseId
     }
 
     const nextAwaitingStep = relayCase.steps.find(
-      (step) => step.assignee === "user" && step.status !== "completed"
+      (step) => step.assignee === "user" && step.requiresUserPresence && step.status !== "completed"
     );
     if (!nextAwaitingStep) {
       return NextResponse.json({ error: "No pending user-presence step found." }, { status: 400 });

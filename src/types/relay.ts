@@ -27,14 +27,30 @@ export interface RelayContactDetails {
   fullName: string;
   phone: string;
   email?: string;
+  whatsappNumber?: string;
+  preferredContactChannel: "phone" | "whatsapp" | "either";
 }
 
 export interface RelayPassportDetails {
   applicationType: "first_time" | "renewal" | "replacement";
   preferredRegion: string;
+  preferredAppointmentWindow?: "morning" | "afternoon" | "anytime";
   urgentTravelDate?: string;
+  reasonForTravel: string;
+  dateOfBirth: string;
+  placeOfBirth: string;
+  nationality: string;
+  residentialAddress: string;
+  occupation: string;
+  ghanaCardNumber: string;
+  birthCertificateNumber: string;
+  emergencyContactName: string;
+  emergencyContactPhone: string;
+  previousPassportNumber?: string;
   hasGhanaCard: boolean;
   hasBirthCertificate: boolean;
+  hasPassportPhotos: boolean;
+  hasProofOfAddress: boolean;
   needsPickupSupport: boolean;
 }
 
@@ -43,6 +59,7 @@ export interface RelayConsent {
   allowDocumentHandling: boolean;
   acceptedFeePolicy: boolean;
   acceptedLegalNotice: boolean;
+  acceptedWhatsappContact: boolean;
 }
 
 export interface RelayCaseRequest {
@@ -76,9 +93,11 @@ export interface RelayDocumentMeta {
   id: string;
   caseId: string;
   name: string;
+  documentType: string;
   mimeType: string;
   size: number;
   uploadedAt: string;
+  uploadedBy: "user" | "coordinator" | "runner" | "system";
   storagePath?: string;
 }
 

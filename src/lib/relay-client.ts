@@ -86,3 +86,27 @@ export async function completePresenceStep(caseId: string, userId: string): Prom
   }
   return payload.case;
 }
+
+export async function uploadRelayDocument(
+  caseId: string,
+  userId: string,
+  file: File,
+  documentType: string
+): Promise<RelayCase> {
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("documentType", documentType);
+
+  const response = await fetch(`/api/relay/cases/${caseId}/documents`, {
+    method: "POST",
+    headers: {
+      "x-govflow-user-id": userId,
+    },
+    body: formData,
+  });
+  const payload = await parseJson<{ case?: RelayCase; error?: string }>(response);
+  if (!response.ok || !payload.case) {
+    throw new Error(payload.error || "Could not upload document.");
+  }
+  return payload.case;
+}
