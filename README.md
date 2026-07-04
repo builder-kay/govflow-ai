@@ -144,7 +144,7 @@ RELAY_CRON_SECRET=your_cron_secret
 
 ```sql
 insert into public.admin_users (username, display_name, password_hash)
-values ('tumiwura', 'Tumiwura Admin', crypt('change-this-password', gen_salt('bf')));
+values ('tumiwura', 'Tumiwura Admin', extensions.crypt('change-this-password', extensions.gen_salt('bf')));
 ```
 
 4. Optional operational endpoints:

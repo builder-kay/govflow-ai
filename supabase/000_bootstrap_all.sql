@@ -382,4 +382,4 @@ revoke all on function public.verify_admin_login(text, text) from public;
 
 -- Seed one admin user after running this file:
 -- insert into public.admin_users (username, display_name, password_hash)
--- values ('tumiwura', 'Tumiwura Admin', extensions.crypt('change-this-password
+-- values ('tumiwura', 'Tumiwura Admin', extensions.crypt('change-this-password', extensions.gen_salt('bf')));
