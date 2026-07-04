@@ -25,7 +25,9 @@ type OpsCase = {
 };
 
 export default function TumiwuraAdminPage() {
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [adminName, setAdminName] = useState<string | null>(null);
   const [authenticated, setAuthenticated] = useState(false);
   const [checkingAuth, setCheckingAuth] = useState(true);
   const [loggingIn, setLoggingIn] = useState(false);
@@ -55,9 +57,13 @@ export default function TumiwuraAdminPage() {
     setCheckingAuth(true);
     try {
       const response = await fetch("/api/admin/auth/session");
-      const payload = (await response.json().catch(() => ({}))) as { authenticated?: boolean };
+      const payload = (await response.json().catch(() => ({}))) as {
+        authenticated?: boolean;
+        admin?: { username?: string; displayName?: string | null } | null;
+      };
       const isAuthed = Boolean(payload.authenticated);
       setAuthenticated(isAuthed);
+      setAdminName(payload.admin?.displayName || payload.admin?.username || null);
       if (isAuthed) {
         await loadCases();
       }
@@ -71,18 +77,20 @@ export default function TumiwuraAdminPage() {
   }, []);
 
   const handleLogin = async () => {
-    if (!password.trim()) return;
+    if (!username.trim() || !password.trim()) return;
     setLoggingIn(true);
     setError("");
     try {
       const response = await fetch("/api/admin/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password: password.trim() }),
+        body: JSON.stringify({ username: username.trim(), password: password.trim() }),
       });
       const payload = (await response.json().catch(() => ({}))) as { error?: string };
       if (!response.ok) throw new Error(payload.error || "Sign-in failed.");
       setAuthenticated(true);
+      setAdminName(username.trim());
+      setUsername("");
       setPassword("");
       await loadCases();
     } catch (err) {
@@ -149,8 +157,15 @@ export default function TumiwuraAdminPage() {
             </p>
             <h1 className="mt-2 text-2xl font-bold text-foreground">Restricted access</h1>
             <p className="mt-1 text-sm text-muted">
-              Enter admin password to continue to the operations dashboard.
+              Enter admin username and password to continue to the operations dashboard.
             </p>
+            <input
+              type="text"
+              value={username}
+              onChange={(event) => setUsername(event.target.value)}
+              placeholder="Admin username"
+              className="mt-4 h-11 w-full rounded-xl border border-gray-200 px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+            />
             <input
               type="password"
               value={password}
@@ -159,9 +174,13 @@ export default function TumiwuraAdminPage() {
                 if (event.key === "Enter") void handleLogin();
               }}
               placeholder="Admin password"
-              className="mt-4 h-11 w-full rounded-xl border border-gray-200 px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+              className="mt-3 h-11 w-full rounded-xl border border-gray-200 px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
             />
-            <Button className="mt-3 w-full" onClick={() => void handleLogin()} disabled={loggingIn || !password.trim()}>
+            <Button
+              className="mt-3 w-full"
+              onClick={() => void handleLogin()}
+              disabled={loggingIn || !username.trim() || !password.trim()}
+            >
               {loggingIn ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -186,6 +205,7 @@ export default function TumiwuraAdminPage() {
                   <p className="mt-1 text-sm text-muted">
                     Review intake, approve payment, log WhatsApp agreements, and manage request actions.
                   </p>
+                  {adminName ? <p className="mt-1 text-xs text-muted">Signed in as {adminName}</p> : null}
                 </div>
                 <div className="flex gap-2">
                   <Button variant="outline" onClick={() => void loadCases()} disabled={loadingCases}>

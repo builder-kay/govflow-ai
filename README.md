@@ -120,8 +120,8 @@ src/
 ## GovFlow Agent Pilot
 
 GovFlow Agent is a paid delegated-assistance pilot for passport cases. Users submit intake details,
-pay an Agent service fee, and GovFlow handles non-presence follow-ups. Users are alerted only for
-mandatory in-person steps.
+receive admin review and WhatsApp agreement, then pay an Agent service fee before active handling.
+Users are alerted only for mandatory in-person steps.
 
 ### Agent setup
 
@@ -137,15 +137,21 @@ supabase/relay_schema.sql
 ```env
 PAYSTACK_SECRET_KEY=sk_test_...
 PAYSTACK_CALLBACK_URL=https://your-domain.com/relay/callback
-RELAY_OPS_SECRET=your_internal_ops_secret
 RELAY_CRON_SECRET=your_cron_secret
 ```
 
-3. Optional operational endpoints:
+3. Seed SQL admin user for `/tumiwura`:
+
+```sql
+insert into public.admin_users (username, display_name, password_hash)
+values ('tumiwura', 'Tumiwura Admin', crypt('change-this-password', gen_salt('bf')));
+```
+
+4. Optional operational endpoints:
 
 - `POST /api/webhooks/paystack` for payment confirmations
 - `GET /api/cron/relay-reminders` for reminder jobs (`Authorization: Bearer RELAY_CRON_SECRET`)
-- `GET /api/relay/ops/cases` and related ops updates (`x-relay-ops-secret` header)
+- `GET /api/relay/ops/cases` and related ops updates (admin cookie session from `/tumiwura`)
 
 ## Disclaimer
 

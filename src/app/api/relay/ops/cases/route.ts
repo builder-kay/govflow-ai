@@ -18,7 +18,7 @@ type RelayCaseRow = {
 };
 
 export async function GET(request: NextRequest) {
-  if (!isAdminAuthorized(request)) {
+  if (!(await isAdminAuthorized(request))) {
     return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
   }
   if (!hasSupabaseAdminConfig) {

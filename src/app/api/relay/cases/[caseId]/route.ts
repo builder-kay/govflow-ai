@@ -30,9 +30,9 @@ export async function GET(_request: Request, context: { params: Promise<{ caseId
 }
 
 export async function PATCH(request: NextRequest, context: { params: Promise<{ caseId: string }> }) {
-  if (!isAdminAuthorized(request)) {
+  if (!(await isAdminAuthorized(request))) {
     return NextResponse.json(
-      { error: "Unauthorized ops update. Set RELAY_OPS_SECRET and send x-relay-ops-secret." },
+      { error: "Unauthorized ops update." },
       { status: 401 }
     );
   }

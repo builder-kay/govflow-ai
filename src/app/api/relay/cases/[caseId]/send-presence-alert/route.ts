@@ -4,7 +4,7 @@ import { isAdminAuthorized } from "@/lib/admin-auth";
 import { getRelayCaseById, updateRelayCase } from "@/lib/relay-repository";
 
 export async function POST(request: NextRequest, context: { params: Promise<{ caseId: string }> }) {
-  if (!isAdminAuthorized(request)) {
+  if (!(await isAdminAuthorized(request))) {
     return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
   }
 

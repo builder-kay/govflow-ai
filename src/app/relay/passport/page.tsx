@@ -292,20 +292,6 @@ export default function PassportRelayIntakePage() {
               />
             </label>
             <label className="text-sm text-muted">
-              Preferred appointment window
-              <select
-                value={preferredAppointmentWindow}
-                onChange={(event) =>
-                  setPreferredAppointmentWindow(event.target.value as "morning" | "afternoon" | "anytime")
-                }
-                className="mt-1 h-11 w-full rounded-xl border border-gray-200 px-3 text-sm text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
-              >
-                <option value="anytime">Anytime</option>
-                <option value="morning">Morning</option>
-                <option value="afternoon">Afternoon</option>
-              </select>
-            </label>
-            <label className="text-sm text-muted">
               Occupation
               <p className="mt-0.5 text-xs text-muted">Your current job or primary work activity.</p>
               <input
