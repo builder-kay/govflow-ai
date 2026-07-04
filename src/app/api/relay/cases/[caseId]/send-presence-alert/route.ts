@@ -1,15 +1,10 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { sendArkeselSms } from "@/lib/arkesel";
+import { isAdminAuthorized } from "@/lib/admin-auth";
 import { getRelayCaseById, updateRelayCase } from "@/lib/relay-repository";
 
-function hasOpsAccess(request: Request): boolean {
-  const secret = process.env.RELAY_OPS_SECRET;
-  if (!secret) return false;
-  return request.headers.get("x-relay-ops-secret") === secret;
-}
-
-export async function POST(request: Request, context: { params: Promise<{ caseId: string }> }) {
-  if (!hasOpsAccess(request)) {
+export async function POST(request: NextRequest, context: { params: Promise<{ caseId: string }> }) {
+  if (!isAdminAuthorized(request)) {
     return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
   }
 

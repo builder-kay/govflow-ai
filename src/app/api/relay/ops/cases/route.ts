@@ -1,12 +1,7 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdminClient, hasSupabaseAdminConfig } from "@/lib/supabase-admin";
+import { isAdminAuthorized } from "@/lib/admin-auth";
 import type { RelayCaseStatus } from "@/types/relay";
-
-function hasOpsAccess(request: Request): boolean {
-  const secret = process.env.RELAY_OPS_SECRET;
-  if (!secret) return false;
-  return request.headers.get("x-relay-ops-secret") === secret;
-}
 
 type RelayCaseRow = {
   id: string;
@@ -22,8 +17,8 @@ type RelayCaseRow = {
   updated_at: string;
 };
 
-export async function GET(request: Request) {
-  if (!hasOpsAccess(request)) {
+export async function GET(request: NextRequest) {
+  if (!isAdminAuthorized(request)) {
     return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
   }
   if (!hasSupabaseAdminConfig) {

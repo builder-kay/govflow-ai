@@ -50,9 +50,6 @@ export default function PassportRelayIntakePage() {
   const [applicationType, setApplicationType] = useState<"first_time" | "renewal" | "replacement">(
     "first_time"
   );
-  const [preferredAppointmentWindow, setPreferredAppointmentWindow] = useState<
-    "morning" | "afternoon" | "anytime"
-  >("anytime");
   const [urgentTravelDate, setUrgentTravelDate] = useState("");
   const [reasonForTravel, setReasonForTravel] = useState("");
   const [dateOfBirth, setDateOfBirth] = useState("");
@@ -140,7 +137,6 @@ export default function PassportRelayIntakePage() {
         passportDetails: {
           applicationType,
           preferredRegion: preferredRegion.trim(),
-          preferredAppointmentWindow,
           urgentTravelDate: urgentTravelDate || undefined,
           reasonForTravel: reasonForTravel.trim(),
           dateOfBirth,
@@ -261,6 +257,10 @@ export default function PassportRelayIntakePage() {
 
         <section className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm md:p-6">
           <h2 className="text-lg font-bold text-foreground">2) Passport applicant details</h2>
+          <p className="mt-1 text-sm text-muted">
+            Fill each field exactly as it appears on your official documents. Appointment window is
+            confirmed later in phase 2 after admin approval.
+          </p>
           <div className="mt-4 grid gap-3 md:grid-cols-2">
             <label className="text-sm text-muted">
               Application type
@@ -305,76 +305,124 @@ export default function PassportRelayIntakePage() {
                 <option value="afternoon">Afternoon</option>
               </select>
             </label>
-            <input
-              value={occupation}
-              onChange={(event) => setOccupation(event.target.value)}
-              placeholder="Occupation"
-              className="h-11 rounded-xl border border-gray-200 px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
-            />
-            <input
-              value={dateOfBirth}
-              onChange={(event) => setDateOfBirth(event.target.value)}
-              type="date"
-              className="h-11 rounded-xl border border-gray-200 px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
-            />
-            <input
-              value={placeOfBirth}
-              onChange={(event) => setPlaceOfBirth(event.target.value)}
-              placeholder="Place of birth"
-              className="h-11 rounded-xl border border-gray-200 px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
-            />
-            <input
-              value={nationality}
-              onChange={(event) => setNationality(event.target.value)}
-              placeholder="Nationality"
-              className="h-11 rounded-xl border border-gray-200 px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
-            />
-            <input
-              value={ghanaCardNumber}
-              onChange={(event) => setGhanaCardNumber(event.target.value)}
-              placeholder="Ghana Card number"
-              className="h-11 rounded-xl border border-gray-200 px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
-            />
-            <input
-              value={birthCertificateNumber}
-              onChange={(event) => setBirthCertificateNumber(event.target.value)}
-              placeholder="Birth certificate number"
-              className="h-11 rounded-xl border border-gray-200 px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
-            />
-            {applicationType !== "first_time" ? (
+            <label className="text-sm text-muted">
+              Occupation
+              <p className="mt-0.5 text-xs text-muted">Your current job or primary work activity.</p>
               <input
-                value={previousPassportNumber}
-                onChange={(event) => setPreviousPassportNumber(event.target.value)}
-                placeholder="Previous passport number"
-                className="h-11 rounded-xl border border-gray-200 px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 md:col-span-2"
+                value={occupation}
+                onChange={(event) => setOccupation(event.target.value)}
+                placeholder="e.g. Teacher, Trader, Student"
+                className="mt-1 h-11 w-full rounded-xl border border-gray-200 px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
               />
+            </label>
+            <label className="text-sm text-muted">
+              Date of birth
+              <p className="mt-0.5 text-xs text-muted">Must match your birth certificate and Ghana Card.</p>
+              <input
+                value={dateOfBirth}
+                onChange={(event) => setDateOfBirth(event.target.value)}
+                type="date"
+                className="mt-1 h-11 w-full rounded-xl border border-gray-200 px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+              />
+            </label>
+            <label className="text-sm text-muted">
+              Place of birth
+              <p className="mt-0.5 text-xs text-muted">Town/city and region from your birth record.</p>
+              <input
+                value={placeOfBirth}
+                onChange={(event) => setPlaceOfBirth(event.target.value)}
+                placeholder="e.g. Kumasi, Ashanti Region"
+                className="mt-1 h-11 w-full rounded-xl border border-gray-200 px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+              />
+            </label>
+            <label className="text-sm text-muted">
+              Nationality
+              <p className="mt-0.5 text-xs text-muted">Your legal nationality for passport processing.</p>
+              <input
+                value={nationality}
+                onChange={(event) => setNationality(event.target.value)}
+                placeholder="e.g. Ghanaian"
+                className="mt-1 h-11 w-full rounded-xl border border-gray-200 px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+              />
+            </label>
+            <label className="text-sm text-muted">
+              Ghana Card number
+              <p className="mt-0.5 text-xs text-muted">Enter the exact number from your Ghana Card.</p>
+              <input
+                value={ghanaCardNumber}
+                onChange={(event) => setGhanaCardNumber(event.target.value)}
+                placeholder="e.g. GHA-123456789-0"
+                className="mt-1 h-11 w-full rounded-xl border border-gray-200 px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+              />
+            </label>
+            <label className="text-sm text-muted">
+              Birth certificate number
+              <p className="mt-0.5 text-xs text-muted">Certificate or entry number from your birth certificate.</p>
+              <input
+                value={birthCertificateNumber}
+                onChange={(event) => setBirthCertificateNumber(event.target.value)}
+                placeholder="Enter certificate number"
+                className="mt-1 h-11 w-full rounded-xl border border-gray-200 px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+              />
+            </label>
+            {applicationType !== "first_time" ? (
+              <label className="text-sm text-muted md:col-span-2">
+                Previous passport number
+                <p className="mt-0.5 text-xs text-muted">
+                  Required for renewal/replacement to trace existing passport records.
+                </p>
+                <input
+                  value={previousPassportNumber}
+                  onChange={(event) => setPreviousPassportNumber(event.target.value)}
+                  placeholder="Enter previous passport number"
+                  className="mt-1 h-11 w-full rounded-xl border border-gray-200 px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+                />
+              </label>
             ) : null}
-            <input
-              value={emergencyContactName}
-              onChange={(event) => setEmergencyContactName(event.target.value)}
-              placeholder="Emergency contact name"
-              className="h-11 rounded-xl border border-gray-200 px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
-            />
-            <input
-              value={emergencyContactPhone}
-              onChange={(event) => setEmergencyContactPhone(event.target.value)}
-              placeholder="Emergency contact phone"
-              className="h-11 rounded-xl border border-gray-200 px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
-            />
-            <textarea
-              value={residentialAddress}
-              onChange={(event) => setResidentialAddress(event.target.value)}
-              placeholder="Residential address"
-              rows={2}
-              className="rounded-xl border border-gray-200 px-3 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 md:col-span-2"
-            />
-            <textarea
-              value={reasonForTravel}
-              onChange={(event) => setReasonForTravel(event.target.value)}
-              placeholder="Reason for travel / passport request"
-              rows={2}
-              className="rounded-xl border border-gray-200 px-3 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 md:col-span-2"
-            />
+            <label className="text-sm text-muted">
+              Emergency contact name
+              <p className="mt-0.5 text-xs text-muted">Person to contact if urgent clarification is needed.</p>
+              <input
+                value={emergencyContactName}
+                onChange={(event) => setEmergencyContactName(event.target.value)}
+                placeholder="Full name"
+                className="mt-1 h-11 w-full rounded-xl border border-gray-200 px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+              />
+            </label>
+            <label className="text-sm text-muted">
+              Emergency contact phone
+              <p className="mt-0.5 text-xs text-muted">Working Ghana number for your emergency contact.</p>
+              <input
+                value={emergencyContactPhone}
+                onChange={(event) => setEmergencyContactPhone(event.target.value)}
+                placeholder="e.g. 0241234567"
+                className="mt-1 h-11 w-full rounded-xl border border-gray-200 px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+              />
+            </label>
+            <label className="text-sm text-muted md:col-span-2">
+              Residential address
+              <p className="mt-0.5 text-xs text-muted">Your current home address (community, town/city, region).</p>
+              <textarea
+                value={residentialAddress}
+                onChange={(event) => setResidentialAddress(event.target.value)}
+                placeholder="House number/street, area, city, region"
+                rows={2}
+                className="mt-1 w-full rounded-xl border border-gray-200 px-3 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+              />
+            </label>
+            <label className="text-sm text-muted md:col-span-2">
+              Reason for travel / passport request
+              <p className="mt-0.5 text-xs text-muted">
+                Tell us why you need the passport and any timeline constraints.
+              </p>
+              <textarea
+                value={reasonForTravel}
+                onChange={(event) => setReasonForTravel(event.target.value)}
+                placeholder="e.g. Work trip in September, conference, study, family travel"
+                rows={2}
+                className="mt-1 w-full rounded-xl border border-gray-200 px-3 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+              />
+            </label>
           </div>
           <div className="mt-4 grid gap-2">
             <label className="inline-flex items-center gap-2 text-sm text-muted">

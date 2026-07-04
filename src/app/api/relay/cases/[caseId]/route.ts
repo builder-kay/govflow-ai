@@ -1,5 +1,6 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { getRelayCaseById, updateRelayCase } from "@/lib/relay-repository";
+import { isAdminAuthorized } from "@/lib/admin-auth";
 import type { RelayCaseStatus, RelayStepStatus } from "@/types/relay";
 
 type PatchPayload = {
@@ -11,13 +12,6 @@ type PatchPayload = {
   eventMessage?: string;
   eventType?: "ops_assigned" | "step_updated" | "presence_required" | "note" | "case_completed";
 };
-
-function getOpsSecret(request: Request): string | null {
-  const secret = process.env.RELAY_OPS_SECRET;
-  if (!secret) return null;
-  const header = request.headers.get("x-relay-ops-secret");
-  return header === secret ? secret : null;
-}
 
 export async function GET(_request: Request, context: { params: Promise<{ caseId: string }> }) {
   const { caseId } = await context.params;
@@ -35,8 +29,8 @@ export async function GET(_request: Request, context: { params: Promise<{ caseId
   }
 }
 
-export async function PATCH(request: Request, context: { params: Promise<{ caseId: string }> }) {
-  if (!getOpsSecret(request)) {
+export async function PATCH(request: NextRequest, context: { params: Promise<{ caseId: string }> }) {
+  if (!isAdminAuthorized(request)) {
     return NextResponse.json(
       { error: "Unauthorized ops update. Set RELAY_OPS_SECRET and send x-relay-ops-secret." },
       { status: 401 }
