@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { parseIdentifier } from "@/lib/auth-identifiers";
 import { getAuthUserByPhone } from "@/lib/auth-account";
 import { getSupabaseAdminClient, hasSupabaseAdminConfig } from "@/lib/supabase-admin";
+import { verifyOtpWithFallback } from "@/lib/sms-gateway";
 
 type PhoneResetPayload = {
   phone?: string;
@@ -25,11 +26,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Password must be at least 6 characters." }, { status: 400 });
   }
 
-  const apiKey = process.env.ARKESEL_API_KEY;
-  const baseUrl = process.env.ARKESEL_BASE_URL ?? "https://sms.arkesel.com";
-  if (!apiKey) {
-    return NextResponse.json({ error: "Missing ARKESEL_API_KEY in environment." }, { status: 500 });
-  }
   if (!hasSupabaseAdminConfig) {
     return NextResponse.json(
       { error: "Missing Supabase admin configuration. Set SUPABASE_SERVICE_ROLE_KEY." },
@@ -37,23 +33,10 @@ export async function POST(request: Request) {
     );
   }
 
-  const recipientNumber = parsed.value.replace("+", "");
-  const verifyUrl = new URL("/api/otp/verify", baseUrl);
-  const verifyResponse = await fetch(verifyUrl.toString(), {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "api-key": apiKey,
-    },
-    body: JSON.stringify({ number: recipientNumber, code }),
-  });
-  const verifyPayload = (await verifyResponse.json().catch(() => ({}))) as {
-    code?: string;
-    message?: string;
-  };
-  if (!verifyResponse.ok || verifyPayload.code !== "1100") {
+  const otp = await verifyOtpWithFallback(parsed.value, code);
+  if (!otp.ok) {
     return NextResponse.json(
-      { error: verifyPayload.message || "OTP verification failed." },
+      { error: otp.error || "OTP verification failed." },
       { status: 400 }
     );
   }

@@ -469,8 +469,8 @@ function AuthPageContent() {
                         <p className="mb-2 flex items-center gap-2 text-sm font-semibold text-primary-dark">
                           <MessageSquareText className="h-4 w-4" />
                           {mode === "signup"
-                            ? "Phone verification (Arkesel OTP)"
-                            : "Password reset verification (Arkesel OTP)"}
+                            ? "Phone verification (Clifze OTP)"
+                            : "Password reset verification (Clifze OTP)"}
                         </p>
                         <div className="flex flex-wrap gap-2">
                           <input
@@ -502,7 +502,7 @@ function AuthPageContent() {
                         {ussdCode ? (
                           <p className="mt-2 text-xs text-primary-dark">
                             SMS delayed? Dial <span className="font-semibold">{ussdCode}</span> to
-                            check your OTP via Arkesel shortcode.
+                            check your OTP via backup shortcode.
                           </p>
                         ) : null}
                         {otpVerified ? (

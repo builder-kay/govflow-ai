@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { sendArkeselSms } from "@/lib/arkesel";
 import { listRelayCasesForUser, updateRelayCase } from "@/lib/relay-repository";
+import { sendSmsWithFallback } from "@/lib/sms-gateway";
 
 export async function GET(request: Request) {
   const cronSecret = process.env.RELAY_CRON_SECRET;
@@ -34,7 +34,7 @@ export async function GET(request: Request) {
         .trim()
         .slice(0, 150);
 
-      const sms = await sendArkeselSms(
+      const sms = await sendSmsWithFallback(
         relayCase.intake.contact.phone,
         `GovFlow Agent reminder: your presence is needed. Next action: ${actionTitle}. ${actionDetail}. We will also follow up on WhatsApp.`
       );

@@ -181,7 +181,7 @@ export const privacyPolicy: LegalDocument = {
       bullets: [
         "Supabase — authentication and account management.",
         "OpenAI — AI assistant and document analysis (when configured).",
-        "Arkesel — OTP and service notifications by SMS (including Agent presence alerts).",
+        "Clifze SMS (primary) and Arkesel (backup) — OTP and service notifications by SMS (including Agent presence alerts).",
         "Paystack — payment processing for paid services (if enabled).",
         "OpenStreetMap / Nominatim — geocoding office locations.",
         "Infrastructure providers — hosting and security services.",

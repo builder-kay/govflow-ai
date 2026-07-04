@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { sendArkeselSms } from "@/lib/arkesel";
 import { isAdminAuthorized } from "@/lib/admin-auth";
 import { getRelayCaseById, updateRelayCase } from "@/lib/relay-repository";
+import { sendSmsWithFallback } from "@/lib/sms-gateway";
 
 export async function POST(request: NextRequest, context: { params: Promise<{ caseId: string }> }) {
   if (!(await isAdminAuthorized(request))) {
@@ -23,7 +23,7 @@ export async function POST(request: NextRequest, context: { params: Promise<{ ca
     .trim()
     .slice(0, 150);
 
-  const sms = await sendArkeselSms(
+  const sms = await sendSmsWithFallback(
     relayCase.intake.contact.phone,
     `GovFlow Agent alert: your presence is now required. Next action: ${actionTitle}. ${actionDetail}. We will also follow up on WhatsApp.`
   );

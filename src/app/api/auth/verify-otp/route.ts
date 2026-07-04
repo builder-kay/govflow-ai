@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { parseIdentifier } from "@/lib/auth-identifiers";
+import { verifyOtpWithFallback } from "@/lib/sms-gateway";
 
 type VerifyOtpPayload = {
   phone?: string;
@@ -19,38 +20,12 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "OTP must be a 6-digit code." }, { status: 400 });
   }
 
-  const apiKey = process.env.ARKESEL_API_KEY;
-  const baseUrl = process.env.ARKESEL_BASE_URL ?? "https://sms.arkesel.com";
-  if (!apiKey) {
-    return NextResponse.json({ error: "Missing ARKESEL_API_KEY in environment." }, { status: 500 });
-  }
-
   const recipientNumber = parsed.value.replace("+", "");
-  const verifyUrl = new URL("/api/otp/verify", baseUrl);
-
-  const response = await fetch(verifyUrl.toString(), {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "api-key": apiKey,
-    },
-    body: JSON.stringify({
-      number: recipientNumber,
-      code,
-    }),
-  });
-
-  const payload = (await response.json().catch(() => ({}))) as {
-    code?: string;
-    message?: string;
-    [key: string]: unknown;
-  };
-
-  if (!response.ok || payload.code !== "1100") {
+  const otp = await verifyOtpWithFallback(parsed.value, code);
+  if (!otp.ok) {
     return NextResponse.json(
       {
-        error: payload.message || "OTP verification failed.",
-        details: payload,
+        error: otp.error || "OTP verification failed.",
       },
       { status: 400 }
     );
@@ -59,7 +34,7 @@ export async function POST(request: Request) {
   return NextResponse.json({
     ok: true,
     phone: recipientNumber,
-    message: payload.message || "Phone verification successful.",
-    providerCode: payload.code ?? null,
+    message: otp.message || "Phone verification successful.",
+    provider: otp.provider,
   });
 }

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import Script from "next/script";
 import { PwaInstallPrompt } from "@/components/pwa/PwaInstallPrompt";
+import { PageVisitTracker } from "@/components/analytics/PageVisitTracker";
 import { ThemeModeSync } from "@/components/theme/ThemeModeSync";
 import "./globals.css";
 
@@ -36,6 +37,7 @@ export default function RootLayout({
     <html lang="en" className={`${inter.variable} h-full`}>
       <body className="min-h-full antialiased font-sans">
         <ThemeModeSync />
+        <PageVisitTracker />
         {children}
         <PwaInstallPrompt />
         <Script

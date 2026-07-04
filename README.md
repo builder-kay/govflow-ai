@@ -138,6 +138,9 @@ supabase/relay_schema.sql
 PAYSTACK_SECRET_KEY=sk_test_...
 PAYSTACK_CALLBACK_URL=https://your-domain.com/relay/callback
 RELAY_CRON_SECRET=your_cron_secret
+CLIFZE_SMS_API_KEY=your_clifze_api_key
+CLIFZE_SMS_SENDER_ID=GovFlow
+CLIFZE_SMS_BASE_URL=https://clifze.shop
 ```
 
 3. Seed SQL admin user for `/tumiwura`:
@@ -152,6 +155,11 @@ values ('tumiwura', 'Tumiwura Admin', extensions.crypt('change-this-password', e
 - `POST /api/webhooks/paystack` for payment confirmations
 - `GET /api/cron/relay-reminders` for reminder jobs (`Authorization: Bearer RELAY_CRON_SECRET`)
 - `GET /api/relay/ops/cases` and related ops updates (admin cookie session from `/tumiwura`)
+- `POST /api/admin/sms/send` for single/selected/all-user SMS via Clifze API
+
+SMS delivery strategy:
+- Clifze is the primary provider for OTP and notifications.
+- Arkesel is automatically used as backup when Clifze fails.
 
 ## Disclaimer
 
