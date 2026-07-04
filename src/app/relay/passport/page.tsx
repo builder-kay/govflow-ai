@@ -57,8 +57,6 @@ export default function PassportRelayIntakePage() {
   const [nationality, setNationality] = useState("Ghanaian");
   const [residentialAddress, setResidentialAddress] = useState("");
   const [occupation, setOccupation] = useState("");
-  const [ghanaCardNumber, setGhanaCardNumber] = useState("");
-  const [birthCertificateNumber, setBirthCertificateNumber] = useState("");
   const [emergencyContactName, setEmergencyContactName] = useState("");
   const [emergencyContactPhone, setEmergencyContactPhone] = useState("");
   const [previousPassportNumber, setPreviousPassportNumber] = useState("");
@@ -76,6 +74,14 @@ export default function PassportRelayIntakePage() {
   const [notes, setNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const glassCardClass =
+    "rounded-[28px] border border-white/60 bg-white/60 backdrop-blur-xl shadow-[10px_10px_28px_rgba(15,23,42,0.12),-10px_-10px_28px_rgba(255,255,255,0.72)]";
+  const neoInputClass =
+    "border border-white/70 bg-white/75 shadow-[inset_6px_6px_14px_rgba(15,23,42,0.08),inset_-6px_-6px_14px_rgba(255,255,255,0.92)]";
+  const neoChipClass =
+    "rounded-2xl border border-white/70 bg-white/70 shadow-[6px_6px_16px_rgba(15,23,42,0.10),-6px_-6px_16px_rgba(255,255,255,0.75)]";
+  const neoCheckRowClass =
+    "inline-flex items-center gap-2 rounded-xl border border-white/70 bg-white/70 px-3 py-2.5 text-sm text-muted shadow-[6px_6px_14px_rgba(15,23,42,0.08),-6px_-6px_14px_rgba(255,255,255,0.75)]";
 
   const canSubmit = useMemo(
     () =>
@@ -89,8 +95,6 @@ export default function PassportRelayIntakePage() {
           nationality.trim() &&
           residentialAddress.trim() &&
           occupation.trim() &&
-          ghanaCardNumber.trim() &&
-          birthCertificateNumber.trim() &&
           emergencyContactName.trim() &&
           emergencyContactPhone.trim() &&
           allowOfficeFollowups &&
@@ -108,8 +112,6 @@ export default function PassportRelayIntakePage() {
       nationality,
       residentialAddress,
       occupation,
-      ghanaCardNumber,
-      birthCertificateNumber,
       emergencyContactName,
       emergencyContactPhone,
       allowOfficeFollowups,
@@ -144,8 +146,6 @@ export default function PassportRelayIntakePage() {
           nationality: nationality.trim(),
           residentialAddress: residentialAddress.trim(),
           occupation: occupation.trim(),
-          ghanaCardNumber: ghanaCardNumber.trim(),
-          birthCertificateNumber: birthCertificateNumber.trim(),
           emergencyContactName: emergencyContactName.trim(),
           emergencyContactPhone: emergencyContactPhone.trim(),
           previousPassportNumber: previousPassportNumber.trim() || undefined,
@@ -175,11 +175,13 @@ export default function PassportRelayIntakePage() {
 
   return (
     <AppShell title={`${RELAY_FEATURE_NAME} Intake`}>
-      <div className="mx-auto max-w-4xl space-y-6">
+      <div className="relative mx-auto max-w-4xl space-y-6">
+        <div aria-hidden className="pointer-events-none absolute -left-10 top-16 h-40 w-40 rounded-full bg-primary/10 blur-3xl" />
+        <div aria-hidden className="pointer-events-none absolute -right-8 top-64 h-48 w-48 rounded-full bg-soft-blue/70 blur-3xl" />
         <motion.section
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          className="rounded-3xl border border-primary/15 bg-gradient-to-br from-soft-blue/50 via-white to-white p-6 shadow-sm"
+          className={`${glassCardClass} bg-gradient-to-br from-soft-blue/60 via-white/70 to-white/55 p-6`}
         >
           <p className="text-sm font-semibold uppercase tracking-wide text-primary">Passport pilot</p>
           <h1 className="mt-1 text-3xl font-bold text-foreground">Start passport support with {RELAY_FEATURE_NAME}</h1>
@@ -188,19 +190,19 @@ export default function PassportRelayIntakePage() {
             you back for secure payment.
           </p>
           <div className="mt-4 grid gap-2 sm:grid-cols-4">
-            <p className="inline-flex items-center gap-2 rounded-xl border border-gray-100 bg-white px-3 py-2 text-xs text-muted">
+            <p className={`inline-flex items-center gap-2 px-3 py-2 text-xs text-muted ${neoChipClass}`}>
               <ClipboardCheck className="h-3.5 w-3.5 text-primary" />
               1) Admin review
             </p>
-            <p className="inline-flex items-center gap-2 rounded-xl border border-gray-100 bg-white px-3 py-2 text-xs text-muted">
+            <p className={`inline-flex items-center gap-2 px-3 py-2 text-xs text-muted ${neoChipClass}`}>
               <MessageCircleMore className="h-3.5 w-3.5 text-primary" />
               2) WhatsApp agreement
             </p>
-            <p className="inline-flex items-center gap-2 rounded-xl border border-gray-100 bg-white px-3 py-2 text-xs text-muted">
+            <p className={`inline-flex items-center gap-2 px-3 py-2 text-xs text-muted ${neoChipClass}`}>
               <ShieldCheck className="h-3.5 w-3.5 text-primary" />
               3) Secure payment
             </p>
-            <p className="inline-flex items-center gap-2 rounded-xl border border-gray-100 bg-white px-3 py-2 text-xs text-muted">
+            <p className={`inline-flex items-center gap-2 px-3 py-2 text-xs text-muted ${neoChipClass}`}>
               <CalendarClock className="h-3.5 w-3.5 text-primary" />
               4) Upload docs + processing
             </p>
@@ -211,32 +213,32 @@ export default function PassportRelayIntakePage() {
           </p>
         </motion.section>
 
-        <section className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm md:p-6">
+        <section className={`${glassCardClass} p-5 md:p-6`}>
           <h2 className="text-lg font-bold text-foreground">1) Contact and communication</h2>
           <div className="mt-4 grid gap-3 md:grid-cols-2">
             <input
               value={fullName}
               onChange={(event) => setFullName(event.target.value)}
               placeholder="Full name"
-              className="h-11 rounded-xl border border-gray-200 px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+              className={`h-11 rounded-2xl px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 ${neoInputClass}`}
             />
             <input
               value={phone}
               onChange={(event) => setPhone(event.target.value)}
               placeholder="Phone (e.g. 0241234567)"
-              className="h-11 rounded-xl border border-gray-200 px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+              className={`h-11 rounded-2xl px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 ${neoInputClass}`}
             />
             <input
               value={email}
               onChange={(event) => setEmail(event.target.value)}
               placeholder="Email (optional)"
-              className="h-11 rounded-xl border border-gray-200 px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 md:col-span-2"
+              className={`h-11 rounded-2xl px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 md:col-span-2 ${neoInputClass}`}
             />
             <input
               value={whatsappNumber}
               onChange={(event) => setWhatsappNumber(event.target.value)}
               placeholder="WhatsApp number (recommended)"
-              className="h-11 rounded-xl border border-gray-200 px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+              className={`h-11 rounded-2xl px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 ${neoInputClass}`}
             />
             <label className="text-sm text-muted">
               Preferred contact channel
@@ -245,7 +247,7 @@ export default function PassportRelayIntakePage() {
                 onChange={(event) =>
                   setPreferredContactChannel(event.target.value as "phone" | "whatsapp" | "either")
                 }
-                className="mt-1 h-11 w-full rounded-xl border border-gray-200 px-3 text-sm text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+                className={`mt-1 h-11 w-full rounded-2xl px-3 text-sm text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 ${neoInputClass}`}
               >
                 <option value="either">Phone or WhatsApp</option>
                 <option value="whatsapp">WhatsApp first</option>
@@ -255,7 +257,7 @@ export default function PassportRelayIntakePage() {
           </div>
         </section>
 
-        <section className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm md:p-6">
+        <section className={`${glassCardClass} p-5 md:p-6`}>
           <h2 className="text-lg font-bold text-foreground">2) Passport applicant details</h2>
           <p className="mt-1 text-sm text-muted">
             Fill each field exactly as it appears on your official documents. Appointment window is
@@ -267,7 +269,7 @@ export default function PassportRelayIntakePage() {
               <select
                 value={applicationType}
                 onChange={(event) => setApplicationType(event.target.value as typeof applicationType)}
-                className="mt-1 h-11 w-full rounded-xl border border-gray-200 px-3 text-sm text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+                className={`mt-1 h-11 w-full rounded-2xl px-3 text-sm text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 ${neoInputClass}`}
               >
                 <option value="first_time">First-time passport</option>
                 <option value="renewal">Renewal</option>
@@ -279,7 +281,7 @@ export default function PassportRelayIntakePage() {
               <input
                 value={preferredRegion}
                 onChange={(event) => setPreferredRegion(event.target.value)}
-                className="mt-1 h-11 w-full rounded-xl border border-gray-200 px-3 text-sm text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+                className={`mt-1 h-11 w-full rounded-2xl px-3 text-sm text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 ${neoInputClass}`}
               />
             </label>
             <label className="text-sm text-muted md:col-span-2">
@@ -288,7 +290,7 @@ export default function PassportRelayIntakePage() {
                 type="date"
                 value={urgentTravelDate}
                 onChange={(event) => setUrgentTravelDate(event.target.value)}
-                className="mt-1 h-11 w-full rounded-xl border border-gray-200 px-3 text-sm text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+                className={`mt-1 h-11 w-full rounded-2xl px-3 text-sm text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 ${neoInputClass}`}
               />
             </label>
             <label className="text-sm text-muted">
@@ -298,7 +300,7 @@ export default function PassportRelayIntakePage() {
                 value={occupation}
                 onChange={(event) => setOccupation(event.target.value)}
                 placeholder="e.g. Teacher, Trader, Student"
-                className="mt-1 h-11 w-full rounded-xl border border-gray-200 px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+                className={`mt-1 h-11 w-full rounded-2xl px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 ${neoInputClass}`}
               />
             </label>
             <label className="text-sm text-muted">
@@ -308,7 +310,7 @@ export default function PassportRelayIntakePage() {
                 value={dateOfBirth}
                 onChange={(event) => setDateOfBirth(event.target.value)}
                 type="date"
-                className="mt-1 h-11 w-full rounded-xl border border-gray-200 px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+                className={`mt-1 h-11 w-full rounded-2xl px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 ${neoInputClass}`}
               />
             </label>
             <label className="text-sm text-muted">
@@ -318,7 +320,7 @@ export default function PassportRelayIntakePage() {
                 value={placeOfBirth}
                 onChange={(event) => setPlaceOfBirth(event.target.value)}
                 placeholder="e.g. Kumasi, Ashanti Region"
-                className="mt-1 h-11 w-full rounded-xl border border-gray-200 px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+                className={`mt-1 h-11 w-full rounded-2xl px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 ${neoInputClass}`}
               />
             </label>
             <label className="text-sm text-muted">
@@ -328,27 +330,7 @@ export default function PassportRelayIntakePage() {
                 value={nationality}
                 onChange={(event) => setNationality(event.target.value)}
                 placeholder="e.g. Ghanaian"
-                className="mt-1 h-11 w-full rounded-xl border border-gray-200 px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
-              />
-            </label>
-            <label className="text-sm text-muted">
-              Ghana Card number
-              <p className="mt-0.5 text-xs text-muted">Enter the exact number from your Ghana Card.</p>
-              <input
-                value={ghanaCardNumber}
-                onChange={(event) => setGhanaCardNumber(event.target.value)}
-                placeholder="e.g. GHA-123456789-0"
-                className="mt-1 h-11 w-full rounded-xl border border-gray-200 px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
-              />
-            </label>
-            <label className="text-sm text-muted">
-              Birth certificate number
-              <p className="mt-0.5 text-xs text-muted">Certificate or entry number from your birth certificate.</p>
-              <input
-                value={birthCertificateNumber}
-                onChange={(event) => setBirthCertificateNumber(event.target.value)}
-                placeholder="Enter certificate number"
-                className="mt-1 h-11 w-full rounded-xl border border-gray-200 px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+                className={`mt-1 h-11 w-full rounded-2xl px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 ${neoInputClass}`}
               />
             </label>
             {applicationType !== "first_time" ? (
@@ -361,7 +343,7 @@ export default function PassportRelayIntakePage() {
                   value={previousPassportNumber}
                   onChange={(event) => setPreviousPassportNumber(event.target.value)}
                   placeholder="Enter previous passport number"
-                  className="mt-1 h-11 w-full rounded-xl border border-gray-200 px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+                  className={`mt-1 h-11 w-full rounded-2xl px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 ${neoInputClass}`}
                 />
               </label>
             ) : null}
@@ -372,7 +354,7 @@ export default function PassportRelayIntakePage() {
                 value={emergencyContactName}
                 onChange={(event) => setEmergencyContactName(event.target.value)}
                 placeholder="Full name"
-                className="mt-1 h-11 w-full rounded-xl border border-gray-200 px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+                className={`mt-1 h-11 w-full rounded-2xl px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 ${neoInputClass}`}
               />
             </label>
             <label className="text-sm text-muted">
@@ -382,7 +364,7 @@ export default function PassportRelayIntakePage() {
                 value={emergencyContactPhone}
                 onChange={(event) => setEmergencyContactPhone(event.target.value)}
                 placeholder="e.g. 0241234567"
-                className="mt-1 h-11 w-full rounded-xl border border-gray-200 px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+                className={`mt-1 h-11 w-full rounded-2xl px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 ${neoInputClass}`}
               />
             </label>
             <label className="text-sm text-muted md:col-span-2">
@@ -393,7 +375,7 @@ export default function PassportRelayIntakePage() {
                 onChange={(event) => setResidentialAddress(event.target.value)}
                 placeholder="House number/street, area, city, region"
                 rows={2}
-                className="mt-1 w-full rounded-xl border border-gray-200 px-3 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+                className={`mt-1 w-full rounded-2xl px-3 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 ${neoInputClass}`}
               />
             </label>
             <label className="text-sm text-muted md:col-span-2">
@@ -406,16 +388,16 @@ export default function PassportRelayIntakePage() {
                 onChange={(event) => setReasonForTravel(event.target.value)}
                 placeholder="e.g. Work trip in September, conference, study, family travel"
                 rows={2}
-                className="mt-1 w-full rounded-xl border border-gray-200 px-3 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+                className={`mt-1 w-full rounded-2xl px-3 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 ${neoInputClass}`}
               />
             </label>
           </div>
           <div className="mt-4 grid gap-2">
-            <label className="inline-flex items-center gap-2 text-sm text-muted">
+            <label className={neoCheckRowClass}>
               <input type="checkbox" checked={hasGhanaCard} onChange={(event) => setHasGhanaCard(event.target.checked)} />
               I have a Ghana Card
             </label>
-            <label className="inline-flex items-center gap-2 text-sm text-muted">
+            <label className={neoCheckRowClass}>
               <input
                 type="checkbox"
                 checked={hasBirthCertificate}
@@ -423,7 +405,7 @@ export default function PassportRelayIntakePage() {
               />
               I have a birth certificate or equivalent support document
             </label>
-            <label className="inline-flex items-center gap-2 text-sm text-muted">
+            <label className={neoCheckRowClass}>
               <input
                 type="checkbox"
                 checked={hasPassportPhotos}
@@ -431,7 +413,7 @@ export default function PassportRelayIntakePage() {
               />
               I already have passport photos that meet requirements
             </label>
-            <label className="inline-flex items-center gap-2 text-sm text-muted">
+            <label className={neoCheckRowClass}>
               <input
                 type="checkbox"
                 checked={hasProofOfAddress}
@@ -439,7 +421,7 @@ export default function PassportRelayIntakePage() {
               />
               I have proof of address ready
             </label>
-            <label className="inline-flex items-center gap-2 text-sm text-muted">
+            <label className={neoCheckRowClass}>
               <input
                 type="checkbox"
                 checked={needsPickupSupport}
@@ -453,17 +435,17 @@ export default function PassportRelayIntakePage() {
             onChange={(event) => setNotes(event.target.value)}
             placeholder="Notes for coordinator (optional)"
             rows={4}
-            className="mt-4 w-full rounded-xl border border-gray-200 px-3 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+            className={`mt-4 w-full rounded-2xl px-3 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 ${neoInputClass}`}
           />
         </section>
 
-        <section className="rounded-2xl border border-amber-200 bg-amber-50/50 p-5 shadow-sm md:p-6">
+        <section className={`${glassCardClass} border-amber-200/70 bg-amber-50/55 p-5 md:p-6`}>
           <p className="flex items-center gap-2 text-sm font-semibold text-foreground">
             <FileCheck2 className="h-4 w-4 text-amber-700" />
             3) Consent and authorization
           </p>
           <div className="mt-3 space-y-2 text-sm text-muted">
-            <label className="inline-flex items-start gap-2">
+            <label className={`${neoCheckRowClass} items-start`}>
               <input
                 type="checkbox"
                 checked={allowOfficeFollowups}
@@ -471,7 +453,7 @@ export default function PassportRelayIntakePage() {
               />
               I authorize GovFlow coordinators and vetted field runners to handle follow-up visits.
             </label>
-            <label className="inline-flex items-start gap-2">
+            <label className={`${neoCheckRowClass} items-start`}>
               <input
                 type="checkbox"
                 checked={allowDocumentHandling}
@@ -479,7 +461,7 @@ export default function PassportRelayIntakePage() {
               />
               I allow GovFlow to review and organize my uploaded documents for this request.
             </label>
-            <label className="inline-flex items-start gap-2">
+            <label className={`${neoCheckRowClass} items-start`}>
               <input
                 type="checkbox"
                 checked={acceptedFeePolicy}
@@ -487,7 +469,7 @@ export default function PassportRelayIntakePage() {
               />
               I understand the Agent fee excludes official government fees and third-party charges.
             </label>
-            <label className="inline-flex items-start gap-2">
+            <label className={`${neoCheckRowClass} items-start`}>
               <input
                 type="checkbox"
                 checked={acceptedLegalNotice}
@@ -495,7 +477,7 @@ export default function PassportRelayIntakePage() {
               />
               I accept Agent terms, cancellation policy, and responsibility boundaries.
             </label>
-            <label className="inline-flex items-start gap-2">
+            <label className={`${neoCheckRowClass} items-start`}>
               <input
                 type="checkbox"
                 checked={acceptedWhatsappContact}
@@ -504,7 +486,7 @@ export default function PassportRelayIntakePage() {
               I consent to WhatsApp follow-up for approval, agreement, and action reminders.
             </label>
           </div>
-          <div className="mt-4 rounded-xl border border-gray-200 bg-white px-3 py-3">
+          <div className={`mt-4 rounded-2xl px-3 py-3 ${neoChipClass}`}>
             <p className="text-xs font-semibold uppercase tracking-wide text-foreground">After admin approval, upload these documents in-app</p>
             <ul className="mt-2 space-y-1.5 text-xs text-muted">
               {RELAY_REQUIRED_PASSPORT_DOCUMENTS.map((item) => (
@@ -523,7 +505,7 @@ export default function PassportRelayIntakePage() {
           </p>
         ) : null}
 
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-3">
           <Button onClick={() => void handleSubmit()} disabled={!canSubmit || submitting}>
             {submitting ? (
               <>

@@ -48,9 +48,6 @@ function parsePassportDetails(input: unknown): RelayPassportDetails | null {
   const residentialAddress =
     typeof input.residentialAddress === "string" ? input.residentialAddress.trim() : "";
   const occupation = typeof input.occupation === "string" ? input.occupation.trim() : "";
-  const ghanaCardNumber = typeof input.ghanaCardNumber === "string" ? input.ghanaCardNumber.trim() : "";
-  const birthCertificateNumber =
-    typeof input.birthCertificateNumber === "string" ? input.birthCertificateNumber.trim() : "";
   const emergencyContactName =
     typeof input.emergencyContactName === "string" ? input.emergencyContactName.trim() : "";
   const emergencyContactPhone =
@@ -74,8 +71,6 @@ function parsePassportDetails(input: unknown): RelayPassportDetails | null {
     !nationality ||
     !residentialAddress ||
     !occupation ||
-    !ghanaCardNumber ||
-    !birthCertificateNumber ||
     !emergencyContactName ||
     !GH_PHONE_REGEX.test(emergencyContactPhone)
   ) {
@@ -96,8 +91,6 @@ function parsePassportDetails(input: unknown): RelayPassportDetails | null {
     nationality,
     residentialAddress,
     occupation,
-    ghanaCardNumber,
-    birthCertificateNumber,
     emergencyContactName,
     emergencyContactPhone,
     previousPassportNumber: previousPassportNumber || undefined,

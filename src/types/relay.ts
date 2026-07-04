@@ -42,8 +42,6 @@ export interface RelayPassportDetails {
   nationality: string;
   residentialAddress: string;
   occupation: string;
-  ghanaCardNumber: string;
-  birthCertificateNumber: string;
   emergencyContactName: string;
   emergencyContactPhone: string;
   previousPassportNumber?: string;
