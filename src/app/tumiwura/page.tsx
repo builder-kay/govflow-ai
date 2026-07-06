@@ -170,6 +170,15 @@ export default function TumiwuraAdminPage() {
     "rounded-2xl border border-white/70 bg-white/70 shadow-[8px_8px_18px_rgba(15,23,42,0.09),-8px_-8px_18px_rgba(255,255,255,0.8)]";
   const neoInput =
     "border border-white/70 bg-white/75 shadow-[inset_6px_6px_14px_rgba(15,23,42,0.08),inset_-6px_-6px_14px_rgba(255,255,255,0.95)]";
+  const sectionShell = `${glassCard} overflow-hidden`;
+  const sectionHeader =
+    "flex flex-wrap items-center justify-between gap-2 border-b border-white/70 bg-gradient-to-r from-white/80 via-soft-blue/35 to-violet-50/45 px-5 py-3";
+  const sectionTitle = "text-sm font-semibold tracking-wide text-foreground";
+  const tabButtonBase =
+    "inline-flex items-center gap-2 rounded-2xl border border-white/70 bg-white/75 px-3 py-2 text-sm font-medium text-muted transition hover:-translate-y-0.5 hover:text-foreground hover:shadow-md";
+  const tabButtonActive = "text-primary ring-2 ring-primary/30 shadow-md";
+  const kpiCard =
+    "rounded-2xl border border-white/75 bg-gradient-to-br from-white/90 via-white/75 to-soft-blue/45 p-3 shadow-[8px_8px_18px_rgba(15,23,42,0.08),-8px_-8px_18px_rgba(255,255,255,0.85)]";
 
   const loadCases = async () => {
     setLoadingCases(true);
@@ -582,9 +591,19 @@ export default function TumiwuraAdminPage() {
       showFooter={false}
       requireAuth={false}
     >
-      <div className="relative mx-auto max-w-6xl space-y-5 py-6">
-        <div aria-hidden className="pointer-events-none absolute -left-10 top-10 h-44 w-44 rounded-full bg-primary/10 blur-3xl" />
-        <div aria-hidden className="pointer-events-none absolute -right-6 top-56 h-52 w-52 rounded-full bg-soft-blue/75 blur-3xl" />
+      <div className="relative mx-auto max-w-7xl space-y-5 py-6">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -left-10 top-10 h-44 w-44 rounded-full bg-primary/15 blur-3xl"
+        />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -right-6 top-44 h-52 w-52 rounded-full bg-soft-blue/75 blur-3xl"
+        />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute left-1/3 top-[420px] h-56 w-56 rounded-full bg-violet-200/50 blur-3xl"
+        />
         {checkingAuth ? (
           <div className={`${glassCard} p-8 text-center`}>
             <p className="inline-flex items-center gap-2 text-sm text-muted">
@@ -641,16 +660,38 @@ export default function TumiwuraAdminPage() {
           </section>
         ) : (
           <>
-            <section className={`${glassCard} p-5`}>
+            <section className={`${sectionShell}`}>
               <div className="flex flex-wrap items-center justify-between gap-3">
-                <div>
-                  <p className="text-sm font-semibold text-foreground">Tumiwura operations queue</p>
-                  <p className="mt-1 text-sm text-muted">
-                    Review intake, approve payment, log WhatsApp agreements, and manage request actions.
-                  </p>
-                  {adminName ? <p className="mt-1 text-xs text-muted">Signed in as {adminName}</p> : null}
+                <div className={sectionHeader}>
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-[0.14em] text-primary-dark">
+                      Tumiwura admin console
+                    </p>
+                    <p className="mt-1 text-base font-semibold text-foreground">Operations command center</p>
+                    <p className="mt-1 text-sm text-muted">
+                      Review intake, approve payment, and control user operations from one dashboard.
+                    </p>
+                    {adminName ? <p className="mt-1 text-xs text-muted">Signed in as {adminName}</p> : null}
+                  </div>
+                  <div className="grid min-w-[240px] grid-cols-2 gap-2">
+                    <article className={kpiCard}>
+                      <p className="text-[11px] uppercase tracking-wide text-muted">Open requests</p>
+                      <p className="mt-1 text-xl font-bold text-foreground">
+                        {
+                          cases.filter((item) =>
+                            ["intake_received", "payment_pending", "ops_triage", "in_progress", "awaiting_user"].includes(item.status)
+                          ).length
+                        }
+                      </p>
+                    </article>
+                    <article className={kpiCard}>
+                      <p className="text-[11px] uppercase tracking-wide text-muted">Users</p>
+                      <p className="mt-1 text-xl font-bold text-foreground">{users.length}</p>
+                    </article>
+                  </div>
                 </div>
-                <div className="flex gap-2">
+                <div className="px-5 pb-4">
+                  <div className="flex gap-2">
                   <Button variant="outline" onClick={() => void loadCases()} disabled={loadingCases}>
                     {loadingCases ? "Refreshing..." : "Refresh"}
                   </Button>
@@ -658,14 +699,16 @@ export default function TumiwuraAdminPage() {
                     <LogOut className="h-4 w-4" />
                     Sign out
                   </Button>
+                  </div>
                 </div>
               </div>
               {error ? (
-                <p className="mt-3 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+                <p className="mx-5 mb-3 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
                   {error}
                 </p>
               ) : null}
-              <div className="mt-4 flex flex-wrap gap-2">
+              <div className="border-t border-white/60 px-5 py-4">
+                <div className="flex flex-wrap gap-2">
                 {[
                   { id: "requests", label: "Requests", icon: CheckCircle2 },
                   { id: "users", label: "Users", icon: Users },
@@ -681,26 +724,37 @@ export default function TumiwuraAdminPage() {
                       key={tab.id}
                       type="button"
                       onClick={() => setActiveTab(tab.id as AdminTab)}
-                      className={`inline-flex items-center gap-2 rounded-2xl px-3 py-2 text-sm font-medium transition ${neoTile} ${
-                        active ? "text-primary ring-2 ring-primary/30" : "text-muted"
-                      }`}
+                      className={`${tabButtonBase} ${active ? tabButtonActive : ""}`}
                     >
                       <Icon className="h-4 w-4" />
                       {tab.label}
                     </button>
                   );
                 })}
+                </div>
               </div>
             </section>
 
             {activeTab === "requests" ? (
               <div className="space-y-3">
                 {cases.map((item) => (
-                  <article key={item.id} className={`${glassCard} p-4`}>
+                  <article
+                    key={item.id}
+                    className={`${sectionShell} border-l-4 ${
+                      item.status === "completed"
+                        ? "border-l-emerald-500"
+                        : item.status === "cancelled"
+                          ? "border-l-red-500"
+                          : "border-l-primary"
+                    } p-4`}
+                  >
                     <div className="flex flex-wrap items-start justify-between gap-3">
                       <div>
                         <p className="font-semibold text-foreground">
-                          {item.intake_json?.contact?.fullName || "Unknown user"} ({item.id.slice(0, 8)})
+                          {item.intake_json?.contact?.fullName || "Unknown user"}
+                        </p>
+                        <p className="mt-0.5 text-[11px] uppercase tracking-wide text-muted">
+                          Case #{item.id.slice(0, 8)}
                         </p>
                         <p className="text-sm text-muted">
                           {item.service_type} • {item.intake_json?.contact?.phone || "No phone"} • Fee GHS{" "}
@@ -709,7 +763,7 @@ export default function TumiwuraAdminPage() {
                       </div>
                       <RelayCaseStatusPill status={item.status} />
                     </div>
-                    <div className="mt-3 flex flex-wrap gap-2">
+                    <div className="mt-3 flex flex-wrap gap-2 border-t border-white/60 pt-3">
                       <Button
                         size="sm"
                         variant="outline"
@@ -778,13 +832,17 @@ export default function TumiwuraAdminPage() {
             ) : null}
 
             {activeTab === "users" ? (
-              <section className={`${glassCard} p-5`}>
-                <div className="mb-3 flex items-center justify-between gap-2">
-                  <p className="text-sm font-semibold text-foreground">All users ({users.length})</p>
+              <section className={sectionShell}>
+                <div className={sectionHeader}>
+                  <div>
+                    <p className={sectionTitle}>User accounts ({users.length})</p>
+                    <p className="text-xs text-muted">Account control, risk actions, and user-level statistics.</p>
+                  </div>
                   <Button variant="outline" size="sm" onClick={() => void loadUsers()} disabled={loadingUsers}>
                     {loadingUsers ? "Refreshing..." : "Refresh users"}
                   </Button>
                 </div>
+                <div className="space-y-2 p-5">
                 {selectedUserStats ? (
                   <article className={`${neoTile} mb-3 p-3`}>
                     <div className="flex flex-wrap items-start justify-between gap-2">
@@ -908,20 +966,27 @@ export default function TumiwuraAdminPage() {
                     </article>
                   ))}
                 </div>
+                </div>
               </section>
             ) : null}
 
             {activeTab === "fees" ? (
-              <section className={`${glassCard} p-5`}>
-                <div className="mb-3 flex items-center justify-between gap-2">
-                  <p className="text-sm font-semibold text-foreground">Agent service fees</p>
+              <section className={sectionShell}>
+                <div className={sectionHeader}>
+                  <div>
+                    <p className={sectionTitle}>Agent service fees</p>
+                    <p className="text-xs text-muted">Set baseline service fees and propagate to open cases.</p>
+                  </div>
                   <Button variant="outline" size="sm" onClick={() => void loadRelayFees()}>
                     Refresh fees
                   </Button>
                 </div>
-                <div className="space-y-2.5">
+                <div className="space-y-2.5 p-5">
                   {relayFees.map((fee) => (
-                    <article key={fee.serviceType} className={`${neoTile} p-3`}>
+                    <article
+                      key={fee.serviceType}
+                      className={`${neoTile} border-l-4 border-l-primary bg-gradient-to-r from-white/90 to-soft-blue/35 p-3`}
+                    >
                       <p className="text-sm font-semibold text-foreground capitalize">
                         {fee.serviceType.replace("-", " ")}
                       </p>
@@ -984,11 +1049,17 @@ export default function TumiwuraAdminPage() {
             ) : null}
 
             {activeTab === "sms" ? (
-              <section className={`${glassCard} p-5`}>
-                <p className="text-sm font-semibold text-foreground">
-                  SMS broadcast (Clifze primary, Arkesel backup)
-                </p>
-                <div className="mt-3 grid gap-3 md:grid-cols-3">
+              <section className={sectionShell}>
+                <div className={sectionHeader}>
+                  <div>
+                    <p className={sectionTitle}>SMS broadcast studio</p>
+                    <p className="text-xs text-muted">
+                      Clifze primary provider with Arkesel fallback for delivery reliability.
+                    </p>
+                  </div>
+                </div>
+                <div className="space-y-3 p-5">
+                <div className="grid gap-3 md:grid-cols-3">
                   <label className="text-sm text-muted">
                     Recipient segment
                     <select
@@ -1153,14 +1224,18 @@ export default function TumiwuraAdminPage() {
                   {smsPreviewResult ? <p className="text-sm text-primary">{smsPreviewResult}</p> : null}
                   {smsResult ? <p className="text-sm text-emerald-700">{smsResult}</p> : null}
                 </div>
+                </div>
               </section>
             ) : null}
 
             {activeTab === "insights" ? (
               <section className="space-y-3">
-                <div className={`${glassCard} p-5`}>
-                  <div className="mb-3 flex items-center justify-between gap-2">
-                    <p className="text-sm font-semibold text-foreground">Platform statistics & growth</p>
+                <div className={sectionShell}>
+                  <div className={sectionHeader}>
+                    <div>
+                      <p className={sectionTitle}>Platform statistics and growth</p>
+                      <p className="text-xs text-muted">High-level business and operations pulse.</p>
+                    </div>
                     <Button
                       variant="outline"
                       size="sm"
@@ -1170,7 +1245,7 @@ export default function TumiwuraAdminPage() {
                       {loadingInsights ? "Refreshing..." : "Refresh insights"}
                     </Button>
                   </div>
-                  <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                  <div className="grid gap-3 p-5 sm:grid-cols-2 xl:grid-cols-3">
                     {[
                       { label: "Total users", value: insights?.overview?.totalUsers ?? 0 },
                       { label: "Total requests", value: insights?.overview?.totalRequests ?? 0 },
@@ -1179,7 +1254,7 @@ export default function TumiwuraAdminPage() {
                       { label: "Unresolved reports", value: insights?.overview?.unresolvedReports ?? 0 },
                       { label: "Tracked page visits", value: insights?.overview?.totalPageVisits ?? 0 },
                     ].map((card) => (
-                      <article key={card.label} className={`${neoTile} p-3`}>
+                      <article key={card.label} className={kpiCard}>
                         <p className="text-xs text-muted">{card.label}</p>
                         <p className="mt-1 text-xl font-bold text-foreground">{card.value}</p>
                       </article>
@@ -1187,9 +1262,11 @@ export default function TumiwuraAdminPage() {
                   </div>
                 </div>
 
-                <div className={`${glassCard} p-5`}>
-                  <p className="mb-3 text-sm font-semibold text-foreground">Growth trend (monthly)</p>
-                  <div className="grid gap-4 md:grid-cols-2">
+                <div className={sectionShell}>
+                  <div className={sectionHeader}>
+                    <p className={sectionTitle}>Growth trend (monthly)</p>
+                  </div>
+                  <div className="grid gap-4 p-5 md:grid-cols-2">
                     <div className={`${neoTile} p-3`}>
                       <p className="mb-2 text-xs font-semibold text-muted">User growth</p>
                       <div className="space-y-2">
@@ -1225,9 +1302,11 @@ export default function TumiwuraAdminPage() {
                   </div>
                 </div>
 
-                <div className={`${glassCard} p-5`}>
-                  <p className="mb-3 text-sm font-semibold text-foreground">Most visited pages and flows</p>
-                  <div className="grid gap-3 md:grid-cols-2">
+                <div className={sectionShell}>
+                  <div className={sectionHeader}>
+                    <p className={sectionTitle}>Most visited pages and flows</p>
+                  </div>
+                  <div className="grid gap-3 p-5 md:grid-cols-2">
                     <div className={`${neoTile} p-3`}>
                       <p className="mb-2 text-xs font-semibold text-muted">Top pages</p>
                       <div className="space-y-1.5">
@@ -1254,9 +1333,12 @@ export default function TumiwuraAdminPage() {
             ) : null}
 
             {activeTab === "reports" ? (
-              <section className={`${glassCard} p-5`}>
-                <div className="mb-3 flex items-center justify-between gap-2">
-                  <p className="text-sm font-semibold text-foreground">Reported problems</p>
+              <section className={sectionShell}>
+                <div className={sectionHeader}>
+                  <div>
+                    <p className={sectionTitle}>Reported problems</p>
+                    <p className="text-xs text-muted">Track user-reported incidents and close the loop quickly.</p>
+                  </div>
                   <Button
                     variant="outline"
                     size="sm"
@@ -1266,9 +1348,18 @@ export default function TumiwuraAdminPage() {
                     {loadingReports ? "Refreshing..." : "Refresh reports"}
                   </Button>
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-2 p-5">
                   {reports.map((report) => (
-                    <article key={report.id} className={`${neoTile} p-3`}>
+                    <article
+                      key={report.id}
+                      className={`${neoTile} border-l-4 ${
+                        report.status === "resolved"
+                          ? "border-l-emerald-500"
+                          : report.status === "investigating"
+                            ? "border-l-amber-500"
+                            : "border-l-primary"
+                      } p-3`}
+                    >
                       <div className="flex flex-wrap items-start justify-between gap-2">
                         <div>
                           <p className="font-semibold text-foreground">{report.title}</p>
