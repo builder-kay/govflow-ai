@@ -8,6 +8,7 @@ type RelayCaseRow = {
   service_type: string;
   status: RelayCaseStatus;
   payment_status: string;
+  fee_ghs: number;
   intake_json: {
     contact?: { fullName?: string; phone?: string };
   };
@@ -32,7 +33,7 @@ export async function GET(request: NextRequest) {
   const { data, error } = await supabase
     .from("relay_cases")
     .select(
-      "id, service_type, status, payment_status, intake_json, assigned_coordinator, assigned_runner, created_at, updated_at"
+      "id, service_type, status, payment_status, fee_ghs, intake_json, assigned_coordinator, assigned_runner, created_at, updated_at"
     )
     .order("created_at", { ascending: false })
     .returns<RelayCaseRow[]>();

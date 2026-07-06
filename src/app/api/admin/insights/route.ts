@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
   try {
     const supabase = getSupabaseAdminClient();
 
-    const [relayCasesRes, visitsRes, reportsRes, usersRes] = await Promise.all([
+    const [relayCasesRes, visitsRes, reportsRes] = await Promise.all([
       supabase
         .from("relay_cases")
         .select("id, status, created_at")
@@ -40,18 +40,27 @@ export async function GET(request: NextRequest) {
         .from("reported_problems")
         .select("id, status, created_at")
         .order("created_at", { ascending: false }),
-      supabase.auth.admin.listUsers({ page: 1, perPage: 500 }),
     ]);
 
     if (relayCasesRes.error) throw new Error(relayCasesRes.error.message);
     if (visitsRes.error) throw new Error(visitsRes.error.message);
     if (reportsRes.error) throw new Error(reportsRes.error.message);
-    if (usersRes.error) throw new Error(usersRes.error.message);
+
+    const authUsers: Array<{ created_at?: string | null }> = [];
+    let page = 1;
+    const perPage = 500;
+    while (true) {
+      const usersRes = await supabase.auth.admin.listUsers({ page, perPage });
+      if (usersRes.error) throw new Error(usersRes.error.message);
+      const batch = usersRes.data.users || [];
+      authUsers.push(...batch);
+      if (batch.length < perPage) break;
+      page += 1;
+    }
 
     const relayCases = relayCasesRes.data || [];
     const visits = visitsRes.data || [];
     const reports = reportsRes.data || [];
-    const authUsers = usersRes.data.users || [];
 
     const usersByMonth = new Map<string, number>();
     for (const user of authUsers) {

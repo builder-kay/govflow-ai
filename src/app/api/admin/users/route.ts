@@ -8,8 +8,17 @@ type AdminUserItem = {
   phone: string | null;
   fullName: string | null;
   createdAt: string | null;
+  lastSignInAt: string | null;
+  bannedUntil: string | null;
+  isBanned: boolean;
   latestRequestStatus: string | null;
+  totalCases: number;
 };
+
+function isUserBanned(bannedUntil: string | null | undefined): boolean {
+  if (!bannedUntil) return false;
+  return Date.parse(bannedUntil) > Date.now();
+}
 
 export async function GET(request: NextRequest) {
   if (!(await isAdminAuthorized(request))) {
@@ -23,20 +32,38 @@ export async function GET(request: NextRequest) {
     const supabase = getSupabaseAdminClient();
     const usersMap = new Map<string, AdminUserItem>();
 
-    const { data: authUsers, error: authError } = await supabase.auth.admin.listUsers({
-      page: 1,
-      perPage: 500,
-    });
-    if (authError) throw new Error(authError.message);
+    const authUsers: Array<{
+      id: string;
+      email?: string | null;
+      phone?: string | null;
+      created_at?: string | null;
+      last_sign_in_at?: string | null;
+      banned_until?: string | null;
+      user_metadata?: { full_name?: string };
+    }> = [];
+    let page = 1;
+    const perPage = 500;
+    while (true) {
+      const { data, error } = await supabase.auth.admin.listUsers({ page, perPage });
+      if (error) throw new Error(error.message);
+      const batch = data.users || [];
+      authUsers.push(...batch);
+      if (batch.length < perPage) break;
+      page += 1;
+    }
 
-    for (const user of authUsers.users || []) {
+    for (const user of authUsers) {
       usersMap.set(user.id, {
         id: user.id,
         email: user.email || null,
         phone: user.phone || null,
         fullName: (user.user_metadata?.full_name as string) || null,
         createdAt: user.created_at || null,
+        lastSignInAt: user.last_sign_in_at || null,
+        bannedUntil: user.banned_until || null,
+        isBanned: isUserBanned(user.banned_until),
         latestRequestStatus: null,
+        totalCases: 0,
       });
     }
 
@@ -57,16 +84,29 @@ export async function GET(request: NextRequest) {
           phone,
           fullName,
           createdAt: row.created_at as string,
+          lastSignInAt: null,
+          bannedUntil: null,
+          isBanned: false,
           latestRequestStatus: row.status as string,
+          totalCases: 1,
         });
-      } else if (!existing.latestRequestStatus) {
-        existing.latestRequestStatus = row.status as string;
+      } else {
+        existing.totalCases += 1;
+        if (!existing.latestRequestStatus) {
+          existing.latestRequestStatus = row.status as string;
+        }
         if (!existing.phone && phone) existing.phone = phone;
         if (!existing.fullName && fullName) existing.fullName = fullName;
       }
     }
 
-    return NextResponse.json({ users: [...usersMap.values()] });
+    return NextResponse.json({
+      users: [...usersMap.values()].sort((a, b) => {
+        const aTs = a.createdAt ? Date.parse(a.createdAt) : 0;
+        const bTs = b.createdAt ? Date.parse(b.createdAt) : 0;
+        return bTs - aTs;
+      }),
+    });
   } catch (error) {
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Could not load users." },

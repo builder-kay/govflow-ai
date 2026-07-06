@@ -14,6 +14,7 @@ Run these SQL files in order:
 4. `004_relay_metrics_view.sql`
 5. `005_admin_portal_auth.sql`
 6. `006_admin_growth_and_reports.sql`
+7. `007_admin_user_ops_and_fees.sql`
 
 Notes:
 
@@ -21,3 +22,4 @@ Notes:
 - The numbered files are the full schema set for the Agent pilot (cases, steps, documents, events, presence alerts, RLS, and metrics view).
 - `005_admin_portal_auth.sql` adds SQL-backed `/tumiwura` admin sign-in (`admin_users`, `admin_sessions`, and `verify_admin_login`).
 - `006_admin_growth_and_reports.sql` adds page-flow tracking and `reported_problems` for admin insights.
+- `007_admin_user_ops_and_fees.sql` adds persistent Agent service fee configuration used by the admin portal.

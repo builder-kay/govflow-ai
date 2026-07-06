@@ -10,7 +10,11 @@ import {
   MessageSquareText,
   Send,
   ShieldCheck,
+  ShieldBan,
+  Trash2,
+  UserCog,
   Users,
+  Wallet,
   XCircle,
 } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
@@ -29,6 +33,7 @@ type OpsCase = {
     | "completed"
     | "cancelled";
   payment_status: string;
+  fee_ghs?: number;
   intake_json?: { contact?: { fullName?: string; phone?: string } };
   assigned_coordinator: string | null;
   assigned_runner: string | null;
@@ -41,7 +46,47 @@ type AdminUser = {
   phone: string | null;
   fullName: string | null;
   createdAt: string | null;
+  lastSignInAt: string | null;
+  bannedUntil: string | null;
+  isBanned: boolean;
   latestRequestStatus: string | null;
+  totalCases: number;
+};
+
+type AdminUserStatsPayload = {
+  user: {
+    id: string;
+    email: string | null;
+    phone: string | null;
+    fullName: string | null;
+    createdAt: string | null;
+    lastSignInAt: string | null;
+    bannedUntil: string | null;
+    isBanned: boolean;
+    appMetadata: Record<string, unknown>;
+  };
+  stats: {
+    totalCases: number;
+    casesByStatus: Record<string, number>;
+    openCases: number;
+    completedCases: number;
+    cancelledCases: number;
+    latestCase: {
+      id: string;
+      status: string;
+      payment_status: string;
+      created_at: string;
+      updated_at: string;
+      service_type: string;
+    } | null;
+  };
+};
+
+type RelayServiceFee = {
+  serviceType: "passport";
+  feeGhs: number;
+  source: "configured" | "default";
+  updatedAt?: string | null;
 };
 
 type InsightPayload = {
@@ -73,7 +118,7 @@ type ReportItem = {
   created_at: string;
 };
 
-type AdminTab = "requests" | "users" | "sms" | "insights" | "reports";
+type AdminTab = "requests" | "users" | "fees" | "sms" | "insights" | "reports";
 
 export default function TumiwuraAdminPage() {
   const [username, setUsername] = useState("");
@@ -87,7 +132,14 @@ export default function TumiwuraAdminPage() {
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [insights, setInsights] = useState<InsightPayload | null>(null);
   const [reports, setReports] = useState<ReportItem[]>([]);
+  const [relayFees, setRelayFees] = useState<RelayServiceFee[]>([]);
+  const [feeInputByService, setFeeInputByService] = useState<Record<string, string>>({});
+  const [feeApplyOpenByService, setFeeApplyOpenByService] = useState<Record<string, boolean>>({});
+  const [savingFeeForService, setSavingFeeForService] = useState<string | null>(null);
   const [selectedPhones, setSelectedPhones] = useState<string[]>([]);
+  const [selectedUserStats, setSelectedUserStats] = useState<AdminUserStatsPayload | null>(null);
+  const [loadingSelectedUserStats, setLoadingSelectedUserStats] = useState(false);
+  const [actingOnUserId, setActingOnUserId] = useState<string | null>(null);
   const [smsMode, setSmsMode] = useState<
     | "single_user"
     | "all_users"
@@ -188,6 +240,31 @@ export default function TumiwuraAdminPage() {
     }
   };
 
+  const loadRelayFees = async () => {
+    setError("");
+    try {
+      const response = await fetch("/api/admin/relay-fees");
+      const payload = (await response.json().catch(() => ({}))) as {
+        fees?: RelayServiceFee[];
+        error?: string;
+      };
+      if (!response.ok) throw new Error(payload.error || "Could not load agent fees.");
+      const fees = payload.fees || [];
+      setRelayFees(fees);
+      setFeeInputByService((current) => {
+        const next = { ...current };
+        for (const fee of fees) {
+          if (!next[fee.serviceType]) {
+            next[fee.serviceType] = String(fee.feeGhs);
+          }
+        }
+        return next;
+      });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not load agent fees.");
+    }
+  };
+
   const checkSession = async () => {
     setCheckingAuth(true);
     try {
@@ -200,7 +277,7 @@ export default function TumiwuraAdminPage() {
       setAuthenticated(isAuthed);
       setAdminName(payload.admin?.displayName || payload.admin?.username || null);
       if (isAuthed) {
-        await Promise.all([loadCases(), loadUsers(), loadInsights(), loadReports()]);
+        await Promise.all([loadCases(), loadUsers(), loadInsights(), loadReports(), loadRelayFees()]);
       }
     } finally {
       setCheckingAuth(false);
@@ -227,7 +304,7 @@ export default function TumiwuraAdminPage() {
       setAdminName(username.trim());
       setUsername("");
       setPassword("");
-      await Promise.all([loadCases(), loadUsers(), loadInsights(), loadReports()]);
+      await Promise.all([loadCases(), loadUsers(), loadInsights(), loadReports(), loadRelayFees()]);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Sign-in failed.");
     } finally {
@@ -242,7 +319,9 @@ export default function TumiwuraAdminPage() {
     setUsers([]);
     setReports([]);
     setInsights(null);
+    setRelayFees([]);
     setSelectedPhones([]);
+    setSelectedUserStats(null);
     setError("");
   };
 
@@ -300,6 +379,119 @@ export default function TumiwuraAdminPage() {
       await loadInsights();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not update report.");
+    }
+  };
+
+  const loadUserStats = async (userId: string) => {
+    setLoadingSelectedUserStats(true);
+    setError("");
+    try {
+      const response = await fetch(`/api/admin/users/${userId}`);
+      const payload = (await response.json().catch(() => ({}))) as AdminUserStatsPayload & { error?: string };
+      if (!response.ok) throw new Error(payload.error || "Could not load account stats.");
+      setSelectedUserStats(payload);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not load account stats.");
+    } finally {
+      setLoadingSelectedUserStats(false);
+    }
+  };
+
+  const banUser = async (userId: string) => {
+    setActingOnUserId(userId);
+    setError("");
+    try {
+      const response = await fetch(`/api/admin/users/${userId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "ban", banDuration: "876000h", reason: "Banned by admin." }),
+      });
+      const payload = (await response.json().catch(() => ({}))) as { error?: string };
+      if (!response.ok) throw new Error(payload.error || "Could not ban account.");
+      await loadUsers();
+      if (selectedUserStats?.user.id === userId) {
+        await loadUserStats(userId);
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not ban account.");
+    } finally {
+      setActingOnUserId(null);
+    }
+  };
+
+  const unbanUser = async (userId: string) => {
+    setActingOnUserId(userId);
+    setError("");
+    try {
+      const response = await fetch(`/api/admin/users/${userId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "unban" }),
+      });
+      const payload = (await response.json().catch(() => ({}))) as { error?: string };
+      if (!response.ok) throw new Error(payload.error || "Could not unban account.");
+      await loadUsers();
+      if (selectedUserStats?.user.id === userId) {
+        await loadUserStats(userId);
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not unban account.");
+    } finally {
+      setActingOnUserId(null);
+    }
+  };
+
+  const deleteUserAccount = async (userId: string) => {
+    if (!window.confirm("Delete this user account permanently? This cannot be undone.")) {
+      return;
+    }
+    setActingOnUserId(userId);
+    setError("");
+    try {
+      const response = await fetch(`/api/admin/users/${userId}`, {
+        method: "DELETE",
+      });
+      const payload = (await response.json().catch(() => ({}))) as { error?: string };
+      if (!response.ok) throw new Error(payload.error || "Could not delete account.");
+      if (selectedUserStats?.user.id === userId) {
+        setSelectedUserStats(null);
+      }
+      await Promise.all([loadUsers(), loadInsights(), loadCases()]);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not delete account.");
+    } finally {
+      setActingOnUserId(null);
+    }
+  };
+
+  const saveServiceFee = async (serviceType: RelayServiceFee["serviceType"]) => {
+    const feeRaw = feeInputByService[serviceType];
+    const feeGhs = Number(feeRaw);
+    if (!Number.isFinite(feeGhs) || feeGhs <= 0) {
+      setError("Enter a valid positive fee amount.");
+      return;
+    }
+
+    setSavingFeeForService(serviceType);
+    setError("");
+    try {
+      const response = await fetch("/api/admin/relay-fees", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          serviceType,
+          feeGhs,
+          applyToOpenCases: Boolean(feeApplyOpenByService[serviceType]),
+        }),
+      });
+      const payload = (await response.json().catch(() => ({}))) as { error?: string; affectedOpenCases?: number };
+      if (!response.ok) throw new Error(payload.error || "Could not update service fee.");
+      await Promise.all([loadRelayFees(), loadCases()]);
+      setFeeApplyOpenByService((current) => ({ ...current, [serviceType]: false }));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not update service fee.");
+    } finally {
+      setSavingFeeForService(null);
     }
   };
 
@@ -477,6 +669,7 @@ export default function TumiwuraAdminPage() {
                 {[
                   { id: "requests", label: "Requests", icon: CheckCircle2 },
                   { id: "users", label: "Users", icon: Users },
+                  { id: "fees", label: "Agent fees", icon: Wallet },
                   { id: "sms", label: "SMS", icon: Send },
                   { id: "insights", label: "Insights", icon: BarChart3 },
                   { id: "reports", label: "Reported problems", icon: AlertTriangle },
@@ -510,8 +703,8 @@ export default function TumiwuraAdminPage() {
                           {item.intake_json?.contact?.fullName || "Unknown user"} ({item.id.slice(0, 8)})
                         </p>
                         <p className="text-sm text-muted">
-                          {item.service_type} • {item.intake_json?.contact?.phone || "No phone"} • Payment{" "}
-                          {item.payment_status}
+                          {item.service_type} • {item.intake_json?.contact?.phone || "No phone"} • Fee GHS{" "}
+                          {Number(item.fee_ghs || 0).toFixed(2)} • Payment {item.payment_status}
                         </p>
                       </div>
                       <RelayCaseStatusPill status={item.status} />
@@ -592,6 +785,39 @@ export default function TumiwuraAdminPage() {
                     {loadingUsers ? "Refreshing..." : "Refresh users"}
                   </Button>
                 </div>
+                {selectedUserStats ? (
+                  <article className={`${neoTile} mb-3 p-3`}>
+                    <div className="flex flex-wrap items-start justify-between gap-2">
+                      <div>
+                        <p className="font-semibold text-foreground">
+                          Account stats:{" "}
+                          {selectedUserStats.user.fullName ||
+                            selectedUserStats.user.email ||
+                            selectedUserStats.user.phone ||
+                            selectedUserStats.user.id.slice(0, 8)}
+                        </p>
+                        <p className="text-xs text-muted">
+                          Open: {selectedUserStats.stats.openCases} • Completed:{" "}
+                          {selectedUserStats.stats.completedCases} • Cancelled:{" "}
+                          {selectedUserStats.stats.cancelledCases} • Total cases:{" "}
+                          {selectedUserStats.stats.totalCases}
+                        </p>
+                        {selectedUserStats.stats.latestCase ? (
+                          <p className="mt-1 text-xs text-muted">
+                            Latest case: {selectedUserStats.stats.latestCase.service_type} •{" "}
+                            {selectedUserStats.stats.latestCase.status} •{" "}
+                            {new Date(selectedUserStats.stats.latestCase.created_at).toLocaleString()}
+                          </p>
+                        ) : (
+                          <p className="mt-1 text-xs text-muted">No cases yet for this account.</p>
+                        )}
+                      </div>
+                      <Button variant="ghost" size="sm" onClick={() => setSelectedUserStats(null)}>
+                        Close stats
+                      </Button>
+                    </div>
+                  </article>
+                ) : null}
                 <div className="space-y-2">
                   {users.map((user) => (
                     <article key={user.id} className={`${neoTile} px-3 py-2.5`}>
@@ -602,22 +828,157 @@ export default function TumiwuraAdminPage() {
                           </p>
                           <p className="text-xs text-muted">
                             {user.email || "No email"} • {user.phone || "No phone"} • Latest request:{" "}
-                            {user.latestRequestStatus || "n/a"}
+                            {user.latestRequestStatus || "n/a"} • Cases: {user.totalCases}
+                          </p>
+                          <p className="mt-1 text-[11px] text-muted">
+                            Created: {user.createdAt ? new Date(user.createdAt).toLocaleString() : "n/a"} • Last sign in:{" "}
+                            {user.lastSignInAt ? new Date(user.lastSignInAt).toLocaleString() : "n/a"}
+                          </p>
+                          <p
+                            className={`mt-1 inline-flex rounded-full px-2 py-0.5 text-[11px] font-semibold ${
+                              user.isBanned
+                                ? "bg-red-100 text-red-700"
+                                : "bg-emerald-100 text-emerald-700"
+                            }`}
+                          >
+                            {user.isBanned ? "Banned account" : "Active account"}
                           </p>
                         </div>
-                        {user.phone ? (
-                          <label className="inline-flex items-center gap-2 text-xs text-muted">
-                            <input
-                              type="checkbox"
-                              checked={selectedPhones.includes(user.phone)}
-                              onChange={() => togglePhoneSelection(user.phone as string)}
-                            />
-                            Select for SMS
-                          </label>
-                        ) : null}
+                        <div className="flex flex-wrap gap-1.5">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            disabled={loadingSelectedUserStats}
+                            onClick={() => void loadUserStats(user.id)}
+                          >
+                            <UserCog className="h-4 w-4" />
+                            Stats
+                          </Button>
+                          {user.isBanned ? (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              disabled={actingOnUserId === user.id}
+                              onClick={() => void unbanUser(user.id)}
+                            >
+                              {actingOnUserId === user.id ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                              Unban
+                            </Button>
+                          ) : (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              disabled={actingOnUserId === user.id}
+                              onClick={() => void banUser(user.id)}
+                            >
+                              {actingOnUserId === user.id ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              ) : (
+                                <ShieldBan className="h-4 w-4" />
+                              )}
+                              Ban
+                            </Button>
+                          )}
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="border-red-200 text-red-700 hover:bg-red-50"
+                            disabled={actingOnUserId === user.id}
+                            onClick={() => void deleteUserAccount(user.id)}
+                          >
+                            {actingOnUserId === user.id ? (
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                              <Trash2 className="h-4 w-4" />
+                            )}
+                            Delete
+                          </Button>
+                          {user.phone ? (
+                            <label className="inline-flex items-center gap-2 rounded-lg border border-white/80 bg-white/70 px-2 py-1 text-xs text-muted">
+                              <input
+                                type="checkbox"
+                                checked={selectedPhones.includes(user.phone)}
+                                onChange={() => togglePhoneSelection(user.phone as string)}
+                              />
+                              Select SMS
+                            </label>
+                          ) : null}
+                        </div>
                       </div>
                     </article>
                   ))}
+                </div>
+              </section>
+            ) : null}
+
+            {activeTab === "fees" ? (
+              <section className={`${glassCard} p-5`}>
+                <div className="mb-3 flex items-center justify-between gap-2">
+                  <p className="text-sm font-semibold text-foreground">Agent service fees</p>
+                  <Button variant="outline" size="sm" onClick={() => void loadRelayFees()}>
+                    Refresh fees
+                  </Button>
+                </div>
+                <div className="space-y-2.5">
+                  {relayFees.map((fee) => (
+                    <article key={fee.serviceType} className={`${neoTile} p-3`}>
+                      <p className="text-sm font-semibold text-foreground capitalize">
+                        {fee.serviceType.replace("-", " ")}
+                      </p>
+                      <p className="mt-1 text-xs text-muted">
+                        Current fee: GHS {Number(fee.feeGhs).toFixed(2)} • Source: {fee.source}
+                        {fee.updatedAt ? ` • Updated: ${new Date(fee.updatedAt).toLocaleString()}` : ""}
+                      </p>
+                      <div className="mt-2 grid gap-2 md:grid-cols-3">
+                        <label className="text-xs text-muted md:col-span-1">
+                          New fee (GHS)
+                          <input
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            value={feeInputByService[fee.serviceType] || ""}
+                            onChange={(event) =>
+                              setFeeInputByService((current) => ({
+                                ...current,
+                                [fee.serviceType]: event.target.value,
+                              }))
+                            }
+                            className={`mt-1 h-10 w-full rounded-xl px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 ${neoInput}`}
+                          />
+                        </label>
+                        <label className="inline-flex items-center gap-2 rounded-xl border border-white/70 bg-white/70 px-3 py-2 text-xs text-muted md:col-span-1">
+                          <input
+                            type="checkbox"
+                            checked={Boolean(feeApplyOpenByService[fee.serviceType])}
+                            onChange={(event) =>
+                              setFeeApplyOpenByService((current) => ({
+                                ...current,
+                                [fee.serviceType]: event.target.checked,
+                              }))
+                            }
+                          />
+                          Apply to open unpaid/pending requests
+                        </label>
+                        <div className="md:col-span-1">
+                          <Button
+                            className="w-full"
+                            onClick={() => void saveServiceFee(fee.serviceType)}
+                            disabled={savingFeeForService === fee.serviceType}
+                          >
+                            {savingFeeForService === fee.serviceType ? (
+                              <>
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                                Saving...
+                              </>
+                            ) : (
+                              "Save fee"
+                            )}
+                          </Button>
+                        </div>
+                      </div>
+                    </article>
+                  ))}
+                  {!relayFees.length ? <p className="text-sm text-muted">No Agent services configured yet.</p> : null}
                 </div>
               </section>
             ) : null}

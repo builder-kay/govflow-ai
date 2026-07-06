@@ -33,6 +33,11 @@ type RelayCaseRow = {
   updated_at: string;
 };
 
+type RelayServiceFeeRow = {
+  service_type: string;
+  fee_ghs: number;
+};
+
 const inMemoryCases = new Map<string, RelayCase>();
 
 function fromRow(row: RelayCaseRow): RelayCase {
@@ -103,12 +108,25 @@ function mergeDefined<T extends object>(base: T, patch: Partial<T>): T {
 
 export async function createRelayCase(userId: string, request: RelayCaseRequest): Promise<RelayCase> {
   const now = new Date().toISOString();
+  let feeGhs = RELAY_DEFAULT_FEE_GHS;
+  if (hasSupabaseAdminConfig) {
+    const supabase = getSupabaseAdminClient();
+    const { data: feeData } = await supabase
+      .from("relay_service_fees")
+      .select("service_type, fee_ghs")
+      .eq("service_type", request.serviceType)
+      .maybeSingle<RelayServiceFeeRow>();
+    if (feeData?.fee_ghs && Number.isFinite(Number(feeData.fee_ghs))) {
+      feeGhs = Number(feeData.fee_ghs);
+    }
+  }
+
   const relayCase: RelayCase = {
     id: crypto.randomUUID(),
     userId,
     serviceType: request.serviceType,
     status: "intake_received",
-    feeGhs: RELAY_DEFAULT_FEE_GHS,
+    feeGhs,
     paymentStatus: "unpaid",
     slaHours: RELAY_DEFAULT_SLA_HOURS,
     intake: request,
@@ -200,6 +218,7 @@ export async function updateRelayCase(
       | "assignedRunner"
       | "steps"
       | "documents"
+      | "feeGhs"
     >
   > & { eventMessage?: string; eventType?: RelayCaseEvent["type"]; actor?: string }
 ): Promise<RelayCase> {
@@ -232,6 +251,7 @@ export async function updateRelayCase(
       paystack_authorization_url: next.paystackAuthorizationUrl ?? null,
       assigned_coordinator: next.assignedCoordinator ?? null,
       assigned_runner: next.assignedRunner ?? null,
+      fee_ghs: next.feeGhs,
       steps_json: next.steps,
       events_json: next.events,
       documents_json: next.documents,

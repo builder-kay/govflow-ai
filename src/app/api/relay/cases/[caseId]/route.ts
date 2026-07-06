@@ -6,6 +6,7 @@ import type { RelayCaseStatus, RelayStepStatus } from "@/types/relay";
 type PatchPayload = {
   status?: RelayCaseStatus;
   paymentStatus?: "unpaid" | "pending" | "paid" | "failed";
+  feeGhs?: number;
   assignedCoordinator?: string;
   assignedRunner?: string;
   stepUpdates?: Array<{ id: string; status: RelayStepStatus }>;
@@ -62,6 +63,7 @@ export async function PATCH(request: NextRequest, context: { params: Promise<{ c
     const updated = await updateRelayCase(caseId, {
       status: body.status,
       paymentStatus: body.paymentStatus,
+      feeGhs: body.feeGhs,
       assignedCoordinator: body.assignedCoordinator,
       assignedRunner: body.assignedRunner,
       steps: nextSteps,
