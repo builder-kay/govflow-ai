@@ -88,8 +88,19 @@ export default function TumiwuraAdminPage() {
   const [insights, setInsights] = useState<InsightPayload | null>(null);
   const [reports, setReports] = useState<ReportItem[]>([]);
   const [selectedPhones, setSelectedPhones] = useState<string[]>([]);
-  const [smsMode, setSmsMode] = useState<"single" | "selected" | "all">("selected");
-  const [smsPhone, setSmsPhone] = useState("");
+  const [smsMode, setSmsMode] = useState<
+    | "single_user"
+    | "all_users"
+    | "selected_users"
+    | "processing_orders"
+    | "in_person_action_needed"
+    | "cancelled_cases"
+    | "pending_admin_review"
+    | "awaiting_payment"
+    | "completed_cases"
+    | "active_requests"
+  >("selected_users");
+  const [smsSingleUserPhone, setSmsSingleUserPhone] = useState("");
   const [smsMessage, setSmsMessage] = useState("");
   const [sendingSms, setSendingSms] = useState(false);
   const [smsResult, setSmsResult] = useState("");
@@ -296,11 +307,11 @@ export default function TumiwuraAdminPage() {
     setError("");
     try {
       const payload =
-        smsMode === "single"
-          ? { mode: "single", phone: smsPhone, message: smsMessage }
-          : smsMode === "all"
-            ? { mode: "all", message: smsMessage }
-            : { mode: "selected", phones: selectedPhones, message: smsMessage };
+        smsMode === "single_user"
+          ? { mode: "single_user", phone: smsSingleUserPhone, message: smsMessage }
+          : smsMode === "selected_users"
+            ? { mode: "selected_users", phones: selectedPhones, message: smsMessage }
+            : { mode: smsMode, message: smsMessage };
 
       const response = await fetch("/api/admin/sms/send", {
         method: "POST",
@@ -332,6 +343,7 @@ export default function TumiwuraAdminPage() {
     ...(insights?.growth.users.map(([, val]) => val) || []),
     ...(insights?.growth.requests.map(([, val]) => val) || [])
   );
+  const phoneUsers = users.filter((user): user is AdminUser & { phone: string } => Boolean(user.phone));
 
   return (
     <AppShell
@@ -575,38 +587,126 @@ export default function TumiwuraAdminPage() {
 
             {activeTab === "sms" ? (
               <section className={`${glassCard} p-5`}>
-                <p className="text-sm font-semibold text-foreground">SMS broadcast (Clifze)</p>
+                <p className="text-sm font-semibold text-foreground">
+                  SMS broadcast (Clifze primary, Arkesel backup)
+                </p>
                 <div className="mt-3 grid gap-3 md:grid-cols-3">
                   <label className="text-sm text-muted">
-                    Send mode
+                    Recipient segment
                     <select
                       value={smsMode}
-                      onChange={(event) => setSmsMode(event.target.value as "single" | "selected" | "all")}
+                      onChange={(event) =>
+                        setSmsMode(
+                          event.target.value as
+                            | "single_user"
+                            | "all_users"
+                            | "selected_users"
+                            | "processing_orders"
+                            | "in_person_action_needed"
+                            | "cancelled_cases"
+                            | "pending_admin_review"
+                            | "awaiting_payment"
+                            | "completed_cases"
+                            | "active_requests"
+                        )
+                      }
                       className={`mt-1 h-11 w-full rounded-2xl px-3 text-sm text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 ${neoInput}`}
                     >
-                      <option value="selected">Selected users</option>
-                      <option value="single">Single number</option>
-                      <option value="all">All users (from requests)</option>
+                      <option value="single_user">1) Single user</option>
+                      <option value="all_users">2) All users on platform</option>
+                      <option value="selected_users">3) Certain users (checkbox selection)</option>
+                      <option value="processing_orders">4) Users with processing order</option>
+                      <option value="in_person_action_needed">5) Users needing in-person action</option>
+                      <option value="cancelled_cases">6) Cancelled cases users</option>
+                      <option value="pending_admin_review">7) Intake pending admin review</option>
+                      <option value="awaiting_payment">8) Awaiting payment</option>
+                      <option value="completed_cases">9) Completed cases users</option>
+                      <option value="active_requests">10) All active (not completed/cancelled)</option>
                     </select>
                   </label>
-                  {smsMode === "single" ? (
+                  {smsMode === "single_user" ? (
                     <label className="text-sm text-muted md:col-span-2">
-                      Recipient phone
-                      <input
-                        value={smsPhone}
-                        onChange={(event) => setSmsPhone(event.target.value)}
-                        placeholder="e.g. 0241234567"
+                      Select user
+                      <select
+                        value={smsSingleUserPhone}
+                        onChange={(event) => setSmsSingleUserPhone(event.target.value)}
                         className={`mt-1 h-11 w-full rounded-2xl px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 ${neoInput}`}
-                      />
+                      >
+                        <option value="">Choose a user...</option>
+                        {phoneUsers.map((user) => (
+                          <option key={`${user.id}-${user.phone}`} value={user.phone}>
+                            {(user.fullName || user.email || user.id.slice(0, 8))} - {user.phone}
+                          </option>
+                        ))}
+                      </select>
                     </label>
                   ) : (
                     <div className={`${neoTile} md:col-span-2 px-3 py-2 text-xs text-muted`}>
-                      {smsMode === "selected"
-                        ? `Selected recipients: ${selectedPhones.length}`
-                        : "All known user phones from submitted requests will be targeted."}
+                      {smsMode === "selected_users"
+                        ? `Selected recipients: ${selectedPhones.length} (from checkbox list below)`
+                        : smsMode === "all_users"
+                          ? "Targets all known platform users with phone numbers."
+                          : smsMode === "processing_orders"
+                            ? "Targets users with processing orders (payment pending/ops triage/in progress/awaiting user)."
+                            : smsMode === "in_person_action_needed"
+                              ? "Targets users with pending in-person steps."
+                              : smsMode === "cancelled_cases"
+                                ? "Targets users whose requests were cancelled."
+                                : smsMode === "pending_admin_review"
+                                  ? "Targets users whose intake is still pending review."
+                                  : smsMode === "awaiting_payment"
+                                    ? "Targets users awaiting secure payment."
+                                    : smsMode === "completed_cases"
+                                      ? "Targets users with completed requests."
+                                      : "Targets all users with active (not completed/cancelled) requests."}
                     </div>
                   )}
                 </div>
+                {smsMode === "selected_users" ? (
+                  <div className={`${neoTile} mt-3 p-3`}>
+                    <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+                      <p className="text-xs font-semibold text-foreground">
+                        Select users by checkbox ({selectedPhones.length} selected)
+                      </p>
+                      <div className="flex gap-2">
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="outline"
+                          onClick={() => setSelectedPhones(phoneUsers.map((user) => user.phone))}
+                        >
+                          Select all
+                        </Button>
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => setSelectedPhones([])}
+                        >
+                          Clear
+                        </Button>
+                      </div>
+                    </div>
+                    <div className="max-h-52 space-y-1 overflow-auto">
+                      {phoneUsers.map((user) => (
+                        <label
+                          key={`${user.id}-${user.phone}`}
+                          className="inline-flex w-full items-center gap-2 rounded-xl border border-white/70 bg-white/70 px-2.5 py-2 text-xs text-muted"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={selectedPhones.includes(user.phone)}
+                            onChange={() => togglePhoneSelection(user.phone)}
+                          />
+                          <span className="font-medium text-foreground">
+                            {user.fullName || user.email || user.id.slice(0, 8)}
+                          </span>
+                          <span>({user.phone})</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                ) : null}
                 <label className="mt-3 block text-sm text-muted">
                   Message
                   <textarea
@@ -618,7 +718,15 @@ export default function TumiwuraAdminPage() {
                   />
                 </label>
                 <div className="mt-3 flex flex-wrap items-center gap-2">
-                  <Button onClick={() => void sendSms()} disabled={sendingSms || !smsMessage.trim()}>
+                  <Button
+                    onClick={() => void sendSms()}
+                    disabled={
+                      sendingSms ||
+                      !smsMessage.trim() ||
+                      (smsMode === "single_user" && !smsSingleUserPhone) ||
+                      (smsMode === "selected_users" && selectedPhones.length === 0)
+                    }
+                  >
                     {sendingSms ? (
                       <>
                         <Loader2 className="h-4 w-4 animate-spin" />
