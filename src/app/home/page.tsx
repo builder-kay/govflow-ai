@@ -53,6 +53,13 @@ const quickServices = [
     href: "/services/building-permit",
     comingSoon: true,
   },
+  {
+    id: "afcfta-trade-support",
+    icon: Briefcase,
+    title: "AfCFTA Trade Support",
+    href: "/services/afcfta-trade-support",
+    comingSoon: true,
+  },
 ];
 
 export default function HomePage() {

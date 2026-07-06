@@ -253,6 +253,33 @@ export const landingServiceSpotlights: Record<string, LandingServiceSpotlight> =
       },
     ],
   },
+  "afcfta-trade-support": {
+    id: "afcfta-trade-support",
+    howGovFlowHelps: [
+      "Breaks down customs documentation into a practical checklist SMEs can complete step by step.",
+      "Surfaces duty and border-charge estimate inputs before you commit to shipment plans.",
+      "Highlights cross-border compliance checkpoints tied to product and destination context.",
+      "Introduces structured supplier and buyer verification guidance to reduce fraud risk.",
+    ],
+    painToGain: [
+      {
+        pain: "Cross-border paperwork is confusing, and one wrong document can stall clearance.",
+        gain: "GovFlow organizes customs documentation into clear, sequential tasks with pre-submission checks.",
+      },
+      {
+        pain: "You cannot confidently price deals without understanding duties and border costs.",
+        gain: "Duty estimate guidance helps you plan realistic landed costs before negotiation or shipment.",
+      },
+      {
+        pain: "Finding trustworthy suppliers or buyers across borders is risky and time-consuming.",
+        gain: "Verification workflows help you screen counterparties before committing inventory or payment.",
+      },
+      {
+        pain: "Trade support tools are fragmented and still maturing across the ecosystem.",
+        gain: "GovFlow centralizes early-stage AfCFTA support into one guided flow aligned with policy momentum.",
+      },
+    ],
+  },
 };
 
 export function getLandingServiceSpotlight(id: string): LandingServiceSpotlight | undefined {

@@ -258,6 +258,44 @@ export const services: Service[] = [
       "Obtain permit",
     ],
   },
+  {
+    id: "afcfta-trade-support",
+    title: "AfCFTA Trade Support",
+    description:
+      "Cross-border SME guidance for customs documentation, duty estimates, and verified supplier/buyer discovery.",
+    overview:
+      "As the African Continental Free Trade Area ramps up, SMEs need practical support to handle cross-border paperwork, understand potential duty exposure, and identify credible suppliers or buyers across African markets. Tooling in this space is still early, but policy momentum and government tailwinds are creating strong opportunities.",
+    involves: [
+      "Preparing customs-ready documentation for export or import workflows",
+      "Estimating duties and border charges before shipment decisions",
+      "Checking product categories and compliance expectations for destination markets",
+      "Screening counterparties with structured supplier or buyer verification steps",
+      "Tracking next actions across agencies and border procedures",
+    ],
+    agency: "Ghana Revenue Authority (Customs) and trade institutions",
+    icon: "Briefcase",
+    requiredDocuments: [
+      "Business registration documents",
+      "Tax identification details",
+      "Product specification or HS code details",
+      "Commercial invoice and shipping documents",
+    ],
+    estimatedTimeline: "2-10 weeks depending on route and product type",
+    feeNote:
+      "Customs duties, levies, and trade-related costs vary by product, route, and policy updates. Always verify final charges with official customs channels.",
+    commonDelayReasons: [
+      "Incorrect or incomplete customs documentation",
+      "Unclear product classification and duty category",
+      "Supplier or buyer verification issues",
+    ],
+    steps: [
+      "Map your cross-border transaction and destination requirements",
+      "Prepare customs and shipping documents",
+      "Estimate duties and border costs",
+      "Verify supplier or buyer counterparties",
+      "Submit, track clearance actions, and close compliance checks",
+    ],
+  },
 ];
 
 export function getServiceById(id: string): Service | undefined {

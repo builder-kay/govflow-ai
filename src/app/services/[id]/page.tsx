@@ -53,6 +53,7 @@ const COMING_SOON_SERVICE_IDS = new Set([
   "gra-tin",
   "fda-permit",
   "building-permit",
+  "afcfta-trade-support",
 ]);
 
 const OFFICIAL_LINKS: Record<string, { label: string; href: string }[]> = {

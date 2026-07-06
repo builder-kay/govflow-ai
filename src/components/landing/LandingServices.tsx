@@ -44,6 +44,7 @@ const COMING_SOON_SERVICE_IDS = new Set([
   "gra-tin",
   "fda-permit",
   "building-permit",
+  "afcfta-trade-support",
 ]);
 
 export function LandingServices() {
