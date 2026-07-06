@@ -18,6 +18,7 @@ type SmsPayload = {
   phone?: string;
   phones?: string[];
   message?: string;
+  preview?: boolean;
 };
 
 const GH_PHONE_REGEX = /^(?:\+233|233|0)\d{9}$/;
@@ -40,10 +41,8 @@ export async function POST(request: NextRequest) {
   }
 
   const body = (await request.json().catch(() => ({}))) as SmsPayload;
+  const preview = Boolean(body.preview);
   const message = body.message?.trim() || "";
-  if (!message) {
-    return NextResponse.json({ error: "Message is required." }, { status: 400 });
-  }
 
   const mode = body.mode || "single_user";
   const recipients = new Set<string>();
@@ -137,6 +136,18 @@ export async function POST(request: NextRequest) {
     if (!recipients.size) {
       return NextResponse.json({ error: "No recipient numbers available." }, { status: 400 });
     }
+  }
+
+  if (preview) {
+    return NextResponse.json({
+      mode,
+      previewCount: recipients.size,
+      attempted: recipients.size,
+    });
+  }
+
+  if (!message) {
+    return NextResponse.json({ error: "Message is required." }, { status: 400 });
   }
 
   const failures: Array<{ phone: string; error: string }> = [];

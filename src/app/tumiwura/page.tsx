@@ -102,8 +102,10 @@ export default function TumiwuraAdminPage() {
   >("selected_users");
   const [smsSingleUserPhone, setSmsSingleUserPhone] = useState("");
   const [smsMessage, setSmsMessage] = useState("");
+  const [previewingSms, setPreviewingSms] = useState(false);
   const [sendingSms, setSendingSms] = useState(false);
   const [smsResult, setSmsResult] = useState("");
+  const [smsPreviewResult, setSmsPreviewResult] = useState("");
   const [error, setError] = useState("");
   const [loadingCases, setLoadingCases] = useState(false);
   const [loadingUsers, setLoadingUsers] = useState(false);
@@ -332,6 +334,37 @@ export default function TumiwuraAdminPage() {
     }
   };
 
+  const previewSmsRecipients = async () => {
+    setPreviewingSms(true);
+    setSmsPreviewResult("");
+    setError("");
+    try {
+      const payload =
+        smsMode === "single_user"
+          ? { mode: "single_user", phone: smsSingleUserPhone, preview: true }
+          : smsMode === "selected_users"
+            ? { mode: "selected_users", phones: selectedPhones, preview: true }
+            : { mode: smsMode, preview: true };
+
+      const response = await fetch("/api/admin/sms/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const data = (await response.json().catch(() => ({}))) as {
+        previewCount?: number;
+        attempted?: number;
+        error?: string;
+      };
+      if (!response.ok) throw new Error(data.error || "Could not preview recipients.");
+      setSmsPreviewResult(`Recipient preview: ${data.previewCount ?? data.attempted ?? 0} users`);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not preview recipients.");
+    } finally {
+      setPreviewingSms(false);
+    }
+  };
+
   const togglePhoneSelection = (phone: string) => {
     setSelectedPhones((current) =>
       current.includes(phone) ? current.filter((item) => item !== phone) : [...current, phone]
@@ -344,6 +377,10 @@ export default function TumiwuraAdminPage() {
     ...(insights?.growth.requests.map(([, val]) => val) || [])
   );
   const phoneUsers = users.filter((user): user is AdminUser & { phone: string } => Boolean(user.phone));
+  const hasSmsRecipients =
+    (smsMode === "single_user" && Boolean(smsSingleUserPhone)) ||
+    (smsMode === "selected_users" && selectedPhones.length > 0) ||
+    !["single_user", "selected_users"].includes(smsMode);
 
   return (
     <AppShell
@@ -719,12 +756,25 @@ export default function TumiwuraAdminPage() {
                 </label>
                 <div className="mt-3 flex flex-wrap items-center gap-2">
                   <Button
+                    onClick={() => void previewSmsRecipients()}
+                    variant="outline"
+                    disabled={previewingSms || !hasSmsRecipients}
+                  >
+                    {previewingSms ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Previewing...
+                      </>
+                    ) : (
+                      "Recipient preview count"
+                    )}
+                  </Button>
+                  <Button
                     onClick={() => void sendSms()}
                     disabled={
                       sendingSms ||
                       !smsMessage.trim() ||
-                      (smsMode === "single_user" && !smsSingleUserPhone) ||
-                      (smsMode === "selected_users" && selectedPhones.length === 0)
+                      !hasSmsRecipients
                     }
                   >
                     {sendingSms ? (
@@ -739,6 +789,7 @@ export default function TumiwuraAdminPage() {
                       </>
                     )}
                   </Button>
+                  {smsPreviewResult ? <p className="text-sm text-primary">{smsPreviewResult}</p> : null}
                   {smsResult ? <p className="text-sm text-emerald-700">{smsResult}</p> : null}
                 </div>
               </section>
